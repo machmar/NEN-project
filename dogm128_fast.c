@@ -54,8 +54,8 @@ void dogm128_init(void)
 
         lcd_cmd(0xAE);
     lcd_cmd(0xA2);
-    lcd_cmd(0xA0);
-    lcd_cmd(0xC8);
+    lcd_cmd(0xA1);
+    lcd_cmd(0xC0);
     lcd_cmd(0x2F);
     lcd_cmd(0x27);   // resistor ratio
     dogm128_contrast(0x14);

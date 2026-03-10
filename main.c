@@ -112,7 +112,7 @@ void main(void)
     pwm_ccp1_init();
     
     dogm128_init();
-    dogm128_hline(10, 20, 100, 1);
+    dogm128_hline(0, 0, 100, 1);
     dogm128_refresh();
     
 
