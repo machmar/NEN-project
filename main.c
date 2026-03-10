@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include "globals.h"
 #include "dogm128_fast.h"
+#include "utils.h"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -108,27 +109,40 @@ static millis_t PMill = 0;
 
 void main(void)
 {
+    char fps_buf[11];
+    millis_t t0, t1, dt;
+    uint8_t i;
+    uint16_t fps;
+
     init_ports();
     pwm_ccp1_init();
-    
     dogm128_init();
-    dogm128_line(10, 10, 11, 50, 1);
-    dogm128_text(0,0,"HELLO");
-dogm128_text(0,8,"FPS:");
-dogm128_text(32,8,"60");
-    dogm128_refresh();
-    
 
-    while(1)
+    while (1)
     {
-        if (millis >= PMill + 10)
+        dogm128_clear();
+        dogm128_text(0, 0, "TEST");
+        Backlight(1023);
+
+        t0 = millis;
+        for (i = 0; i < 30; i++)
         {
-            tmp++;
-            if (tmp >= 1024) tmp = 0;
-            PMill = millis;
+            dogm128_line(rand128(), rand64(), rand128(), rand64(), 1);
         }
-        Backlight(tmp);
-        set_LEDs(tmp >> 6);
+        dogm128_refresh();
+        t1 = millis;
+
+        dt = t1 - t0;
+        if (dt == 0) dt = 1;
+
+        fps = (uint16_t)(1000UL / dt);
+
+        dogm128_fill_rect(0, 8, 60, 6, 0);
+        dogm128_text(0, 8, "FPS:");
+        utoa(fps, fps_buf);
+        dogm128_text(16, 8, fps_buf);
+        dogm128_refresh();
+        __delay_ms(500);
     }
 }
 
