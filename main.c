@@ -112,7 +112,10 @@ void main(void)
     pwm_ccp1_init();
     
     dogm128_init();
-    dogm128_hline(0, 0, 100, 1);
+    dogm128_line(10, 10, 11, 50, 1);
+    dogm128_text(0,0,"HELLO");
+dogm128_text(0,8,"FPS:");
+dogm128_text(32,8,"60");
     dogm128_refresh();
     
 
