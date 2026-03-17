@@ -40,13 +40,6 @@ double posX = 22, posY = 12;  //x and y start position
 double dirX = -1, dirY = 0; //initial direction vector
 double planeX = 0, planeY = 0.66; //the 2d raycaster version of camera plane
 
-typedef struct
-{
-    double posX, posY; // position
-    double dirX, dirY; // direction vector
-    double planeX, planeY; // camera plane
-} player_t;
-
 // Screen and map dimensions:
 #define screenWidth 128
 #define screenHeight 64
