@@ -32,6 +32,30 @@ void utoa(uint16_t v, char *buf)
     *buf = 0;
 }
 
+void utoa32(uint32_t v, char *buf)
+{
+    char tmp[11];
+    uint8_t i = 0;
+
+    if (v == 0)
+    {
+        buf[0] = '0';
+        buf[1] = 0;
+        return;
+    }
+
+    while (v > 0)
+    {
+        tmp[i++] = '0' + (v % 10);
+        v /= 10;
+    }
+
+    while (i > 0)
+        *buf++ = tmp[--i];
+
+    *buf = 0;
+}
+
 static uint16_t rng = 0xACE1;
 
 static inline uint16_t rand16(void)
