@@ -3,6 +3,8 @@
 #include "globals.h"
 #include "dogm128_fast.h"
 #include "utils.h"
+#include "raycasting.h"
+#include "raycasting.c"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -28,8 +30,16 @@ void init_ports(void)
 
 uint8_t read_buttons()
 {
-    return PORTB & 0x1F;   // assuming SW1?SW5
+    uint8_t y = ~PORTB;
+    uint8_t z = ((y & (1 << 5)) >> 5) |
+                ((y & (1 << 4)) >> 4) |
+                ((y & (1 << 2)) << 0) |
+                ((y & (1 << 3)) << 0) |
+                ((y & (1 << 0)) << 5);
+    return z;
+    // 5 4 2 3 0
 }
+
 
 void set_LED(uint8_t button, _Bool state)
 {
@@ -104,50 +114,52 @@ void Backlight(uint16_t duty10)
     CCP1CONbits.DC1B = duty10 & 0x03;     // lower 2 bits
 }
 
-static uint16_t tmp = 0;
 static millis_t PMill = 0;
 
 void main(void)
 {
-    char fps_buf[11];
-    millis_t t0, t1, dt;
-    uint8_t i;
-    uint16_t fps;
-
     init_ports();
     pwm_ccp1_init();
     dogm128_init();
+    Backlight(1023);
+    set_LEDs(0x00);
 
+    player_t camera;
+    camera.posX = 22;
+    camera.posY = 12;
+    camera.dirX = -1;
+    camera.dirY = 0;
+    camera.planeX = 0;
+    camera.planeY = 0.66;
+    
     while (1)
     {
         dogm128_clear();
-        dogm128_text(0, 0, "TEST");
-        Backlight(1023);
-
-        t0 = millis;
-        for (i = 0; i < 8; i++)
+        
+        DrawFrame(camera);
+        
+        dogm128_refresh();
+        
+        if (read_buttons() & (1 << 0))
         {
-            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_GREY);
-            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_DARK_GREY);
-            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_GREY);
-            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_BLACK);
+            camera.posX++;
+            if (camera.posX > 22) camera.posX = 0;
         }
-        dogm128_refresh();
-        t1 = millis;
-
-        dt = t1 - t0;
-        if (dt == 0) dt = 1;
-
-        fps = (uint16_t)(1000UL / dt);
-
-        //dogm128_fill_rect(0, 8, 30, 1, 0);
-        dogm128_text(0, 8, "FPS:");
-        utoa(fps, fps_buf);
-        dogm128_text(16, 8, fps_buf);
-        utoa32(millis, fps_buf);
-        dogm128_text(8, 16, fps_buf);
-        dogm128_refresh();
-        __delay_ms(500);
+        if (read_buttons() & (1 << 1))
+        {
+            camera.posX--;
+            if (camera.posX < 0) camera.posX = 22;
+        }
+        if (read_buttons() & (1 << 2))
+        {
+            camera.posY++;
+            if (camera.posY > 22) camera.posY = 0;
+        }
+        if (read_buttons() & (1 << 3))
+        {
+            camera.posY--;
+            if (camera.posY < 0) camera.posY = 22;
+        }
     }
 }
 

@@ -8,6 +8,6 @@ typedef struct
     double planeX, planeY; // camera plane
 } player_t;
 
-int drawFrame(player_t player);
+int extern DrawFrame(player_t player);
 
 #endif // RAYCASTING_H

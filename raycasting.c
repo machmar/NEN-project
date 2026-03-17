@@ -21,24 +21,9 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <cmath>
-#include <string>
-#include <vector>
-#include <iostream>
-
-#include "quickcg.h"
+#include "raycasting.h"
 
 #include "dogm128_fast.h"
-
-/*
-g++ *.cpp -lSDL -O3 -W -Wall -ansi -pedantic
-g++ *.cpp -lSDL
-*/
-
-// Player position and direction:
-double posX = 22, posY = 12;  //x and y start position
-double dirX = -1, dirY = 0; //initial direction vector
-double planeX = 0, planeY = 0.66; //the 2d raycaster version of camera plane
 
 // Screen and map dimensions:
 #define screenWidth 128
@@ -46,7 +31,7 @@ double planeX = 0, planeY = 0.66; //the 2d raycaster version of camera plane
 #define mapWidth 24
 #define mapHeight 24
 
-int worldMap[mapWidth][mapHeight]=
+int static const worldMap[mapWidth][mapHeight]=
 {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -74,7 +59,9 @@ int worldMap[mapWidth][mapHeight]=
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-int drawFrame(player_t player)
+float abs_float(float x) {return x < 0.0f ? -x : x;}
+
+int DrawFrame(player_t player)
 {
     for(int x = 0; x < screenWidth; x++)
     {
@@ -83,8 +70,8 @@ int drawFrame(player_t player)
       float rayDirX = player.dirX + player.planeX * cameraX;
       float rayDirY = player.dirY + player.planeY * cameraX;
       //which box of the map we're in
-      int mapX = int(player.posX);
-      int mapY = int(player.posY);
+      int mapX = (int)player.posX;
+      int mapY = (int)player.posY;
 
       //length of ray from current position to next x or y-side
       float sideDistX;
@@ -101,8 +88,8 @@ int drawFrame(player_t player)
       //stepping further below works. So the values can be computed as below.
       // Division through zero is prevented, even though technically that's not
       // needed in C++ with IEEE 754 floating point values.
-      float deltaDistX = (rayDirX == 0) ? 1e30 : std::abs(1 / rayDirX);
-      float deltaDistY = (rayDirY == 0) ? 1e30 : std::abs(1 / rayDirY);
+      float deltaDistX = (rayDirX == 0) ? 1e30 : abs_float(1 / rayDirX);
+      float deltaDistY = (rayDirY == 0) ? 1e30 : abs_float(1 / rayDirY);
 
       float perpWallDist;
 
@@ -121,7 +108,7 @@ int drawFrame(player_t player)
       else
       {
         stepX = 1;
-        sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+        sideDistX = (mapX + 1.0 - player.posX) * deltaDistX;
       }
       if(rayDirY < 0)
       {
