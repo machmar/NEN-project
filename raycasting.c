@@ -174,8 +174,6 @@ int drawFrame(player_t player)
       //calculate lowest and highest pixel to fill in current stripe
       int drawStart = -lineHeight / 2 + screenHeight / 2;
       if(drawStart < 0) drawStart = 0;
-      int drawEnd = lineHeight / 2 + screenHeight / 2;
-      if(drawEnd >= screenHeight) drawEnd = screenHeight - 1;
 
       //choose wall color
       dogm128_color_t color;
@@ -191,4 +189,5 @@ int drawFrame(player_t player)
       //draw the pixels of the stripe as a vertical line
       dogm128_vline(x, drawStart, lineHeight, color);
     }
+    return 0;
 }
