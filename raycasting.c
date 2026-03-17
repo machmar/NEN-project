@@ -28,6 +28,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "quickcg.h"
 
+#include "dogm128_fast.h"
+
 /*
 g++ *.cpp -lSDL -O3 -W -Wall -ansi -pedantic
 g++ *.cpp -lSDL
@@ -46,8 +48,8 @@ typedef struct
 } player_t;
 
 // Screen and map dimensions:
-#define screenWidth 640
-#define screenHeight 480
+#define screenWidth 128
+#define screenHeight 64
 #define mapWidth 24
 #define mapHeight 24
 
@@ -84,16 +86,16 @@ int drawFrame(player_t player)
     for(int x = 0; x < screenWidth; x++)
     {
       //calculate ray position and direction
-      double cameraX = 2 * x / (double)screenWidth - 1; //x-coordinate in camera space
-      double rayDirX = player.dirX + player.planeX * cameraX;
-      double rayDirY = player.dirY + player.planeY * cameraX;
+      float cameraX = 2 * x / (float)screenWidth - 1; //x-coordinate in camera space
+      float rayDirX = player.dirX + player.planeX * cameraX;
+      float rayDirY = player.dirY + player.planeY * cameraX;
       //which box of the map we're in
       int mapX = int(player.posX);
       int mapY = int(player.posY);
 
       //length of ray from current position to next x or y-side
-      double sideDistX;
-      double sideDistY;
+      float sideDistX;
+      float sideDistY;
 
       //length of ray from one x or y-side to next x or y-side
       //these are derived as:
@@ -106,10 +108,10 @@ int drawFrame(player_t player)
       //stepping further below works. So the values can be computed as below.
       // Division through zero is prevented, even though technically that's not
       // needed in C++ with IEEE 754 floating point values.
-      double deltaDistX = (rayDirX == 0) ? 1e30 : std::abs(1 / rayDirX);
-      double deltaDistY = (rayDirY == 0) ? 1e30 : std::abs(1 / rayDirY);
+      float deltaDistX = (rayDirX == 0) ? 1e30 : std::abs(1 / rayDirX);
+      float deltaDistY = (rayDirY == 0) ? 1e30 : std::abs(1 / rayDirY);
 
-      double perpWallDist;
+      float perpWallDist;
 
       //what direction to step in x or y-direction (either +1 or -1)
       int stepX;
@@ -176,18 +178,15 @@ int drawFrame(player_t player)
       if(drawEnd >= screenHeight) drawEnd = screenHeight - 1;
 
       //choose wall color
-      ColorRGB color;
+      dogm128_color_t color;
       switch(worldMap[mapX][mapY])
       {
-        case 1:  color = RGB_Red;    break; //red
-        case 2:  color = RGB_Green;  break; //green
-        case 3:  color = RGB_Blue;   break; //blue
-        case 4:  color = RGB_White;  break; //white
-        default: color = RGB_Yellow; break; //yellow
+        case 1:  color = DISP_COL_LIGHT_GREY;    break; //red
+        case 2:  color = DISP_COL_DARK_GREY;  break; //green
+        case 3:  color = DISP_COL_GREY;   break; //blue
+        case 4:  color = DISP_COL_WHITE;  break; //white
+        default: color = DISP_COL_BLACK; break; //yellow
       }
-
-      //give x and y sides different brightness
-      if(side == 1) {color = color / 2;}
 
       //draw the pixels of the stripe as a vertical line
       dogm128_vline(x, drawStart, lineHeight, color);
