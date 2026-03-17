@@ -73,6 +73,8 @@ static const uint8_t font3x5[][3] = {
 {0x01,0x02,0x00}, // 96 `
 };
 
+static uint8_t paint_counter = 0;
+
 uint8_t dogm_fb[1024];
 
 static void spi_write(uint8_t d)
@@ -106,6 +108,34 @@ static void spi_init(void)
     SSPCON1 = 0x20;       // SPI master, Fosc/4, SSPEN=1
 
     PIR1bits.SSPIF = 0;
+}
+
+_Bool paint(dogm128_color_t color)
+{
+    paint_counter++;
+    switch(color)
+    {
+        case DISP_COL_WHITE:
+            return 0;
+            break;
+        case DISP_COL_BLACK:
+            return 1;
+            break;
+        case DISP_COL_GREY:
+            return paint_counter & 0b1;
+            break;
+        case DISP_COL_LIGHT_GREY:
+            if (paint_counter >= 3) paint_counter = 0;
+            return paint_counter == 0;
+            break;
+        case DISP_COL_DARK_GREY:
+            if (paint_counter >= 3) paint_counter = 0;
+            return paint_counter != 0;
+            break;
+        default:
+            return 0;
+            break;
+    }
 }
 
 void dogm128_init(void)
@@ -174,28 +204,28 @@ void dogm128_fill(void)
         dogm_fb[i]=0xFF;
 }
 
-void dogm128_pixel(uint8_t x, uint8_t y, uint8_t color)
+void dogm128_pixel(uint8_t x, uint8_t y, dogm128_color_t color)
 {
     if(x>=128 || y>=64) return;
 
     uint16_t i = (y>>3)*128 + x;
     uint8_t m = 1<<(y&7);
 
-    if(color)
+    if(paint(color))
         dogm_fb[i] |= m;
     else
         dogm_fb[i] &= ~m;
 }
 
-void dogm128_rect(uint8_t x,uint8_t y,uint8_t w,uint8_t h,uint8_t c)
+void dogm128_rect(uint8_t x,uint8_t y,uint8_t w,uint8_t h, dogm128_color_t color)
 {
-    dogm128_hline(x,y,w,c);
-    dogm128_hline(x,y+h-1,w,c);
-    dogm128_vline(x,y,h,c);
-    dogm128_vline(x+w-1,y,h,c);
+    dogm128_hline(x,y,w,color);
+    dogm128_hline(x,y+h-1,w,color);
+    dogm128_vline(x,y,h,color);
+    dogm128_vline(x+w-1,y,h,color);
 }
 
-void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t color)
+void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color)
 {
     if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT || w == 0 || h == 0) return;
 
@@ -209,9 +239,10 @@ void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t color
     {
         dogm128_vline(x++, y, h, color);
     }
+    paint_counter++;
 }
 
-void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, uint8_t color)
+void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, dogm128_color_t color)
 {
     if (y >= DOGM_HEIGHT || x >= DOGM_WIDTH || w == 0) return;
 
@@ -222,49 +253,42 @@ void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, uint8_t color)
         uint16_t i = ((uint16_t)(y >> 3) << 7) + x;
         uint8_t m = (uint8_t)(1u << (y & 7));
 
-        if (color)
+        while (w--)
         {
-            while (w--)
-                dogm_fb[i++] |= m;
-        }
-        else
-        {
-            m = (uint8_t)~m;
-            while (w--)
-                dogm_fb[i++] &= m;
+            if (paint(color))
+                dogm_fb[i] |= m;
+            else
+                dogm_fb[i] &= (uint8_t)~m;
+
+            i++;
         }
     }
+    paint_counter++;
 }
 
-void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, uint8_t color)
+void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, dogm128_color_t color)
 {
     if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT || h == 0) return;
 
     if ((uint16_t)y + h > DOGM_HEIGHT)
         h = DOGM_HEIGHT - y;
 
-    while (h)
+    while (h--)
     {
-        uint8_t page = y >> 3;
-        uint8_t bit  = y & 7;
-        uint8_t n    = (uint8_t)(8 - bit);
-        uint8_t mask;
-        uint16_t i;
+        uint16_t i = ((uint16_t)(y >> 3) << 7) + x;
+        uint8_t m = (uint8_t)(1u << (y & 7));
 
-        if (n > h) n = h;
+        if (paint(color))
+            dogm_fb[i] |= m;
+        else
+            dogm_fb[i] &= (uint8_t)~m;
 
-        mask = (uint8_t)(((1u << n) - 1u) << bit);
-        i = ((uint16_t)page << 7) + x;
-
-        if (color) dogm_fb[i] |= mask;
-        else       dogm_fb[i] &= (uint8_t)~mask;
-
-        y += n;
-        h -= n;
+        y++;
     }
+    paint_counter++;
 }
 
-void dogm128_line(int x0, int y0, int x1, int y1, uint8_t color)
+void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
 {
     int dx, dy, sx, sy, err, e2;
 
@@ -313,8 +337,10 @@ void dogm128_line(int x0, int y0, int x1, int y1, uint8_t color)
             uint16_t i = (((uint16_t)(y0 >> 3)) << 7) + (uint8_t)x0;
             uint8_t m = (uint8_t)(1u << (y0 & 7));
 
-            if (color) dogm_fb[i] |= m;
-            else       dogm_fb[i] &= (uint8_t)~m;
+            if (paint(color))
+                dogm_fb[i] |= m;
+            else
+                dogm_fb[i] &= (uint8_t)~m;
         }
 
         if (x0 == x1 && y0 == y1) break;
@@ -333,6 +359,7 @@ void dogm128_line(int x0, int y0, int x1, int y1, uint8_t color)
             y0 += sy;
         }
     }
+    paint_counter++;
 }
 
 void dogm128_char(uint8_t x, uint8_t y, char c)
