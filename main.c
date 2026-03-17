@@ -125,9 +125,12 @@ void main(void)
         Backlight(1023);
 
         t0 = millis;
-        for (i = 0; i < 30; i++)
+        for (i = 0; i < 8; i++)
         {
-            dogm128_line(rand128(), rand64(), rand128(), rand64(), 1);
+            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_GREY);
+            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_DARK_GREY);
+            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_GREY);
+            dogm128_line(rand128(), rand64(), rand128(), rand64(), DISP_COL_BLACK);
         }
         dogm128_refresh();
         t1 = millis;
@@ -137,10 +140,12 @@ void main(void)
 
         fps = (uint16_t)(1000UL / dt);
 
-        dogm128_fill_rect(0, 8, 60, 6, 0);
+        //dogm128_fill_rect(0, 8, 30, 1, 0);
         dogm128_text(0, 8, "FPS:");
         utoa(fps, fps_buf);
         dogm128_text(16, 8, fps_buf);
+        utoa32(millis, fps_buf);
+        dogm128_text(8, 16, fps_buf);
         dogm128_refresh();
         __delay_ms(500);
     }
