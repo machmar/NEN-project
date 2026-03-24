@@ -2,12 +2,13 @@
 #define RAYCASTING_H
 
 #include <stdbool.h>
+#include "fx8.h"
 
 typedef struct
 {
-    float posX, posY; // position
-    float dirX, dirY; // direction vector
-    float planeX, planeY; // camera plane
+    fx_t posX, posY; // position
+    fx_t dirX, dirY; // direction vector
+    fx_t planeX, planeY; // camera plane
 } player_t;
 
 typedef struct __attribute__((packed))

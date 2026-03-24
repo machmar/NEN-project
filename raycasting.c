@@ -192,45 +192,61 @@ int DrawFrame(player_t player)
 int MoveCamera(player_t *player, buttons_t buttons)
 {
     //move forward if no wall in front of you
-    float moveSpeed = 1.0; //the constant value is in squares/second
-    int rotSpeed = 1; //the constant value is in radians/second
+    fx_t moveSpeed = FX_ONE; //the constant value is in squares/second
+    fx_t rotSpeed = 0x0003; //the constant value is in radians/second (0.01PI per frame)
     if(buttons.front)
     {
-      if(worldMap[(int)(player.posX + player.dirX * moveSpeed)][(int)(player.posY)] == false)
-        player.posX += player.dirX * moveSpeed;
+      if(worldMap[FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed)))][FX_I(player->posY)] == false)
+        player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
       
-      if(worldMap[(int)(player.posX)][(int)(player.posY + player.dirY * moveSpeed)] == false)
-          player.posY += player.dirY * moveSpeed;
+      if(worldMap[FX_I(player->posX)][FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed)))] == false)
+        player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //move backwards if no wall behind you
     if(buttons.back)
     {
-      if(worldMap[(int)(player.posX - player.dirX * moveSpeed)][(int)(player.posY)] == false)
-          player.posX -= player.dirX * moveSpeed;
+      if(worldMap[FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed)))][FX_I(player->posY)] == false)
+        player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
       
-      if(worldMap[(int)(player.posX)][(int)(player.posY - player.dirY * moveSpeed)] == false)
-          player.posY -= player.dirY * moveSpeed;
+      if(worldMap[FX_I(player->posX)][FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed)))] == false)
+        player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //rotate to the right
     if(buttons.right)
     {
       //both camera direction and camera plane must be rotated
-      float oldDirX = player->dirX;
-      player->dirX = player->dirX * (-sin_lut[16 - rotSpeed]) - player->dirY * (-sin_lut[rotSpeed]);
-      player->dirY = oldDirX * (-sin_lut[rotSpeed]) + player->dirY * (-sin_lut[16 - rotSpeed]);
-      float oldPlaneX = player->planeX;
-      player->planeX = player->planeX * (-sin_lut[16 - rotSpeed]) - player->planeY * (-sin_lut[rotSpeed]);
-      player->planeY = oldPlaneX * (-sin_lut[rotSpeed]) + player->planeY * (-sin_lut[16 - rotSpeed]);
+      fx_t oldDirX = player->dirX;
+      player->dirX = fx_sub(fx_mul(player->dirX, fx_cos(-rotSpeed)), 
+                            fx_mul(player->dirY, fx_sin(-rotSpeed)));
+      player->dirY = fx_add(fx_mul(oldDirX,      fx_sin(-rotSpeed)),
+                            fx_mul(player->dirY, fx_cos(-rotSpeed)));
+      
+      fx_t oldPlaneX = player->planeX;
+      player->planeX = fx_sub(fx_mul(player->planeX, fx_cos(-rotSpeed)), 
+                              fx_mul(player->planeY, fx_sin(-rotSpeed)));
+      player->planeY = fx_add(fx_mul(oldPlaneX,      fx_sin(-rotSpeed)),
+                              fx_mul(player->planeY, fx_cos(-rotSpeed)));
     }
     //rotate to the left
     if(buttons.left)
     {
       //both camera direction and camera plane must be rotated
-      float oldDirX = player->dirX;
-      player->dirX = player->dirX * (-sin_lut[16 + rotSpeed]) - player->dirY * sin_lut[rotSpeed];
-      player->dirY = oldDirX * sin_lut[rotSpeed] + player->dirY * (-sin_lut[16 + rotSpeed]);
-      float oldPlaneX = player->planeX;
-      player->planeX = player->planeX * (-sin_lut[16 + rotSpeed]) - player->planeY * sin_lut[rotSpeed];
-      player->planeY = oldPlaneX * sin_lut[rotSpeed] + player->planeY * (-sin_lut[16 + rotSpeed]);
+      fx_t oldDirX = player->dirX;
+      player->dirX = fx_sub(fx_mul(player->dirX, fx_cos(rotSpeed)), 
+                            fx_mul(player->dirY, fx_sin(rotSpeed)));
+      player->dirY = fx_add(fx_mul(oldDirX,      fx_sin(rotSpeed)),
+                            fx_mul(player->dirY, fx_cos(rotSpeed)));
+      
+      fx_t oldPlaneX = player->planeX;
+      player->planeX = fx_sub(fx_mul(player->planeX, fx_cos(rotSpeed)), 
+                              fx_mul(player->planeY, fx_sin(rotSpeed)));
+      player->planeY = fx_add(fx_mul(oldPlaneX,      fx_sin(rotSpeed)),
+                              fx_mul(player->planeY, fx_cos(rotSpeed)));
+    }
+    
+    if (buttons.use)
+    {
+        player->posX = FX(11);
+        player->posY = FX(11);
     }
 }

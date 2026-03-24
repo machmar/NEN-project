@@ -4,6 +4,7 @@
 #include "dogm128_fast.h"
 #include "utils.h"
 #include "raycasting.h"
+#include "fx8.h"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -31,8 +32,8 @@ buttons_t read_buttons()
 {
     uint8_t y = ~PORTB;
     buttons_t buttons;
-    buttons.front = y & (1 << 5);
-    buttons.back = y & (1 << 3);
+    buttons.back = y & (1 << 5);
+    buttons.front = y & (1 << 4);
     buttons.use = y & (1 << 2);
     buttons.left = y & (1 << 3);
     buttons.right = y & (1 << 0);
@@ -127,20 +128,42 @@ void main(void)
     buttons_t buttons = {0};
 
     player_t camera;
-    camera.posX = 22;
-    camera.posY = 12;
-    camera.dirX = -1;
-    camera.dirY = 0;
-    camera.planeX = 0;
-    camera.planeY = 0.66;
+    camera.posX = FX(22);
+    camera.posY = FX(12);
+    camera.dirX = FX(-1);
+    camera.dirY = FX(0);
+    camera.planeX = FX(0);
+    camera.planeY = 0x00a9; // 0.66
+    
+    char buf[64];
     
     while (1)
     {
         dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(camera, buttons);
-        DrawFrame(camera);
+        MoveCamera(&camera, buttons);
+        //DrawFrame(camera);
+        
+        utoa(FX_TO_INT(camera.posX), buf);
+        dogm128_text(0, 0, buf);
+        utoa(FX_TO_INT(camera.posY), buf);
+        dogm128_text(20, 0, buf);
+        utoa(FX_TO_INT(camera.dirX) + 100, buf);
+        dogm128_text(40, 0, buf);
+        utoa(FX_TO_INT(camera.dirY) + 100, buf);
+        dogm128_text(60, 0, buf);
+        
+        uint8_t y = ~PORTB;
+    uint8_t z = ((y & (1 << 5)) >> 5) |
+                ((y & (1 << 4)) >> 3) |
+                ((y & (1 << 2)) << 0) |
+                ((y & (1 << 3)) << 0) |
+                ((y & (1 << 0)) << 5);
+    // 5 4 2 3 0
+        
+        utoa(z, buf);
+        dogm128_text(80, 0, buf);
         
         dogm128_refresh();
         /*
