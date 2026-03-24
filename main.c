@@ -32,7 +32,7 @@ buttons_t read_buttons()
     uint8_t y = ~PORTB;
     buttons_t buttons;
     buttons.front = y & (1 << 5);
-    buttons.back = y & (1 << 4);
+    buttons.back = y & (1 << 3);
     buttons.use = y & (1 << 2);
     buttons.left = y & (1 << 3);
     buttons.right = y & (1 << 0);
