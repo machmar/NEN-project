@@ -58,7 +58,7 @@ int static const worldMap[mapWidth][mapHeight]=
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-const float_t sin_lut[64] = {
+const float sin_lut[64] = {
  0.0000000000, 0.0980171403, 0.1950903220, 0.2902846773,
  0.3826834324, 0.4713967368, 0.5555702330, 0.6343932842,
  0.7071067812, 0.7730104534, 0.8314696123, 0.8819212643,
@@ -192,18 +192,24 @@ int DrawFrame(player_t player)
 int MoveCamera(player_t *player, buttons_t buttons)
 {
     //move forward if no wall in front of you
-    float moveSpeed = 0.1; //the constant value is in squares/second
+    float moveSpeed = 1.0; //the constant value is in squares/second
     int rotSpeed = 1; //the constant value is in radians/second
     if(buttons.front)
     {
-      if(worldMap[int(player->posX + player->dirX * moveSpeed)][int(player->posY)] == false) player->posX += player->dirX * moveSpeed;
-      if(worldMap[int(player->posX)][int(player->posY + player->dirY * moveSpeed)] == false) player->posY += player->dirY * moveSpeed;
+      if(worldMap[(int)(player.posX + player.dirX * moveSpeed)][(int)(player.posY)] == false)
+        player.posX += player.dirX * moveSpeed;
+      
+      if(worldMap[(int)(player.posX)][(int)(player.posY + player.dirY * moveSpeed)] == false)
+          player.posY += player.dirY * moveSpeed;
     }
     //move backwards if no wall behind you
     if(buttons.back)
     {
-      if(worldMap[int(player->posX - player->dirX * moveSpeed)][int(player->posY)] == false) player->posX -= player->dirX * moveSpeed;
-      if(worldMap[int(player->posX)][int(player->posY - player->dirY * moveSpeed)] == false) player->posY -= player->dirY * moveSpeed;
+      if(worldMap[(int)(player.posX - player.dirX * moveSpeed)][(int)(player.posY)] == false)
+          player.posX -= player.dirX * moveSpeed;
+      
+      if(worldMap[(int)(player.posX)][(int)(player.posY - player.dirY * moveSpeed)] == false)
+          player.posY -= player.dirY * moveSpeed;
     }
     //rotate to the right
     if(buttons.right)

@@ -149,19 +149,23 @@ void dogm128_init(void)
     spi_init();
 
     DOGM_RST_LAT = 0;
-    __delay_ms(10);
+    __delay_ms(1000);
     DOGM_RST_LAT = 1;
 
-        lcd_cmd(0xAE);
-    lcd_cmd(0xA2);
+    lcd_cmd(0x40);
     lcd_cmd(0xA1);
     lcd_cmd(0xC0);
+    lcd_cmd(0xA6);
+    lcd_cmd(0xA2);
     lcd_cmd(0x2F);
+    lcd_cmd(0xF8);
+    lcd_cmd(0x00);
     lcd_cmd(0x27);   // resistor ratio
     dogm128_contrast(0x14);
-    lcd_cmd(0x40);
+    lcd_cmd(0xAC);
+    lcd_cmd(0x00);
     lcd_cmd(0xAF);
-
+    
     dogm128_clear();
     dogm128_refresh();
 }
