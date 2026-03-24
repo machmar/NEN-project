@@ -16,6 +16,6 @@ typedef struct __attribute__((packed))
 } buttons_t;
 
 int extern DrawFrame(player_t player);
-int MoveCamera(player_t player, buttons_t buttons);
+int MoveCamera(player_t *player, buttons_t buttons);
 
 #endif // RAYCASTING_H
