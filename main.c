@@ -4,7 +4,6 @@
 #include "dogm128_fast.h"
 #include "utils.h"
 #include "raycasting.h"
-#include "raycasting.c"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -28,15 +27,16 @@ void init_ports(void)
     TRISC = 0x00;    // SPI + control lines
 }
 
-uint8_t read_buttons()
+buttons_t read_buttons()
 {
     uint8_t y = ~PORTB;
-    uint8_t z = ((y & (1 << 5)) >> 5) |
-                ((y & (1 << 4)) >> 4) |
-                ((y & (1 << 2)) << 0) |
-                ((y & (1 << 3)) << 0) |
-                ((y & (1 << 0)) << 5);
-    return z;
+    buttons_t buttons;
+    buttons.front = y & (1 << 5);
+    buttons.back = y & (1 << 4);
+    buttons.use = y & (1 << 2);
+    buttons.left = y & (1 << 3);
+    buttons.right = y & (1 << 0);
+    return buttons;
     // 5 4 2 3 0
 }
 
@@ -124,6 +124,8 @@ void main(void)
     Backlight(1023);
     set_LEDs(0x00);
 
+    buttons_t buttons = {0};
+
     player_t camera;
     camera.posX = 22;
     camera.posY = 12;
@@ -135,11 +137,13 @@ void main(void)
     while (1)
     {
         dogm128_clear();
-        
+        buttons = read_buttons();
+
+        MoveCamera(camera, buttons);
         DrawFrame(camera);
         
         dogm128_refresh();
-        
+        /*
         if (read_buttons() & (1 << 0))
         {
             camera.posX++;
@@ -160,6 +164,7 @@ void main(void)
             camera.posY--;
             if (camera.posY < 0) camera.posY = 22;
         }
+        */
     }
 }
 

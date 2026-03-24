@@ -22,7 +22,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "raycasting.h"
-
 #include "dogm128_fast.h"
 
 // Screen and map dimensions:
@@ -170,4 +169,44 @@ int DrawFrame(player_t player)
       dogm128_vline(x, drawStart, lineHeight, color);
     }
     return 0;
+}
+
+int MoveCamera(player_t player, buttons_t buttons)
+{
+    //move forward if no wall in front of you
+    int moveSpeed = 0.1; //the constant value is in squares/second
+    int rotSpeed = 0.05; //the constant value is in radians/second
+    if(buttons.front)
+    {
+      if(worldMap[int(player.posX + player.dirX * moveSpeed)][int(player.posY)] == false) player.posX += player.dirX * moveSpeed;
+      if(worldMap[int(player.posX)][int(player.posY + player.dirY * moveSpeed)] == false) player.posY += player.dirY * moveSpeed;
+    }
+    //move backwards if no wall behind you
+    if(buttons.back)
+    {
+      if(worldMap[int(player.posX - player.dirX * moveSpeed)][int(player.posY)] == false) player.posX -= player.dirX * moveSpeed;
+      if(worldMap[int(player.posX)][int(player.posY - player.dirY * moveSpeed)] == false) player.posY -= player.dirY * moveSpeed;
+    }
+    //rotate to the right
+    if(buttons.right)
+    {
+      //both camera direction and camera plane must be rotated
+      float oldDirX = player.dirX;
+      player.dirX = player.dirX * cos(-rotSpeed) - player.dirY * sin(-rotSpeed);
+      player.dirY = oldDirX * sin(-rotSpeed) + player.dirY * cos(-rotSpeed);
+      float oldPlaneX = player.planeX;
+      player.planeX = player.planeX * cos(-rotSpeed) - player.planeY * sin(-rotSpeed);
+      player.planeY = oldPlaneX * sin(-rotSpeed) + player.planeY * cos(-rotSpeed);
+    }
+    //rotate to the left
+    if(buttons.left)
+    {
+      //both camera direction and camera plane must be rotated
+      float oldDirX = player.dirX;
+      player.dirX = player.dirX * cos(rotSpeed) - player.dirY * sin(rotSpeed);
+      player.dirY = oldDirX * sin(rotSpeed) + player.dirY * cos(rotSpeed);
+      float oldPlaneX = player.planeX;
+      player.planeX = player.planeX * cos(rotSpeed) - player.planeY * sin(rotSpeed);
+      player.planeY = oldPlaneX * sin(rotSpeed) + player.planeY * cos(rotSpeed);
+    }
 }
