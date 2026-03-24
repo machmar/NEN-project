@@ -54,3 +54,10 @@ build/default/debug/main.i
 build/default/debug/dogm128_fast.p1.d
 build/default/debug/dogm128_fast.p1
 build/default/debug/dogm128_fast.i
+build/default/debug/raycasting.i
+build/default/debug/raycasting.p1
+build/default/debug/raycasting.p1.d
+build/default/production/raycasting.i
+build/default/production/raycasting.p1
+build/default/production/raycasting.p1.d
+nbproject/private/SuppressibleMessageMemo.properties
