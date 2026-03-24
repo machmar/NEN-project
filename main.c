@@ -4,7 +4,6 @@
 #include "dogm128_fast.h"
 #include "utils.h"
 #include "raycasting.h"
-#include "raycasting.c"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
