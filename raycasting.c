@@ -58,6 +58,24 @@ int static const worldMap[mapWidth][mapHeight]=
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
+const float_t sin_lut[64] = {
+ 0.0000000000, 0.0980171403, 0.1950903220, 0.2902846773,
+ 0.3826834324, 0.4713967368, 0.5555702330, 0.6343932842,
+ 0.7071067812, 0.7730104534, 0.8314696123, 0.8819212643,
+ 0.9238795325, 0.9569403357, 0.9807852804, 0.9951847267,
+ 1.0000000000, 0.9951847267, 0.9807852804, 0.9569403357,
+ 0.9238795325, 0.8819212643, 0.8314696123, 0.7730104534,
+ 0.7071067812, 0.6343932842, 0.5555702330, 0.4713967368,
+ 0.3826834324, 0.2902846773, 0.1950903220, 0.0980171403,
+ 0.0000000000,-0.0980171403,-0.1950903220,-0.2902846773,
+-0.3826834324,-0.4713967368,-0.5555702330,-0.6343932842,
+-0.7071067812,-0.7730104534,-0.8314696123,-0.8819212643,
+-0.9238795325,-0.9569403357,-0.9807852804,-0.9951847267,
+-1.0000000000,-0.9951847267,-0.9807852804,-0.9569403357,
+-0.9238795325,-0.8819212643,-0.8314696123,-0.7730104534,
+-0.7071067812,-0.6343932842,-0.5555702330,-0.4713967368,
+-0.3826834324,-0.2902846773,-0.1950903220,-0.0980171403 };
+
 float abs_float(float x) {return x < 0.0f ? -x : x;}
 
 int DrawFrame(player_t player)
@@ -174,8 +192,8 @@ int DrawFrame(player_t player)
 int MoveCamera(player_t player, buttons_t buttons)
 {
     //move forward if no wall in front of you
-    int moveSpeed = 0.1; //the constant value is in squares/second
-    int rotSpeed = 0.05; //the constant value is in radians/second
+    float moveSpeed = 0.1; //the constant value is in squares/second
+    int rotSpeed = 1; //the constant value is in radians/second
     if(buttons.front)
     {
       if(worldMap[int(player.posX + player.dirX * moveSpeed)][int(player.posY)] == false) player.posX += player.dirX * moveSpeed;
@@ -192,21 +210,21 @@ int MoveCamera(player_t player, buttons_t buttons)
     {
       //both camera direction and camera plane must be rotated
       float oldDirX = player.dirX;
-      player.dirX = player.dirX * cos(-rotSpeed) - player.dirY * sin(-rotSpeed);
-      player.dirY = oldDirX * sin(-rotSpeed) + player.dirY * cos(-rotSpeed);
+      player.dirX = player.dirX * (-sin_lut[16 - rotSpeed]) - player.dirY * (-sin_lut[rotSpeed]);
+      player.dirY = oldDirX * (-sin_lut[rotSpeed]) + player.dirY * (-sin_lut[16 - rotSpeed]);
       float oldPlaneX = player.planeX;
-      player.planeX = player.planeX * cos(-rotSpeed) - player.planeY * sin(-rotSpeed);
-      player.planeY = oldPlaneX * sin(-rotSpeed) + player.planeY * cos(-rotSpeed);
+      player.planeX = player.planeX * (-sin_lut[16 - rotSpeed]) - player.planeY * (-sin_lut[rotSpeed]);
+      player.planeY = oldPlaneX * (-sin_lut[rotSpeed]) + player.planeY * (-sin_lut[16 - rotSpeed]);
     }
     //rotate to the left
     if(buttons.left)
     {
       //both camera direction and camera plane must be rotated
       float oldDirX = player.dirX;
-      player.dirX = player.dirX * cos(rotSpeed) - player.dirY * sin(rotSpeed);
-      player.dirY = oldDirX * sin(rotSpeed) + player.dirY * cos(rotSpeed);
+      player.dirX = player.dirX * (-sin_lut[16 + rotSpeed]) - player.dirY * sin_lut[rotSpeed];
+      player.dirY = oldDirX * sin_lut[rotSpeed] + player.dirY * (-sin_lut[16 + rotSpeed]);
       float oldPlaneX = player.planeX;
-      player.planeX = player.planeX * cos(rotSpeed) - player.planeY * sin(rotSpeed);
-      player.planeY = oldPlaneX * sin(rotSpeed) + player.planeY * cos(rotSpeed);
+      player.planeX = player.planeX * (-sin_lut[16 + rotSpeed]) - player.planeY * sin_lut[rotSpeed];
+      player.planeY = oldPlaneX * sin_lut[rotSpeed] + player.planeY * (-sin_lut[16 + rotSpeed]);
     }
 }
