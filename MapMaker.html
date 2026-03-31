@@ -3,17 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Map editor 32×64 (0–3) → C array export</title>
+  <title>Map editor (variabilní rozměry) 0–3 → C export</title>
   <style>
     :root{
       --bg: #0b1020;
       --panel: #111a33;
       --panel2: #0f1730;
       --text: #e7ecff;
-      --muted: rgba(231,236,255,.75);
+      --muted: rgba(231,236,255,.78);
       --border: rgba(231,236,255,.14);
       --bad: #ff6b6b;
       --good: #35d07f;
+      --warn: #ffd166;
     }
     * { box-sizing: border-box; }
     body{
@@ -24,15 +25,14 @@
     }
     .layout{
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 430px;
       gap: 16px;
       padding: 16px;
       align-items: start;
     }
-    @media (max-width: 980px){
+    @media (max-width: 1050px){
       .layout{ grid-template-columns: 1fr; }
     }
-
     .card{
       background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
       border: 1px solid var(--border);
@@ -40,7 +40,6 @@
       box-shadow: 0 12px 40px rgba(0,0,0,.35);
       overflow: hidden;
     }
-
     .leftHeader{
       padding: 12px 14px;
       border-bottom: 1px solid var(--border);
@@ -49,14 +48,8 @@
       align-items: center;
       justify-content: space-between;
     }
-    .leftHeader .title{
-      font-weight: 700;
-      letter-spacing: .2px;
-    }
-    .leftHeader .sub{
-      font-size: 12px;
-      color: var(--muted);
-    }
+    .leftHeader .title{ font-weight: 700; letter-spacing: .2px; }
+    .leftHeader .sub{ font-size: 12px; color: var(--muted); }
 
     .canvasWrap{
       padding: 12px;
@@ -68,12 +61,10 @@
       border: 1px solid rgba(0,0,0,.45);
       border-radius: 10px;
       background: #fff;
-      /* důležité pro pointer events na dotyku */
       touch-action: none;
       user-select: none;
       image-rendering: pixelated;
     }
-
     .hint{
       padding: 12px 14px;
       border-top: 1px solid var(--border);
@@ -81,10 +72,7 @@
       font-size: 13px;
       line-height: 1.35;
     }
-
-    .panel{
-      padding: 14px;
-    }
+    .panel{ padding: 14px; }
     .panel h1{
       font-size: 18px;
       margin: 0 0 10px 0;
@@ -96,6 +84,13 @@
       flex-wrap: wrap;
       margin: 10px 0;
     }
+    .grid2{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+      margin: 10px 0;
+    }
     label{
       font-size: 13px;
       color: var(--muted);
@@ -103,7 +98,7 @@
       gap: 8px;
       align-items: center;
     }
-    input[type="text"]{
+    input[type="text"], input[type="number"], select{
       width: 100%;
       padding: 10px 10px;
       border-radius: 10px;
@@ -112,12 +107,10 @@
       color: var(--text);
       outline: none;
     }
-    input[type="range"]{
-      width: 190px;
-    }
+    input[type="range"]{ width: 190px; }
     textarea{
       width: 100%;
-      min-height: 230px;
+      min-height: 220px;
       resize: vertical;
       padding: 10px;
       border-radius: 10px;
@@ -130,7 +123,6 @@
       outline: none;
       white-space: pre;
     }
-
     .palette{
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -151,10 +143,15 @@
       outline: 3px solid rgba(255,255,255,.9);
       outline-offset: 2px;
     }
-
     .btnRow{
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .btnRow3{
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
       margin: 10px 0;
     }
@@ -167,20 +164,13 @@
       cursor: pointer;
       font-weight: 650;
     }
-    button.action:hover{
-      background: rgba(255,255,255,.12);
-    }
-
+    button.action:hover{ background: rgba(255,255,255,.12); }
     .radioRow{
       display: grid;
       gap: 8px;
       margin: 8px 0 6px 0;
     }
-    .radioRow label{
-      color: var(--muted);
-      font-size: 13px;
-    }
-
+    .radioRow label{ color: var(--muted); font-size: 13px;}
     .status{
       margin-top: 10px;
       padding: 10px 10px;
@@ -189,15 +179,23 @@
       background: rgba(0,0,0,.20);
       font-size: 13px;
       color: var(--muted);
+      white-space: pre-wrap;
     }
-    .status[data-ok="1"]{ box-shadow: inset 0 0 0 9999px rgba(53,208,127,.06); }
-    .status[data-ok="0"]{ box-shadow: inset 0 0 0 9999px rgba(255,107,107,.06); }
+    .status[data-kind="ok"]{ box-shadow: inset 0 0 0 9999px rgba(53,208,127,.06); }
+    .status[data-kind="warn"]{ box-shadow: inset 0 0 0 9999px rgba(255,209,102,.07); }
+    .status[data-kind="bad"]{ box-shadow: inset 0 0 0 9999px rgba(255,107,107,.07); }
     .small{
       font-size: 12px;
       color: var(--muted);
       line-height: 1.35;
       margin-top: 8px;
     }
+    .divider{
+      height: 1px;
+      background: var(--border);
+      margin: 12px 0;
+    }
+    code{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
   </style>
 </head>
 <body>
@@ -205,10 +203,10 @@
     <div class="card">
       <div class="leftHeader">
         <div>
-          <div class="title">Editor mapy 32×64</div>
+          <div class="title">Editor mapy</div>
           <div class="sub">LMB maluje • RMB maže na 0 • klávesy 0–3 mění štětec</div>
         </div>
-        <div class="sub"><span id="dims"></span></div>
+        <div class="sub"><span id="dims"></span> • <span id="cells"></span></div>
       </div>
 
       <div class="canvasWrap">
@@ -216,8 +214,7 @@
       </div>
 
       <div class="hint" id="hint">
-        Tip: Pokud chcete hranice jako v klasických raycasting mapách, klikněte na „Okraj = 1“.
-        Export se průběžně aktualizuje (a lze i vynutit tlačítkem Export).
+        Tip: „Okraj = 1“ je rychlý způsob, jak udělat stěny kolem mapy. Pro velké mapy doporučuji vypnout mřížku a/nebo zmenšit velikost buňky.
       </div>
     </div>
 
@@ -235,7 +232,7 @@
       <div class="row">
         <label>
           Velikost buňky:
-          <input id="tileSize" type="range" min="6" max="28" step="1" value="12" />
+          <input id="tileSize" type="range" min="4" max="28" step="1" value="12" />
           <span id="tileSizeVal">12</span> px
         </label>
       </div>
@@ -244,12 +241,35 @@
         <label><input id="showGrid" type="checkbox" checked /> Zobrazit mřížku</label>
       </div>
 
+      <div class="divider"></div>
+
+      <h1>Rozměry mapy</h1>
+
+      <div class="grid2">
+        <label style="display:block;">
+          Šířka (mapWidth)
+          <input id="mapW" type="number" min="1" step="1" value="32" />
+        </label>
+        <label style="display:block;">
+          Výška (mapHeight)
+          <input id="mapH" type="number" min="1" step="1" value="64" />
+        </label>
+      </div>
+
+      <div class="row">
+        <button class="action" id="btnResize" type="button" style="width:100%;">Použít rozměry</button>
+      </div>
+
+      <div class="small" id="sizeInfo"></div>
+
       <div class="btnRow">
         <button class="action" id="btnClear" type="button">Vše = 0</button>
         <button class="action" id="btnBorder" type="button">Okraj = 1</button>
       </div>
 
-      <h1 style="margin-top: 12px;">Export do C</h1>
+      <div class="divider"></div>
+
+      <h1>Export do C</h1>
 
       <div class="row">
         <label style="width:100%;">Jméno pole (např. worldMap):</label>
@@ -265,9 +285,10 @@
         <label><input type="radio" name="exportMode" value="yx" /> Export YX (worldMap[mapHeight][mapWidth], indexace [y][x])</label>
       </div>
 
-      <div class="btnRow">
+      <div class="btnRow3">
         <button class="action" id="btnExport" type="button">Export</button>
         <button class="action" id="btnCopy" type="button">Kopírovat</button>
+        <button class="action" id="btnTest" type="button">Test exportu</button>
       </div>
 
       <button class="action" id="btnDownload" type="button" style="width:100%;">Stáhnout .h</button>
@@ -276,11 +297,32 @@
         <textarea id="output" readonly spellcheck="false"></textarea>
       </div>
 
-      <div class="status" id="status" data-ok="1">Připraveno.</div>
+      <div class="divider"></div>
+
+      <h1>Import z C</h1>
+
+      <div class="row">
+        <label style="width:100%;">Import orientace:</label>
+        <select id="importMode">
+          <option value="auto" selected>Auto (detekce + heuristika)</option>
+          <option value="xy">XY (vnější = x, vnitřní = y)</option>
+          <option value="yx">YX (vnější = y, vnitřní = x)</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <textarea id="importText" placeholder="Vložte sem C kód s #define mapWidth/mapHeight a inicializací {...} ..."></textarea>
+      </div>
+
+      <div class="btnRow">
+        <button class="action" id="btnImport" type="button">Importovat</button>
+        <button class="action" id="btnImportClear" type="button">Vyčistit pole</button>
+      </div>
+
+      <div class="status" id="status" data-kind="ok">Připraveno.</div>
 
       <div class="small">
-        Když kopírování do schránky selže, nejde o bug editoru – prohlížeče často vyžadují „secure context“.
-        V tom případě export jen označte a zkopírujte ručně.
+        Pozn.: Clipboard API funguje jen v secure context (HTTPS) v některých prohlížečích. Pokud „Kopírovat“ selže, export zkopírujte ručně z textarea.
       </div>
     </div>
   </div>
@@ -289,13 +331,10 @@
 (() => {
   'use strict';
 
-  const MAP_WIDTH = 32;
-  const MAP_HEIGHT = 64;
-
-  // Povolené hodnoty: 0,1,2,3
+  // Povolené hodnoty dlaždic
   const ALLOWED = new Set([0, 1, 2, 3]);
 
-  // Barvy pouze pro editor (čísla jdou stejně do exportu)
+  // Barvy jen pro editor (do exportu jdou čísla)
   const COLORS = {
     0: '#ffffff',
     1: '#2b2b2b',
@@ -304,43 +343,86 @@
   };
   const GRID_COLOR = 'rgba(0,0,0,0.15)';
 
-  // Interně držíme data row-major: index = y*W + x.
-  const data = new Uint8Array(MAP_WIDTH * MAP_HEIGHT);
+  // Stav mapy (variabilní)
+  let mapWidth = 32;
+  let mapHeight = 64;
+  let data = new Uint8Array(mapWidth * mapHeight); // inicializováno nulami
 
+  // Stav UI
   let tileSize = 12;
   let current = 1;
   let showGrid = true;
 
+  // Pointer state
   let activePointerId = null;
   let isDrawing = false;
   let lastIndex = -1;
 
+  // DOM
   const canvas = document.getElementById('mapCanvas');
   const ctx = canvas.getContext('2d', { alpha: false });
-  ctx.imageSmoothingEnabled = false;
 
   const paletteEl = document.getElementById('palette');
   const currentValEl = document.getElementById('currentVal');
+
+  const dimsEl = document.getElementById('dims');
+  const cellsEl = document.getElementById('cells');
+
   const tileSizeInput = document.getElementById('tileSize');
   const tileSizeValEl = document.getElementById('tileSizeVal');
   const showGridInput = document.getElementById('showGrid');
+
+  const mapWInput = document.getElementById('mapW');
+  const mapHInput = document.getElementById('mapH');
+  const sizeInfoEl = document.getElementById('sizeInfo');
 
   const mapNameInput = document.getElementById('mapName');
   const includeDefinesInput = document.getElementById('includeDefines');
   const outputEl = document.getElementById('output');
 
+  const importModeEl = document.getElementById('importMode');
+  const importTextEl = document.getElementById('importText');
+
   const statusEl = document.getElementById('status');
-  const dimsEl = document.getElementById('dims');
 
-  dimsEl.textContent = `${MAP_WIDTH}×${MAP_HEIGHT}`;
+  // -------- helpers --------
 
-  function idx(x, y) { return y * MAP_WIDTH + x; }
+  function idx(x, y) { return y * mapWidth + x; }
   function clampTileValue(v) { return ALLOWED.has(v) ? v : 0; }
 
-  function setStatus(msg, ok = true) {
+  function setStatus(msg, kind = 'ok') {
     statusEl.textContent = msg;
-    statusEl.dataset.ok = ok ? '1' : '0';
+    statusEl.dataset.kind = kind;
   }
+
+  function updateDimsUI() {
+    dimsEl.textContent = `${mapWidth}×${mapHeight}`;
+    cellsEl.textContent = `${mapWidth * mapHeight} buněk`;
+    mapWInput.value = String(mapWidth);
+    mapHInput.value = String(mapHeight);
+    updateSizeInfo();
+  }
+
+  function updateSizeInfo() {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = mapWidth * tileSize;
+    const cssH = mapHeight * tileSize;
+    const bufW = Math.round(cssW * dpr);
+    const bufH = Math.round(cssH * dpr);
+
+    let msg = `Canvas: ${cssW}×${cssH} CSS px; buffer: ${bufW}×${bufH} px; DPR=${dpr.toFixed(2)}.`;
+
+    // Soft warning (žádný hard max, jen UX info)
+    if (bufW > 10000 || bufH > 10000) {
+      msg += `\n⚠️ Velmi velký canvas. Některé prohlížeče/zařízení mají limity; při překročení se canvas může stát nefunkční. Zvažte menší buňku nebo menší mapu.`;
+    }
+    if (bufW > 4096 || bufH > 4096) {
+      msg += `\nℹ️ Pozn.: Na některých iOS zařízeních může být limit ~4096×4096 px.`;
+    }
+    sizeInfoEl.textContent = msg;
+  }
+
+  // -------- palette --------
 
   function buildPalette() {
     const values = [0,1,2,3];
@@ -356,7 +438,6 @@
       btn.textContent = String(v);
 
       btn.addEventListener('click', () => setCurrent(v));
-
       paletteEl.appendChild(btn);
     });
 
@@ -376,59 +457,61 @@
     refreshPaletteUI();
   }
 
+  // -------- canvas config + rendering --------
+
   function configureCanvas() {
     const dpr = window.devicePixelRatio || 1;
 
-    const cssW = MAP_WIDTH * tileSize;
-    const cssH = MAP_HEIGHT * tileSize;
+    const cssW = mapWidth * tileSize;
+    const cssH = mapHeight * tileSize;
 
     canvas.style.width = cssW + 'px';
     canvas.style.height = cssH + 'px';
 
-    // skutečné rozlišení canvasu v device pixelech
+    // Nastavení width/height resetuje kontext; proto vše nastavujeme znovu.
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
 
-    // kreslíme v CSS pixelech
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
 
     renderAll();
+    updateSizeInfo();
   }
 
   function renderAll() {
-    const w = MAP_WIDTH * tileSize;
-    const h = MAP_HEIGHT * tileSize;
+    const w = mapWidth * tileSize;
+    const h = mapHeight * tileSize;
 
     ctx.clearRect(0, 0, w, h);
 
-    for (let y = 0; y < MAP_HEIGHT; y++) {
-      for (let x = 0; x < MAP_WIDTH; x++) {
-        const v = data[idx(x,y)];
+    for (let y = 0; y < mapHeight; y++) {
+      const rowStart = y * mapWidth;
+      for (let x = 0; x < mapWidth; x++) {
+        const v = data[rowStart + x];
         ctx.fillStyle = COLORS[v] || COLORS[0];
         ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
       }
     }
 
-    if (showGrid) drawGrid();
+    if (showGrid) drawGridFull();
   }
 
-  function drawGrid() {
-    const w = MAP_WIDTH * tileSize;
-    const h = MAP_HEIGHT * tileSize;
+  function drawGridFull() {
+    const w = mapWidth * tileSize;
+    const h = mapHeight * tileSize;
 
     ctx.strokeStyle = GRID_COLOR;
     ctx.lineWidth = 1;
 
-    // vertikální čáry
-    for (let x = 0; x <= MAP_WIDTH; x++) {
+    for (let x = 0; x <= mapWidth; x++) {
       const px = x * tileSize + 0.5;
       ctx.beginPath();
       ctx.moveTo(px, 0);
       ctx.lineTo(px, h);
       ctx.stroke();
     }
-    // horizontální čáry
-    for (let y = 0; y <= MAP_HEIGHT; y++) {
+    for (let y = 0; y <= mapHeight; y++) {
       const py = y * tileSize + 0.5;
       ctx.beginPath();
       ctx.moveTo(0, py);
@@ -437,14 +520,29 @@
     }
   }
 
+  // O(1) update pro malování
+  function drawCell(x, y) {
+    const v = data[idx(x,y)];
+    ctx.fillStyle = COLORS[v] || COLORS[0];
+    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+
+    if (showGrid) {
+      ctx.strokeStyle = GRID_COLOR;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x * tileSize + 0.5, y * tileSize + 0.5, tileSize, tileSize);
+    }
+  }
+
   function getCellFromEvent(e) {
     const rect = canvas.getBoundingClientRect();
     const x = Math.floor((e.clientX - rect.left) / tileSize);
     const y = Math.floor((e.clientY - rect.top) / tileSize);
 
-    if (x < 0 || x >= MAP_WIDTH || y < 0 || y >= MAP_HEIGHT) return null;
+    if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) return null;
     return { x, y };
   }
+
+  // -------- painting --------
 
   function paintFromEvent(e) {
     const cell = getCellFromEvent(e);
@@ -460,7 +558,6 @@
     if (e.type === 'pointerdown') {
       erase = (e.button === 2);
     } else {
-      // pointermove: spoléhat na bitmasku buttons
       erase = (e.buttons & 2) === 2;
     }
     if (erase) v = 0;
@@ -469,15 +566,14 @@
 
     if (data[i] !== v) {
       data[i] = v;
-      renderAll();
+      drawCell(cell.x, cell.y);
       scheduleExport();
     }
 
     lastIndex = i;
-    setStatus(`x=${cell.x}, y=${cell.y}, hodnota=${v}`);
+    setStatus(`x=${cell.x}, y=${cell.y}, hodnota=${v}`, 'ok');
   }
 
-  // Zabránit systémovému kontext menu
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -485,7 +581,6 @@
     canvas.focus();
 
     canvas.setPointerCapture(e.pointerId);
-
     activePointerId = e.pointerId;
     isDrawing = true;
     lastIndex = -1;
@@ -505,25 +600,101 @@
     activePointerId = null;
     lastIndex = -1;
   }
-
   canvas.addEventListener('pointerup', stopDrawing);
   canvas.addEventListener('pointercancel', stopDrawing);
 
-  // klávesy 0-3 mění štětec (pokud zrovna nepíšete do input/textarea)
   document.addEventListener('keydown', (e) => {
     const t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
-
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
     if (e.key === '0' || e.key === '1' || e.key === '2' || e.key === '3') {
       setCurrent(Number(e.key));
     }
   });
 
-  // UI ovládání
+  // -------- resize map --------
+
+  function parsePositiveInt(raw) {
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return null;
+    if (!Number.isInteger(n)) return null;
+    if (n < 1) return null;
+    return n;
+  }
+
+  function countLostNonZero(oldW, oldH, oldData, newW, newH) {
+    let lost = 0;
+    // Jen pokud se skutečně zmenšuje
+    if (newW >= oldW && newH >= oldH) return 0;
+
+    for (let y = 0; y < oldH; y++) {
+      for (let x = 0; x < oldW; x++) {
+        if (x < newW && y < newH) continue;
+        const v = oldData[y * oldW + x];
+        if (v !== 0) lost++;
+      }
+    }
+    return lost;
+  }
+
+  function resizeMap(newW, newH) {
+    const oldW = mapWidth;
+    const oldH = mapHeight;
+    const oldData = data;
+
+    if (newW === oldW && newH === oldH) {
+      setStatus('Rozměry beze změny.', 'ok');
+      return true;
+    }
+
+    if (newW < oldW || newH < oldH) {
+      const lost = countLostNonZero(oldW, oldH, oldData, newW, newH);
+      if (lost > 0) {
+        const ok = confirm(`Zmenšení mapy zahodí ${lost} buněk s nenulovou hodnotou. Pokračovat?`);
+        if (!ok) {
+          setStatus('Zmenšení zrušeno.', 'warn');
+          return false;
+        }
+      }
+    }
+
+    // Alokace nového bufferu (bez pevného maxima; když to nejde, chytíme výjimku)
+    let newData;
+    try {
+      newData = new Uint8Array(newW * newH);
+    } catch (err) {
+      setStatus(`Nelze alokovat mapu ${newW}×${newH} (paměť/limit prohlížeče).`, 'bad');
+      return false;
+    }
+
+    // Zkopírovat top-left překryv
+    const copyW = Math.min(oldW, newW);
+    const copyH = Math.min(oldH, newH);
+
+    for (let y = 0; y < copyH; y++) {
+      const srcStart = y * oldW;
+      const dstStart = y * newW;
+      newData.set(oldData.subarray(srcStart, srcStart + copyW), dstStart);
+    }
+
+    // Commit
+    mapWidth = newW;
+    mapHeight = newH;
+    data = newData;
+
+    updateDimsUI();
+    configureCanvas();
+    updateExport();
+    setStatus(`Mapa změněna na ${mapWidth}×${mapHeight}.`, 'ok');
+    return true;
+  }
+
+  // -------- tools --------
+
   tileSizeInput.addEventListener('input', () => {
     tileSize = Number(tileSizeInput.value);
     tileSizeValEl.textContent = String(tileSize);
     configureCanvas();
+    updateExport();
   });
 
   showGridInput.addEventListener('change', () => {
@@ -535,69 +706,83 @@
     data.fill(0);
     renderAll();
     updateExport();
-    setStatus('Mapa vynulována (vše = 0).');
+    setStatus('Mapa vynulována (vše = 0).', 'ok');
   });
 
   document.getElementById('btnBorder').addEventListener('click', () => {
     // horní + dolní řada
-    for (let x = 0; x < MAP_WIDTH; x++) {
+    for (let x = 0; x < mapWidth; x++) {
       data[idx(x, 0)] = 1;
-      data[idx(x, MAP_HEIGHT - 1)] = 1;
+      data[idx(x, mapHeight - 1)] = 1;
+      drawCell(x, 0);
+      drawCell(x, mapHeight - 1);
     }
     // levý + pravý sloupec
-    for (let y = 0; y < MAP_HEIGHT; y++) {
+    for (let y = 0; y < mapHeight; y++) {
       data[idx(0, y)] = 1;
-      data[idx(MAP_WIDTH - 1, y)] = 1;
+      data[idx(mapWidth - 1, y)] = 1;
+      drawCell(0, y);
+      drawCell(mapWidth - 1, y);
     }
-    renderAll();
-    updateExport();
-    setStatus('Okraj nastaven na 1.');
+    scheduleExport();
+    setStatus('Okraj nastaven na 1.', 'ok');
   });
 
-  function generateC() {
-    const name = (mapNameInput.value || 'worldMap').trim() || 'worldMap';
-    const includeDefines = includeDefinesInput.checked;
-    const mode = document.querySelector('input[name="exportMode"]:checked').value;
+  document.getElementById('btnResize').addEventListener('click', () => {
+    const newW = parsePositiveInt(mapWInput.value);
+    const newH = parsePositiveInt(mapHInput.value);
+    if (newW === null || newH === null) {
+      setStatus('Neplatné rozměry. Zadejte celá čísla ≥ 1.', 'bad');
+      mapWInput.value = String(mapWidth);
+      mapHInput.value = String(mapHeight);
+      return;
+    }
+    resizeMap(newW, newH);
+  });
 
-    let decl, outerCount, innerCount;
+  // -------- export --------
+
+  function generateCFromData(width, height, buf, mode, name, includeDefines) {
+    const safeName = (name || 'worldMap').trim() || 'worldMap';
+
+    function idxLocal(x, y) { return y * width + x; }
+
+    let decl = '';
+    let outerCount = 0;
+    let innerCount = 0;
 
     if (mode === 'xy') {
       decl = '[mapWidth][mapHeight]';
-      outerCount = MAP_WIDTH;
-      innerCount = MAP_HEIGHT;
+      outerCount = width;
+      innerCount = height;
     } else {
       decl = '[mapHeight][mapWidth]';
-      outerCount = MAP_HEIGHT;
-      innerCount = MAP_WIDTH;
+      outerCount = height;
+      innerCount = width;
     }
 
     let s = '';
     if (includeDefines) {
-      s += `#define mapWidth ${MAP_WIDTH}\n#define mapHeight ${MAP_HEIGHT}\n`;
+      s += `#define mapWidth ${width}\n#define mapHeight ${height}\n`;
     }
-
-    s += `int static const ${name}${decl}=\n{\n`;
+    s += `int static const ${safeName}${decl}=\n{\n`;
 
     for (let outer = 0; outer < outerCount; outer++) {
       s += '  {';
-
       for (let inner = 0; inner < innerCount; inner++) {
         let v = 0;
-
         if (mode === 'xy') {
           const x = outer;
           const y = inner;
-          v = data[idx(x, y)];
+          v = buf[idxLocal(x, y)];
         } else {
           const y = outer;
           const x = inner;
-          v = data[idx(x, y)];
+          v = buf[idxLocal(x, y)];
         }
-
-        s += String(clampTileValue(v));
+        s += String(v);
         if (inner !== innerCount - 1) s += ',';
       }
-
       s += '}';
       if (outer !== outerCount - 1) s += ',';
       s += '\n';
@@ -607,28 +792,37 @@
     return s;
   }
 
+  function currentExportMode() {
+    return document.querySelector('input[name="exportMode"]:checked').value;
+  }
+
   function updateExport() {
-    outputEl.value = generateC();
+    const name = mapNameInput.value;
+    const includeDefines = includeDefinesInput.checked;
+    outputEl.value = generateCFromData(mapWidth, mapHeight, data, currentExportMode(), name, includeDefines);
   }
 
   let exportTimer = 0;
   function scheduleExport() {
     clearTimeout(exportTimer);
-    exportTimer = window.setTimeout(updateExport, 40);
+
+    const cells = mapWidth * mapHeight;
+    const delay = (cells > 200000) ? 250 : (cells > 20000 ? 120 : 40);
+
+    exportTimer = window.setTimeout(updateExport, delay);
   }
 
   document.getElementById('btnExport').addEventListener('click', () => {
     updateExport();
-    setStatus('Export vygenerován.');
+    setStatus('Export vygenerován.', 'ok');
   });
 
+  // Clipboard + download
   async function copyText(text) {
-    // preferovat Async Clipboard API v secure context
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
       return true;
     }
-    // fallback: execCommand (deprecated) – best effort
     const t = document.createElement('textarea');
     t.value = text;
     t.setAttribute('readonly', '');
@@ -648,10 +842,10 @@
   document.getElementById('btnCopy').addEventListener('click', async () => {
     try {
       const ok = await copyText(outputEl.value);
-      if (ok) setStatus('Zkopírováno do schránky.', true);
-      else setStatus('Automatické kopírování selhalo. Zkopírujte ručně z textarea.', false);
+      if (ok) setStatus('Zkopírováno do schránky.', 'ok');
+      else setStatus('Automatické kopírování selhalo. Zkopírujte ručně z textarea.', 'warn');
     } catch {
-      setStatus('Automatické kopírování selhalo (omezení schránky). Zkopírujte ručně.', false);
+      setStatus('Automatické kopírování selhalo (omezení schránky). Zkopírujte ručně.', 'warn');
     }
   });
 
@@ -673,23 +867,287 @@
   document.getElementById('btnDownload').addEventListener('click', () => {
     const name = (mapNameInput.value || 'worldMap').trim() || 'worldMap';
     downloadText(`${name}.h`, outputEl.value);
-    setStatus('Stažení spuštěno.');
+    setStatus('Stažení spuštěno.', 'ok');
   });
 
-  // při změně nastavení exportu ihned aktualizovat
+  // Aktualizovat export při změně jména/checkboxů/radií
   [mapNameInput, includeDefinesInput].forEach(el => el.addEventListener('input', updateExport));
   document.querySelectorAll('input[name="exportMode"]').forEach(el => el.addEventListener('change', updateExport));
 
-  // init
+  // -------- import --------
+
+  function stripComments(s) {
+    return s
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '');
+  }
+
+  function matchDefineInt(code, name) {
+    const re = new RegExp(`#\\s*define\\s+${name}\\s+(\\d+)`);
+    const m = re.exec(code);
+    if (!m) return null;
+    const n = Number(m[1]);
+    return Number.isFinite(n) && Number.isInteger(n) && n >= 1 ? n : null;
+  }
+
+  function detectDeclOrientation(code) {
+    // detekce podle makro názvů
+    if (/\[\s*mapWidth\s*\]\s*\[\s*mapHeight\s*\]/.test(code)) return 'xy';
+    if (/\[\s*mapHeight\s*\]\s*\[\s*mapWidth\s*\]/.test(code)) return 'yx';
+    return null;
+  }
+
+  function extractInitializerBlock(code) {
+    const eq = code.indexOf('=');
+    const startSearch = (eq >= 0) ? eq : 0;
+    const start = code.indexOf('{', startSearch);
+    if (start < 0) return null;
+
+    let depth = 0;
+    for (let i = start; i < code.length; i++) {
+      const ch = code[i];
+      if (ch === '{') depth++;
+      else if (ch === '}') {
+        depth--;
+        if (depth === 0) {
+          return code.slice(start, i + 1);
+        }
+      }
+    }
+    return null;
+  }
+
+  function parseOuterArrays(initializerBlock) {
+    // Parsuje vnořené { ... } na hloubce 2
+    const outer = [];
+    let depth = 0;
+    let innerStart = -1;
+
+    for (let i = 0; i < initializerBlock.length; i++) {
+      const ch = initializerBlock[i];
+
+      if (ch === '{') {
+        depth++;
+        if (depth === 2) innerStart = i + 1;
+      } else if (ch === '}') {
+        if (depth === 2 && innerStart >= 0) {
+          const innerText = initializerBlock.slice(innerStart, i);
+          const nums = innerText.match(/-?\d+/g) || [];
+          outer.push(nums.map(n => Number.parseInt(n, 10)));
+          innerStart = -1;
+        }
+        depth--;
+      }
+    }
+    return outer;
+  }
+
+  function parseFlatNumbers(initializerBlock) {
+    // Čísla v celém initializer bloku (včetně vnitřních), pro fallback
+    const nums = initializerBlock.match(/-?\d+/g) || [];
+    return nums.map(n => Number.parseInt(n, 10));
+  }
+
+  function importC(codeRaw) {
+    const code = stripComments(codeRaw);
+
+    const defW = matchDefineInt(code, 'mapWidth');
+    const defH = matchDefineInt(code, 'mapHeight');
+
+    const declOrient = detectDeclOrientation(code); // xy/yx/null
+
+    const initBlock = extractInitializerBlock(code);
+    if (!initBlock) {
+      setStatus('Import selhal: nenalezen initializer blok {...}.', 'bad');
+      return false;
+    }
+
+    const outer = parseOuterArrays(initBlock);
+    const hasNested = outer.length > 0;
+
+    // zvol orientaci (auto / explicit)
+    let mode = importModeEl.value;
+    if (mode === 'auto') {
+      mode = declOrient || 'yx';
+      // Heuristika: pokud máme #define a počet outer odpovídá jedné dimenzi, využij to
+      if (!declOrient && defW && defH && hasNested) {
+        if (outer.length === defW) mode = 'xy';
+        else if (outer.length === defH) mode = 'yx';
+      }
+    }
+
+    let W = defW;
+    let H = defH;
+
+    // Pokud nejsou #define, odvoď rozměry z initializeru
+    if (!W || !H) {
+      const outerCount = outer.length;
+      const innerMax = outer.reduce((m, a) => Math.max(m, a.length), 0);
+      if (!hasNested) {
+        setStatus('Import: nenašel jsem vnořené {..} pro řádky/sloupce a nejsou #define rozměry. Přidejte #define mapWidth/mapHeight.', 'bad');
+        return false;
+      }
+      if (mode === 'xy') {
+        W = Math.max(1, outerCount);
+        H = Math.max(1, innerMax);
+      } else {
+        H = Math.max(1, outerCount);
+        W = Math.max(1, innerMax);
+      }
+    }
+
+    // Validace rozměrů
+    if (!Number.isInteger(W) || !Number.isInteger(H) || W < 1 || H < 1) {
+      setStatus('Import selhal: nepodařilo se určit platné rozměry mapy.', 'bad');
+      return false;
+    }
+
+    // Připrav nový buffer
+    let newBuf;
+    try {
+      newBuf = new Uint8Array(W * H);
+    } catch {
+      setStatus(`Import selhal: nelze alokovat ${W}×${H} (paměť/limit).`, 'bad');
+      return false;
+    }
+
+    let replaced = 0;
+
+    if (hasNested) {
+      if (mode === 'xy') {
+        for (let x = 0; x < W; x++) {
+          const col = outer[x] || [];
+          for (let y = 0; y < H; y++) {
+            let v = (y < col.length) ? col[y] : 0;
+            if (!ALLOWED.has(v)) { replaced++; v = 0; }
+            newBuf[y * W + x] = v;
+          }
+        }
+      } else {
+        for (let y = 0; y < H; y++) {
+          const row = outer[y] || [];
+          for (let x = 0; x < W; x++) {
+            let v = (x < row.length) ? row[x] : 0;
+            if (!ALLOWED.has(v)) { replaced++; v = 0; }
+            newBuf[y * W + x] = v;
+          }
+        }
+      }
+    } else {
+      // Fallback: flat initializer (bez vnořených braces)
+      const nums = parseFlatNumbers(initBlock);
+      const outerCount = (mode === 'xy') ? W : H;
+      const innerCount = (mode === 'xy') ? H : W;
+
+      let k = 0;
+      for (let outerI = 0; outerI < outerCount; outerI++) {
+        for (let innerI = 0; innerI < innerCount; innerI++) {
+          let v = (k < nums.length) ? nums[k++] : 0;
+          if (!ALLOWED.has(v)) { replaced++; v = 0; }
+
+          if (mode === 'xy') {
+            const x = outerI;
+            const y = innerI;
+            newBuf[y * W + x] = v;
+          } else {
+            const y = outerI;
+            const x = innerI;
+            newBuf[y * W + x] = v;
+          }
+        }
+      }
+    }
+
+    // Commit importu
+    mapWidth = W;
+    mapHeight = H;
+    data = newBuf;
+
+    // Sync export orientace, pokud bylo auto + existuje decl orientace
+    if (importModeEl.value === 'auto' && declOrient) {
+      document.querySelectorAll('input[name="exportMode"]').forEach(r => {
+        r.checked = (r.value === declOrient);
+      });
+    }
+
+    updateDimsUI();
+    configureCanvas();
+    updateExport();
+
+    setStatus(`Import OK: ${W}×${H}, orientace ${mode.toUpperCase()}. Nahrazeno (mimo 0–3) = ${replaced}.`, replaced > 0 ? 'warn' : 'ok');
+    return true;
+  }
+
+  document.getElementById('btnImport').addEventListener('click', () => {
+    const txt = importTextEl.value || '';
+    if (!txt.trim()) {
+      setStatus('Import: pole je prázdné.', 'warn');
+      return;
+    }
+    importC(txt);
+  });
+
+  document.getElementById('btnImportClear').addEventListener('click', () => {
+    importTextEl.value = '';
+    setStatus('Import pole vyčištěno.', 'ok');
+  });
+
+  // -------- self-test (export orientation) --------
+
+  function runExportSelfTest() {
+    const W = 2, H = 3;
+    const sample = new Uint8Array([1,0, 2,1, 3,2]); // row-major: [ [1,0], [2,1], [3,2] ]
+
+    const expXY =
+`#define mapWidth 2
+#define mapHeight 3
+int static const T[mapWidth][mapHeight]=
+{
+  {1,2,3},
+  {0,1,2}
+};
+`;
+    const expYX =
+`#define mapWidth 2
+#define mapHeight 3
+int static const T[mapHeight][mapWidth]=
+{
+  {1,0},
+  {2,1},
+  {3,2}
+};
+`;
+
+    const gotXY = generateCFromData(W, H, sample, 'xy', 'T', true);
+    const gotYX = generateCFromData(W, H, sample, 'yx', 'T', true);
+
+    const ok = (gotXY === expXY) && (gotYX === expYX);
+
+    if (ok) {
+      setStatus('Test exportu OK (XY i YX odpovídá očekávání).', 'ok');
+    } else {
+      console.error('Export self-test failed', { gotXY, gotYX, expXY, expYX });
+      setStatus('Test exportu SELHAL. Viz console pro detaily.', 'bad');
+    }
+  }
+
+  document.getElementById('btnTest').addEventListener('click', runExportSelfTest);
+
+  // -------- init --------
+
+  ctx.imageSmoothingEnabled = false;
+
   buildPalette();
   tileSizeValEl.textContent = String(tileSize);
   showGrid = true;
   showGridInput.checked = true;
   tileSizeInput.value = String(tileSize);
 
+  updateDimsUI();
   configureCanvas();
   updateExport();
-  setStatus('Připraveno. Levé tlačítko maluje, pravé maže na 0. Čísla 0–3 mění štětec.');
+
+  setStatus('Připraveno. Změňte rozměry mapy vpravo a klikněte „Použít rozměry“.', 'ok');
 })();
 </script>
 </body>
