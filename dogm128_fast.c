@@ -140,6 +140,11 @@ _Bool paint(dogm128_color_t color)
     }
 }
 
+void AdvanceDither()
+{
+    paint(DISP_COL_WHITE);
+}
+
 void dogm128_init(void)
 {
     DOGM_CS_TRIS = 0;

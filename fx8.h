@@ -59,6 +59,27 @@ static inline fx_t fx_div_i(fx_t a, int8_t b)
     return (fx_t)(a / b);
 }
 
+static inline fx_t fx_abs_fast(fx_t a)
+{
+    return (a < 0) ? (fx_t)(-a) : a;
+}
+
+static inline fx_t fx_inv_clamped(fx_t x)
+{
+    fx_t ax = fx_abs_fast(x);
+
+    /* clamp tiny magnitudes to avoid reciprocal overflow */
+    if (ax < FX_RAW(4))          /* 4/256 = 0.015625 */
+        return FX_RAW(32767);
+
+    return fx_div(FX_ONE, ax);
+}
+
+static inline fx_t fx_from_ratio(int16_t num, int16_t den)
+{
+    return (fx_t)(((int32_t)num << 8) / den);
+}
+
 /* trig */
 fx_t fx_sin(fx_t a);
 fx_t fx_cos(fx_t a);

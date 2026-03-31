@@ -170,28 +170,6 @@ void main(void)
         dogm128_text(80, 0, buf);
         
         dogm128_refresh();
-        /*
-        if (read_buttons() & (1 << 0))
-        {
-            camera.posX++;
-            if (camera.posX > 22) camera.posX = 0;
-        }
-        if (read_buttons() & (1 << 1))
-        {
-            camera.posX--;
-            if (camera.posX < 0) camera.posX = 22;
-        }
-        if (read_buttons() & (1 << 2))
-        {
-            camera.posY++;
-            if (camera.posY > 22) camera.posY = 0;
-        }
-        if (read_buttons() & (1 << 3))
-        {
-            camera.posY--;
-            if (camera.posY < 0) camera.posY = 22;
-        }
-        */
     }
 }
 
@@ -202,6 +180,7 @@ void __interrupt() isr(void)
         PIR1bits.TMR2IF = 0;
         static uint8_t local_tick = 0;
         local_tick++;
+        AdvanceDither();
         if (local_tick & 0b100)
         {
             local_tick = 0;

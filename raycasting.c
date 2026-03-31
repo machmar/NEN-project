@@ -48,152 +48,130 @@ int static const worldMap[mapWidth][mapHeight]=
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,5,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-  {1,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,0,3,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,0,0,0,0,5,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,0,3,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,0,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+  {1,3,3,3,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-const float sin_lut[64] = {
- 0.0000000000, 0.0980171403, 0.1950903220, 0.2902846773,
- 0.3826834324, 0.4713967368, 0.5555702330, 0.6343932842,
- 0.7071067812, 0.7730104534, 0.8314696123, 0.8819212643,
- 0.9238795325, 0.9569403357, 0.9807852804, 0.9951847267,
- 1.0000000000, 0.9951847267, 0.9807852804, 0.9569403357,
- 0.9238795325, 0.8819212643, 0.8314696123, 0.7730104534,
- 0.7071067812, 0.6343932842, 0.5555702330, 0.4713967368,
- 0.3826834324, 0.2902846773, 0.1950903220, 0.0980171403,
- 0.0000000000,-0.0980171403,-0.1950903220,-0.2902846773,
--0.3826834324,-0.4713967368,-0.5555702330,-0.6343932842,
--0.7071067812,-0.7730104534,-0.8314696123,-0.8819212643,
--0.9238795325,-0.9569403357,-0.9807852804,-0.9951847267,
--1.0000000000,-0.9951847267,-0.9807852804,-0.9569403357,
--0.9238795325,-0.8819212643,-0.8314696123,-0.7730104534,
--0.7071067812,-0.6343932842,-0.5555702330,-0.4713967368,
--0.3826834324,-0.2902846773,-0.1950903220,-0.0980171403 };
-
-float abs_float(float x) {return x < 0.0f ? -x : x;}
-
 int DrawFrame(player_t player)
 {
-    for(int x = 0; x < screenWidth; x++)
+    int x;
+
+    for (x = 0; x < screenWidth; x++)
     {
-      //calculate ray position and direction
-      float cameraX = 2 * x / (float)screenWidth - 1; //x-coordinate in camera space
-      float rayDirX = player.dirX + player.planeX * cameraX;
-      float rayDirY = player.dirY + player.planeY * cameraX;
-      //which box of the map we're in
-      int mapX = (int)player.posX;
-      int mapY = (int)player.posY;
+        /* cameraX = 2*x/screenWidth - 1, in 8.8 fixed */
+        fx_t cameraX = (fx_t)((((int32_t)x << 9) / screenWidth) - FX_ONE);
 
-      //length of ray from current position to next x or y-side
-      float sideDistX;
-      float sideDistY;
+        /* ray direction */
+        fx_t rayDirX = fx_add(player.dirX, fx_mul(player.planeX, cameraX));
+        fx_t rayDirY = fx_add(player.dirY, fx_mul(player.planeY, cameraX));
 
-      //length of ray from one x or y-side to next x or y-side
-      //these are derived as:
-      //deltaDistX = sqrt(1 + (rayDirY * rayDirY) / (rayDirX * rayDirX))
-      //deltaDistY = sqrt(1 + (rayDirX * rayDirX) / (rayDirY * rayDirY))
-      //which can be simplified to abs(|rayDir| / rayDirX) and abs(|rayDir| / rayDirY)
-      //where |rayDir| is the length of the vector (rayDirX, rayDirY). Its length,
-      //unlike (dirX, dirY) is not 1, however this does not matter, only the
-      //ratio between deltaDistX and deltaDistY matters, due to the way the DDA
-      //stepping further below works. So the values can be computed as below.
-      // Division through zero is prevented, even though technically that's not
-      // needed in C++ with IEEE 754 floating point values.
-      float deltaDistX = (rayDirX == 0) ? 1e30 : abs_float(1 / rayDirX);
-      float deltaDistY = (rayDirY == 0) ? 1e30 : abs_float(1 / rayDirY);
+        /* map cell */
+        int mapX = FX_TO_INT(player.posX);
+        int mapY = FX_TO_INT(player.posY);
 
-      float perpWallDist;
+        /* delta distances */
+        fx_t deltaDistX;
+        fx_t deltaDistY;
+        fx_t sideDistX;
+        fx_t sideDistY;
+        fx_t perpWallDist;
 
-      //what direction to step in x or y-direction (either +1 or -1)
-      int stepX;
-      int stepY;
+        int stepX;
+        int stepY;
+        int hit = 0;
+        int side = 0;
 
-      int hit = 0; //was there a wall hit?
-      int side; //was a NS or a EW wall hit?
-      //calculate step and initial sideDist
-      if(rayDirX < 0)
-      {
-        stepX = -1;
-        sideDistX = (player.posX - mapX) * deltaDistX;
-      }
-      else
-      {
-        stepX = 1;
-        sideDistX = (mapX + 1.0 - player.posX) * deltaDistX;
-      }
-      if(rayDirY < 0)
-      {
-        stepY = -1;
-        sideDistY = (player.posY - mapY) * deltaDistY;
-      }
-      else
-      {
-        stepY = 1;
-        sideDistY = (mapY + 1.0 - player.posY) * deltaDistY;
-      }
-      //perform DDA
-      while(hit == 0)
-      {
-        //jump to next map square, either in x-direction, or in y-direction
-        if(sideDistX < sideDistY)
+        deltaDistX = fx_inv_clamped(rayDirX);
+        deltaDistY = fx_inv_clamped(rayDirY);
+
+        /* initial step and sidedist */
+        if (rayDirX < 0)
         {
-          sideDistX += deltaDistX;
-          mapX += stepX;
-          side = 0;
+            stepX = -1;
+            sideDistX = fx_mul(fx_sub(player.posX, FX_FROM_INT(mapX)), deltaDistX);
         }
         else
         {
-          sideDistY += deltaDistY;
-          mapY += stepY;
-          side = 1;
+            stepX = 1;
+            sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), player.posX), deltaDistX);
         }
-        //Check if ray has hit a wall
-        if(worldMap[mapX][mapY] > 0) hit = 1;
-      }
-      //Calculate distance projected on camera direction. This is the shortest distance from the point where the wall is
-      //hit to the camera plane. Euclidean to center camera point would give fisheye effect!
-      //This can be computed as (mapX - posX + (1 - stepX) / 2) / rayDirX for side == 0, or same formula with Y
-      //for size == 1, but can be simplified to the code below thanks to how sideDist and deltaDist are computed:
-      //because they were left scaled to |rayDir|. sideDist is the entire length of the ray above after the multiple
-      //steps, but we subtract deltaDist once because one step more into the wall was taken above.
-      if(side == 0) perpWallDist = (sideDistX - deltaDistX);
-      else          perpWallDist = (sideDistY - deltaDistY);
 
-      //Calculate height of line to draw on screen
-      int lineHeight = (int)(screenHeight / perpWallDist);
+        if (rayDirY < 0)
+        {
+            stepY = -1;
+            sideDistY = fx_mul(fx_sub(player.posY, FX_FROM_INT(mapY)), deltaDistY);
+        }
+        else
+        {
+            stepY = 1;
+            sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), player.posY), deltaDistY);
+        }
 
-      //calculate lowest and highest pixel to fill in current stripe
-      int drawStart = -lineHeight / 2 + screenHeight / 2;
-      if(drawStart < 0) drawStart = 0;
+        /* DDA */
+        while (!hit)
+        {
+            if (sideDistX < sideDistY)
+            {
+                sideDistX = fx_add(sideDistX, deltaDistX);
+                mapX += stepX;
+                side = 0;
+            }
+            else
+            {
+                sideDistY = fx_add(sideDistY, deltaDistY);
+                mapY += stepY;
+                side = 1;
+            }
 
-      //choose wall color
-      dogm128_color_t color;
-      switch(worldMap[mapX][mapY])
-      {
-        case 1:  color = DISP_COL_LIGHT_GREY;    break; //red
-        case 2:  color = DISP_COL_DARK_GREY;  break; //green
-        case 3:  color = DISP_COL_GREY;   break; //blue
-        case 4:  color = DISP_COL_WHITE;  break; //white
-        default: color = DISP_COL_BLACK; break; //yellow
-      }
+            if (worldMap[mapX][mapY] > 0)
+                hit = 1;
+        }
 
-      //draw the pixels of the stripe as a vertical line
-      dogm128_vline(x, drawStart, lineHeight, color);
+        /* perpendicular wall distance */
+        if (side == 0)
+            perpWallDist = fx_sub(sideDistX, deltaDistX);
+        else
+            perpWallDist = fx_sub(sideDistY, deltaDistY);
+
+        if (perpWallDist < FX_RAW(1))
+            perpWallDist = FX_RAW(1);
+
+        /* lineHeight = screenHeight / perpWallDist */
+        {
+            int lineHeight = ((int32_t)screenHeight << 8) / perpWallDist;
+            int drawStart = (-lineHeight >> 1) + (screenHeight >> 1);
+            dogm128_color_t color;
+
+            if (drawStart < 0) drawStart = 0;
+            if (lineHeight > screenHeight) lineHeight = screenHeight;
+
+            switch (worldMap[mapX][mapY])
+            {
+                case 1:  color = DISP_COL_LIGHT_GREY; break;
+                case 2:  color = DISP_COL_DARK_GREY;  break;
+                case 3:  color = DISP_COL_GREY;       break;
+                case 4:  color = DISP_COL_WHITE;      break;
+                default: color = DISP_COL_BLACK;      break;
+            }
+
+            dogm128_vline((uint8_t)x, (uint8_t)drawStart, (uint8_t)lineHeight, color);
+        }
     }
+
     return 0;
 }
 
 int MoveCamera(player_t *player, buttons_t buttons)
 {
     //move forward if no wall in front of you
-    fx_t moveSpeed = FX_ONE; //the constant value is in squares/second
-    fx_t rotSpeed = 0x0003; //the constant value is in radians/second (0.01PI per frame)
+    fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
+    fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
     if(buttons.front)
     {
       if(worldMap[FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed)))][FX_I(player->posY)] == false)

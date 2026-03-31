@@ -48,4 +48,6 @@ void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color
 void dogm128_char(uint8_t x, uint8_t y, char c);
 void dogm128_text(uint8_t x, uint8_t y, const char *s);
 
+void AdvanceDither();
+
 #endif
