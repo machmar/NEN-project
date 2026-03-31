@@ -5,6 +5,7 @@
 #include "utils.h"
 #include "raycasting.h"
 #include "fx8.h"
+#include "moduleDogm128.h"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -24,8 +25,10 @@ void init_ports(void)
     ADCON1 = 0x0F;   // all pins digital
 
     TRISA = 0x00;    // LEDs
-    TRISB = 0xFF;    // buttons
+    TRISB = 0x3D;    // buttons
     TRISC = 0x00;    // SPI + control lines
+    TRISD = 0x00;
+    TRISE = 0x00;
 }
 
 buttons_t read_buttons()
@@ -120,6 +123,7 @@ static millis_t PMill = 0;
 void main(void)
 {
     init_ports();
+    initDisplay();
     pwm_ccp1_init();
     dogm128_init();
     Backlight(1023);
@@ -143,7 +147,7 @@ void main(void)
         buttons = read_buttons();
 
         MoveCamera(&camera, buttons);
-        //DrawFrame(camera);
+        DrawFrame(camera);
         
         utoa(FX_TO_INT(camera.posX), buf);
         dogm128_text(0, 0, buf);

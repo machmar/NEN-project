@@ -87,7 +87,9 @@ static void lcd_cmd(uint8_t c)
 {
     DOGM_A0_LAT = 0;
     DOGM_CS_LAT = 0;
+    __nop();
     spi_write(c);
+    __nop();
     DOGM_CS_LAT = 1;
 }
 
@@ -161,7 +163,7 @@ void dogm128_init(void)
     lcd_cmd(0xF8);
     lcd_cmd(0x00);
     lcd_cmd(0x27);   // resistor ratio
-    dogm128_contrast(0x14);
+    dogm128_contrast(0x16);
     lcd_cmd(0xAC);
     lcd_cmd(0x00);
     lcd_cmd(0xAF);
