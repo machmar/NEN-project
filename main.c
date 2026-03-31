@@ -6,6 +6,7 @@
 #include "raycasting.h"
 #include "fx8.h"
 #include "moduleDogm128.h"
+#include "assets.h"
 
 // CONFIG (example)
 #pragma config FOSC = HSPLL_HS
@@ -143,20 +144,24 @@ void main(void)
     
     while (1)
     {
+        static millis_t PMill = 0;
+        static millis_t frame_length = 0;
+        PMill = millis;
         dogm128_clear();
         buttons = read_buttons();
 
         MoveCamera(&camera, buttons);
-        DrawFrame(camera);
+        RenderFrame(camera, frame_buffer[0]);
+        DrawBuffer(frame_buffer[0]);
+        
+        frame_length = millis - PMill;
         
         utoa(FX_TO_INT(camera.posX), buf);
         dogm128_text(0, 0, buf);
         utoa(FX_TO_INT(camera.posY), buf);
         dogm128_text(20, 0, buf);
-        utoa(FX_TO_INT(camera.dirX) + 100, buf);
+        utoa(1000 / frame_length, buf);
         dogm128_text(40, 0, buf);
-        utoa(FX_TO_INT(camera.dirY) + 100, buf);
-        dogm128_text(60, 0, buf);
         
         uint8_t y = ~PORTB;
     uint8_t z = ((y & (1 << 5)) >> 5) |
@@ -170,6 +175,9 @@ void main(void)
         dogm128_text(80, 0, buf);
         
         dogm128_refresh();
+        static char led = 0xFF;
+        led = ~led;
+        set_LEDs(led);
     }
 }
 

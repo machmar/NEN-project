@@ -299,6 +299,67 @@ void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, dogm128_color_t color)
     paint_counter++;
 }
 
+void dogm128_vlineBLACK(uint8_t x, uint8_t y, uint8_t h)
+{
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT || h == 0) return;
+
+    if ((uint16_t)y + h > DOGM_HEIGHT)
+        h = DOGM_HEIGHT - y;
+
+    while (h)
+    {
+        uint8_t page = y >> 3;
+        uint8_t bit  = y & 7;
+        uint8_t n    = (uint8_t)(8 - bit);
+        uint8_t mask;
+        uint16_t i;
+
+        if (n > h) n = h;
+
+        mask = (uint8_t)(((1u << n) - 1u) << bit);
+        i = ((uint16_t)page << 7) + x;
+
+        dogm_fb[i] |= mask;
+
+        y += n;
+        h -= n;
+    }
+}
+
+void dogm128_vlineBLACK2px(uint8_t x, uint8_t y, uint8_t h)
+{
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT || h == 0) return;
+    
+    if (x == DOGM_WIDTH - 1 || y >= DOGM_HEIGHT || h == 0)
+    {
+        dogm128_vlineBLACK(x, y, h);
+        return;
+    }
+
+    if ((uint16_t)y + h > DOGM_HEIGHT)
+        h = DOGM_HEIGHT - y;
+
+    while (h)
+    {
+        uint8_t page = y >> 3;
+        uint8_t bit  = y & 7;
+        uint8_t n    = (uint8_t)(8 - bit);
+        uint8_t mask;
+        uint16_t i;
+
+        if (n > h) n = h;
+
+        mask = (uint8_t)(((1u << n) - 1u) << bit);
+        i = ((uint16_t)page << 7) + x;
+
+        dogm_fb[i] |= mask;
+        dogm_fb[i + 1] |= mask;
+
+        y += n;
+        h -= n;
+    }
+}
+
 void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
 {
     int dx, dy, sx, sy, err, e2;

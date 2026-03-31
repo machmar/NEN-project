@@ -41,6 +41,8 @@ void dogm128_fill(void);
 void dogm128_pixel(uint8_t x, uint8_t y, dogm128_color_t color);
 void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, dogm128_color_t color);
 void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, dogm128_color_t color);
+void dogm128_vlineBLACK(uint8_t x, uint8_t y, uint8_t h);
+void dogm128_vlineBLACK2px(uint8_t x, uint8_t y, uint8_t h);
 void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color);
 void dogm128_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color);
 void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color);
