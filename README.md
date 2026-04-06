@@ -3,7 +3,7 @@ Essentially, we got a kit from our teacher and a "*do something with it*".
 I always wanted to play around with 3D graphics and ray marching, so I decided this was it.
 
 ### Components
- - Some PIC8
+ - Some PIC18F4550
 	 - 2k RAM
 	 - 32k Flash
 	 - A sprinkle of EEPROM, could 
@@ -22,3 +22,11 @@ Left two buttons walk, right two buttons turn. Center resets the location.
 The renderer itself now runs at 35 FPS.
 
 ![ezgif com-optimize](https://github.com/user-attachments/assets/7955fe87-7f4a-43e5-aa2a-92a638bc3312)
+
+### To-do
+- Story (probably escape from MKUltra testing facility)
+- Art (sprites, hud, menu)
+- Pick-ups (keys or keycard to progress in level, health)
+- Levels (depends on how many will memory allow)
+- Enemies (movement, hit detection)
+- Grey scale for display
