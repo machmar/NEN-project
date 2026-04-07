@@ -463,42 +463,77 @@ void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
     }
 }
 
-void dogm128_blit_or(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
+void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
 {
-    uint8_t page_y = y >> 3;
-    uint8_t yshift = y & 7;
-    uint8_t pages = (bmp->h + 7) >> 3;
-    uint8_t sx, sp;
+    int16_t base_page;
+    uint8_t shift;
+    uint8_t pages;
+    uint8_t sp, sx;
+    uint8_t x0, w;
+    uint16_t src_base;
 
-    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
-    if ((uint16_t)x + bmp->w > DOGM_WIDTH) return;
+    if (!bmp || !bmp->data) return;
+    if (bmp->w == 0 || bmp->h == 0) return;
+
+    /* full reject */
+    if (x >= DOGM_WIDTH || (x + bmp->w) <= 0) return;
+    if (y >= DOGM_HEIGHT || (y + bmp->h) <= 0) return;
+
+    /* clip X */
+    x0 = 0;
+    w = bmp->w;
+
+    if (x < 0)
+    {
+        x0 = (uint8_t)(-x);
+        w -= x0;
+        x = 0;
+    }
+
+    if ((uint16_t)x + w > DOGM_WIDTH)
+        w = (uint8_t)(DOGM_WIDTH - x);
+
+    /* page geometry */
+    pages = (uint8_t)((bmp->h + 7) >> 3);
+
+    /* floor division by 8, with positive shift 0..7 */
+    base_page = y / 8;
+    if ((y < 0) && (y & 7))
+        base_page--;
+
+    shift = (uint8_t)(y - (base_page * 8));   /* always 0..7 */
 
     for (sp = 0; sp < pages; sp++)
     {
-        uint16_t src = (uint16_t)sp * bmp->w;
+        int16_t dp0 = base_page + sp;
+        int16_t dp1 = dp0 + 1;
 
-        if ((page_y + sp) < 8)
+        src_base = (uint16_t)sp * bmp->w + x0;
+
+        /* upper part */
+        if (dp0 >= 0 && dp0 < 8)
         {
-            uint16_t dst = ((uint16_t)(page_y + sp) << 7) + x;
+            uint16_t dst = ((uint16_t)dp0 << 7) + (uint16_t)x;
 
-            if (yshift == 0)
+            if (shift == 0)
             {
-                for (sx = 0; sx < bmp->w; sx++)
-                    dogm_fb[dst + sx] |= bmp->data[src + sx];
+                for (sx = 0; sx < w; sx++)
+                    dogm_fb[dst + sx] |= bmp->data[src_base + sx];
             }
             else
             {
-                for (sx = 0; sx < bmp->w; sx++)
-                    dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src + sx] << yshift);
+                for (sx = 0; sx < w; sx++)
+                    dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src_base + sx] << shift);
             }
         }
 
-        if (yshift && (page_y + sp + 1) < 8)
+        /* lower spill */
+        if (shift && dp1 >= 0 && dp1 < 8)
         {
-            uint16_t dst = ((uint16_t)(page_y + sp + 1) << 7) + x;
+            uint16_t dst = ((uint16_t)dp1 << 7) + (uint16_t)x;
 
-            for (sx = 0; sx < bmp->w; sx++)
-                dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src + sx] >> (8 - yshift));
+            for (sx = 0; sx < w; sx++)
+                dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src_base + sx] >> (8 - shift));
         }
     }
 }
