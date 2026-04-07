@@ -218,7 +218,7 @@ int MoveCamera(player_t *player, buttons_t buttons)
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer)
 {
   // Calculate distance from player to each entity
-  for(int i = 0; i < amount; i++)
+  /*for(int i = 0; i < amount; i++)
   {
     entities[i].distance = ((player->posX - entities[i].posX) * (player->posX - entities[i].posX) + (player->posY - entities[i].posY) * (player->posY - entities[i].posY));
   }
@@ -303,5 +303,5 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         }
       }
     }
-  }
+  }*/
 }

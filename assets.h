@@ -9,6 +9,7 @@
 #define	ASSETS_H
 
 #include "dogm128_fast.h"
+#include "fx8.h"
 
 #define mapWidth 24
 #define mapHeight 24
@@ -52,20 +53,20 @@ static const uint8_t minimapData_TestMap[] = {
 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x0f, 0x00, 0x00, 0x00, 0x00
 };
 
-dogm128_bitmap_t minimap_TestMap = { 32, 32, minimapData_TestMap};
+const dogm128_bitmap_t minimap_TestMap = { 32, 32, minimapData_TestMap};
 
 typedef struct {
     uint8_t width;
     uint8_t height;
     const uint8_t *data;
-    dogm128_bitmap_t minimap;
+    dogm128_bitmap_t *minimap;
 } map_t;
 
 map_t TestMap = {
     mapWidth,
     mapHeight,
     worldMap,
-    minimap_TestMap,
+    &minimap_TestMap,
 };
 
 typedef struct
