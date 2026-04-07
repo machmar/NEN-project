@@ -56,10 +56,23 @@ void HUD_DrawBanner(uint8_t number) {
 }
 
 void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, map_t map, player_t player) {
-    dogm128_blit_or(x_loc, y_loc, map.minimap);
+    int16_t static height_scroll = 0;
+    uint8_t max_scroll = 0;
+    if (map.height > 32)
+        max_scroll = map.height - 32;
+    uint8_t const top_edge_scroll_threshold = 5; // how many pixels does the player have to be from the edge to scroll the map
+    uint8_t const bottom_edge_scroll_threshold = 26; // how many pixels does the player have to be from the edge to scroll the map
+    
+    if (FX_I(player.posY) - height_scroll < top_edge_scroll_threshold && height_scroll > 0)
+        height_scroll--;
+    
+    if (FX_I(player.posY) - height_scroll > bottom_edge_scroll_threshold && height_scroll < max_scroll)
+        height_scroll++;
+    
+    dogm128_blit_or(x_loc, (int16_t)y_loc - height_scroll, map.minimap);
     
     static _Bool show = 0;
     if (show)
-        dogm128_pixel(FX_I(player.posX) + x_loc, FX_I(player.posY) + y_loc, DISP_COL_BLACK);
+        dogm128_pixel((uint8_t)FX_I(player.posX) + x_loc, (uint8_t)FX_I(player.posY) + (uint8_t)(y_loc - height_scroll), DISP_COL_BLACK);
     show = !show;
 }
