@@ -141,7 +141,18 @@ void main(void)
     camera.planeY = 0x00a9; // 0.66
     
     char buf[64];
-    
+
+    entity_t entities[10] = {0};
+    entities[0].posX = 17;
+    entities[0].posY = 12;
+    entities[0].health = 100;
+    entities[0].sprite = sprite;
+
+    entities[1].posX = 17;
+    entities[1].posY = 8.5;
+    entities[1].health = 100;
+    entities[1].sprite = sprite;
+
     while (1)
     {
         static millis_t PMill = 0;
@@ -152,6 +163,7 @@ void main(void)
 
         MoveCamera(&camera, buttons);
         RenderFrame(camera, frame_buffer[0]);
+        DrawEntities(camera, entities, MAX_ENTITIES, dogm_fb);
         DrawBuffer(frame_buffer[0]);
         
         frame_length = millis - PMill;
