@@ -73,6 +73,6 @@ void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, map_t map, player_t player) {
     
     static uint8_t show = 0;
     if (show & 0b100) // make the player grey
-        dogm128_pixel((uint8_t)FX_I(player.posX) + x_loc, (uint8_t)FX_I(player.posY) + (uint8_t)(y_loc - height_scroll), DISP_COL_BLACK);
+        dogm128_pixel(((uint8_t)FX_I(player.posY)) + x_loc, (uint8_t)FX_I(player.posX) + (uint8_t)(y_loc - height_scroll), DISP_COL_BLACK);
     show++;
 }

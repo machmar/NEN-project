@@ -177,6 +177,10 @@ void main(void)
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf);
         dogm128_text(0, 0, buf);
+        utoa(FX_I(camera.posX), buf);
+        dogm128_text(0, 6, buf);
+        utoa(FX_I(camera.posY), buf);
+        dogm128_text( 20, 6, buf);
         
         dogm128_refresh();
         static char led = 0xFF;
