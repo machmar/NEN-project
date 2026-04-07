@@ -170,7 +170,7 @@ void main(void)
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
-        HUD_DrawMap(96, 0, 0, 0, TestMap, camera);
+        HUD_DrawMap(96, 0, TestMap, camera);
         
         
         

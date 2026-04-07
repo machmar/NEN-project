@@ -12,7 +12,7 @@
 #include "assets.h"
 
 void HUD_DrawBanner(uint8_t number);
-void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, uint8_t width, uint8_t height, map_t map, player_t player);
+void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, map_t map, player_t player);
 
 #endif	/* HUDSTUFF_H */
 
