@@ -12,7 +12,7 @@ typedef struct __attribute__((packed))
     bool front, back, use, left, right;
 } buttons_t;
 
-int extern renderFrame(player_t player, line_t *buffer);
+int RenderFrame(player_t player, line_t *buffer);
 void DrawBuffer(line_t *buffer);
 
 #define SPRITE_WIDTH 5
