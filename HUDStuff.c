@@ -53,3 +53,7 @@ void HUD_DrawBanner(uint8_t number) {
     dogm128_line(85, 0, 82, 7, DISP_COL_BLACK);
     dogm128_blit_or(10, 0, &LevelBanners[number]);
 }
+
+void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, uint8_t width, uint8_t height, map_t map, player_t player) {
+    dogm128_blit_or(x_loc, y_loc, map.minimap);
+}

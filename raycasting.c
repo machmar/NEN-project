@@ -139,7 +139,7 @@ int RenderFrame(player_t player, line_t *buffer)
             buffer[x].length = lineHeight;
         }
       //draw the pixels of the stripe as a vertical line
-      player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
+      //player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
     }
 
     return 0;

@@ -7,13 +7,6 @@
 
 #define MAX_ENTITIES 10
 
-typedef struct
-{
-    fx_t posX, posY; // position
-    fx_t dirX, dirY; // direction vector
-    fx_t planeX, planeY; // camera plane
-} player_t;
-
 typedef struct __attribute__((packed))
 {
     bool front, back, use, left, right;
@@ -21,6 +14,10 @@ typedef struct __attribute__((packed))
 
 int extern renderFrame(player_t player, line_t *buffer);
 void DrawBuffer(line_t *buffer);
+
+#define SPRITE_WIDTH 5
+#define SPRITE_HEIGHT 10
+
 typedef struct
 {
     float posX, posY; // position
@@ -29,9 +26,7 @@ typedef struct
     uint8_t (*sprite)[SPRITE_WIDTH];
 }entity_t;
 
-#define SPRITE_WIDTH 5
-#define SPRITE_HEIGHT 10
-int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
+int const static sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
   {0, 1, 1, 1, 0},
   {0, 1, 0, 1, 0},
   {0, 1, 0, 1, 0},

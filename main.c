@@ -164,9 +164,15 @@ void main(void)
 
         MoveCamera(&camera, buttons);
         RenderFrame(camera, frame_buffer[0]);
-        DrawEntities(camera, entities, MAX_ENTITIES, dogm_fb);
         DrawBuffer(frame_buffer[0]);
         HUD_DrawBanner((millis / 3000) % 5);        
+        
+        
+        dogm128_vline(96, 0, 64, DISP_COL_BLACK);
+        dogm128_hline(96, 32, 32, DISP_COL_BLACK);
+        HUD_DrawMap(96, 0, 0, 0, TestMap, camera);
+        
+        
         
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf);
