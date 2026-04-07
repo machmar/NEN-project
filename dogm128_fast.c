@@ -434,6 +434,75 @@ void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
     paint_counter++;
 }
 
+void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
+{
+    uint8_t page_y;
+    uint8_t pages;
+    uint8_t sx, sp;
+
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if (bmp->w == 0 || bmp->h == 0) return;
+    if (y & 7) return;   // only aligned
+
+    page_y = y >> 3;
+    pages = (bmp->h + 7) >> 3;
+
+    if ((uint16_t)x + bmp->w > DOGM_WIDTH)
+        return;
+
+    if ((uint16_t)page_y + pages > 8)
+        return;
+
+    for (sp = 0; sp < pages; sp++)
+    {
+        uint16_t dst = ((uint16_t)(page_y + sp) << 7) + x;
+        uint16_t src = (uint16_t)sp * bmp->w;
+
+        for (sx = 0; sx < bmp->w; sx++)
+            dogm_fb[dst + sx] = bmp->data[src + sx];
+    }
+}
+
+void dogm128_blit_or(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
+{
+    uint8_t page_y = y >> 3;
+    uint8_t yshift = y & 7;
+    uint8_t pages = (bmp->h + 7) >> 3;
+    uint8_t sx, sp;
+
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if ((uint16_t)x + bmp->w > DOGM_WIDTH) return;
+
+    for (sp = 0; sp < pages; sp++)
+    {
+        uint16_t src = (uint16_t)sp * bmp->w;
+
+        if ((page_y + sp) < 8)
+        {
+            uint16_t dst = ((uint16_t)(page_y + sp) << 7) + x;
+
+            if (yshift == 0)
+            {
+                for (sx = 0; sx < bmp->w; sx++)
+                    dogm_fb[dst + sx] |= bmp->data[src + sx];
+            }
+            else
+            {
+                for (sx = 0; sx < bmp->w; sx++)
+                    dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src + sx] << yshift);
+            }
+        }
+
+        if (yshift && (page_y + sp + 1) < 8)
+        {
+            uint16_t dst = ((uint16_t)(page_y + sp + 1) << 7) + x;
+
+            for (sx = 0; sx < bmp->w; sx++)
+                dogm_fb[dst + sx] |= (uint8_t)(bmp->data[src + sx] >> (8 - yshift));
+        }
+    }
+}
+
 void dogm128_char(uint8_t x, uint8_t y, char c)
 {
     uint8_t i, b, col;

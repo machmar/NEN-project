@@ -8,10 +8,12 @@
 #ifndef ASSETS_H
 #define	ASSETS_H
 
+#include "dogm128_fast.h"
+
 #define mapWidth 24
 #define mapHeight 24
 
-int static const worldMap[mapWidth][mapHeight]=
+char static const worldMap[mapWidth][mapHeight]=
 {
   {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
   {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},

@@ -31,6 +31,13 @@ typedef enum {
     DISP_COL_DARK_GREY = 4,
 } dogm128_color_t;
 
+typedef struct
+{
+    uint8_t w;
+    uint8_t h;
+    const uint8_t *data;
+} dogm128_bitmap_t;
+
 void dogm128_init(void);
 void dogm128_refresh(void);
 void dogm128_contrast(uint8_t v);
@@ -46,6 +53,8 @@ void dogm128_vlineBLACK2px(uint8_t x, uint8_t y, uint8_t h);
 void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color);
 void dogm128_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color);
 void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color);
+void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp);
+void dogm128_blit_or(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp);
 
 void dogm128_char(uint8_t x, uint8_t y, char c);
 void dogm128_text(uint8_t x, uint8_t y, const char *s);
