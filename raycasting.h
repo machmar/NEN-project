@@ -14,45 +14,6 @@ typedef struct __attribute__((packed))
 
 int RenderFrame(player_t *player, line_t *buffer);
 void DrawBuffer(line_t *buffer);
-
-#define SPRITE_WIDTH 5
-#define SPRITE_HEIGHT 10
-/**
-int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
-  {0, 1, 1, 1, 0},
-  {0, 1, 0, 1, 0},
-  {0, 1, 0, 1, 0},
-  {0, 1, 1, 1, 0},
-  {0, 0, 1, 0, 0},
-  {0, 0, 1, 0, 0},
-  {0, 1, 1, 1, 0},
-  {1, 1, 0, 1, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-};
-*/
-int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
-  {1, 1, 1, 1, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 0, 1},
-  {1, 0, 0, 1, 1},
-  {1, 1, 1, 1, 1},
-};
-
-
-typedef struct
-{
-    fx_t posX, posY; // position
-    fx_t distance; // distance from the player (for sorting)
-    uint8_t health;
-    uint8_t (*sprite)[SPRITE_WIDTH];
-}entity_t;
-
 int MoveCamera(player_t *player, buttons_t buttons);
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
 

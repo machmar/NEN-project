@@ -10,6 +10,7 @@
 
 #include "dogm128_fast.h"
 #include "fx8.h"
+#include <stdint.h>
 
 #define mapWidth 24
 #define mapHeight 24
@@ -53,6 +54,19 @@ static const uint8_t minimapData_TestMap[] = {
 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x0f, 0x00, 0x00, 0x00, 0x00
 };
 
+static const uint8_t enemySprite[10][5] = {
+  {0, 1, 1, 1, 0},
+  {0, 1, 0, 1, 0},
+  {0, 1, 0, 1, 0},
+  {0, 1, 1, 1, 0},
+  {0, 0, 1, 0, 0},
+  {0, 0, 1, 0, 0},
+  {0, 1, 1, 1, 0},
+  {1, 1, 0, 1, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+};
+
 const dogm128_bitmap_t minimap_TestMap = { 32, 32, minimapData_TestMap};
 
 typedef struct {
@@ -84,6 +98,25 @@ typedef struct {
 } line_t;
 
 line_t frame_buffer[2][48];
+
+typedef struct
+{
+    uint8_t width;
+    uint8_t height;
+    const uint8_t *data;
+} sprite_t;
+
+typedef struct
+{
+    fx_t posX, posY;
+    fx_t distance;
+    uint8_t health;
+    sprite_t *sprite;
+}entity_t;
+
+static sprite_t enemySpriteStruct = {5, 10, (const uint8_t *)enemySprite};
+
+entity_t entities[10] = {0};
 
 #endif	/* ASSETS_H */
 

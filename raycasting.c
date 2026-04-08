@@ -24,6 +24,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "raycasting.h"
 #include "dogm128_fast.h"
 #include "fx8.h"
+#include <stdint.h>
+
+
+#define TEX_AT(map, x, y)  ((map)->data[(uint16_t)(y) * (map)->width + (uint8_t)(x)])
 
 // Screen and map dimensions:
 #define screenWidth 48
@@ -231,8 +235,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   // Render entities.
   for (int i = 0; i < amount; i++)
   {
-    uint8_t (*spriteTex)[SPRITE_WIDTH] = entities[i].sprite;
-    if (spriteTex == 0 || entities[i].health == 0)
+    if (entities[i].sprite->data == 0 || entities[i].health == 0)
       continue;
 
     // Translate sprite position relative to camera.
@@ -273,11 +276,16 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       continue;
 
     // Incremental texture mapping removes divisions from inner loops.
-    int texXStep = (SPRITE_WIDTH << 8) / spriteWidth;
+    int texXStep = (entities[i].sprite->width << 8) / spriteWidth;
     int texXPos = (drawStartX - spriteLeft) * texXStep;
     int texYBase = ((drawStartY - vMoveScreen) << 8) - (screenHeight << 7) + (spriteHeight << 7);
-    int texYStep = (SPRITE_HEIGHT << 8) / spriteHeight;
-    int texYStart = (texYBase * SPRITE_HEIGHT) / spriteHeight;
+    int texYStep = (entities[i].sprite->height << 8) / spriteHeight;
+    int texYStart = (texYBase * entities[i].sprite->height) / spriteHeight;
+    /* If problems with overflow arise, the above can be rewritten to use 32-bit intermediate values:
+    long texYBase = ((long)(drawStartY - vMoveScreen) << 8) - ((long)screenHeight << 7) + ((long)spriteHeight << 7);
+    int texYStep = (int)(((long)entities[i].sprite->height << 8) / spriteHeight);
+    int texYStart = (int)((texYBase * entities[i].sprite->height) / spriteHeight);
+    */
     
     for (int stripe = drawStartX; stripe < drawEndX; stripe++)
     {
@@ -287,9 +295,9 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         continue;
       }
 
-      int texX = texXPos >> 8;
+      uint16_t texX = texXPos >> 8;
       texXPos += texXStep;
-      if (texX < 0 || texX >= SPRITE_WIDTH)
+      if (texX >= entities[i].sprite->width)
         continue;
 
       int texYPos = texYStart;
@@ -311,8 +319,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
           mask = 0;
         }
 
-        int texY = texYPos >> 8;
-        if (texY >= 0 && texY < SPRITE_HEIGHT && spriteTex[texY][texX])
+        uint16_t texY = texYPos >> 8;
+        if (texY < entities[i].sprite->height && TEX_AT(entities[i].sprite, texX, texY))
           mask |= (uint8_t)(1u << (y & 7));
 
         texYPos += texYStep;
