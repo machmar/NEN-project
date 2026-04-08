@@ -43,19 +43,17 @@ static const fx_t cameraX_lut[48] = {
 
 int RenderFrame(const player_t *player, line_t *buffer)
 {
-    int x;
+    uint8_t x;
 
     for (x = 0; x < screenWidth; x++)
     {
-        fx_t cameraX = cameraX_lut[x];
-
-        /* ray direction */
-        fx_t rayDirX = fx_add(player->dirX, fx_mul(player->planeX, cameraX));
-        fx_t rayDirY = fx_add(player->dirY, fx_mul(player->planeY, cameraX));
+        /* ray direction — cameraX inlined, saves 2-byte local */
+        fx_t rayDirX = fx_add(player->dirX, fx_mul(player->planeX, cameraX_lut[x]));
+        fx_t rayDirY = fx_add(player->dirY, fx_mul(player->planeY, cameraX_lut[x]));
 
         /* map cell */
-        int mapX = FX_TO_INT(player->posX);
-        int mapY = FX_TO_INT(player->posY);
+        int8_t mapX = (int8_t)FX_TO_INT(player->posX);
+        int8_t mapY = (int8_t)FX_TO_INT(player->posY);
 
         /* delta distances */
         fx_t deltaDistX;
@@ -64,10 +62,10 @@ int RenderFrame(const player_t *player, line_t *buffer)
         fx_t sideDistY;
         fx_t perpWallDist;
 
-        int stepX;
-        int stepY;
-        int hit = 0;
-        int side = 0;
+        int8_t  stepX;
+        int8_t  stepY;
+        uint8_t hit = 0;
+        uint8_t side = 0;
 
         deltaDistX = fx_inv_clamped(rayDirX);
         deltaDistY = fx_inv_clamped(rayDirY);
@@ -124,17 +122,12 @@ int RenderFrame(const player_t *player, line_t *buffer)
         if (perpWallDist < FX_RAW(1))
             perpWallDist = FX_RAW(1);
 
-        /* lineHeight = screenHeight / perpWallDist */
-        {
-            int lineHeight = ((int32_t)16384) / perpWallDist;
-            int drawStart = (-lineHeight >> 1) + 32;
+        /* reuse perpWallDist for lineHeight — eliminates lh, lineHeight, drawStart locals */
+        perpWallDist = ((int32_t)16384) / perpWallDist;
+        if (perpWallDist > screenHeight) perpWallDist = screenHeight;
 
-            if (drawStart < 0) drawStart = 0;
-            if (lineHeight > screenHeight) lineHeight = screenHeight;
-
-            buffer[x].start = hit ? drawStart : 0;
-            buffer[x].length = hit ? lineHeight : 0;
-        }
+        buffer[x].start  = hit ? (uint8_t)(32u - ((uint8_t)perpWallDist >> 1)) : 0;
+        buffer[x].length = hit ? (uint8_t)perpWallDist : 0;
       //draw the pixels of the stripe as a vertical line
       //player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
     }

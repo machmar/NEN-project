@@ -142,9 +142,9 @@ void main(void)
     camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
     camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
     
-    char buf[64];
+    char buf[10];
 
-    entity_t entities[10] = {0};
+    static entity_t entities[2];
     entities[0].posX = 17;
     entities[0].posY = 12;
     entities[0].health = 100;
@@ -171,7 +171,7 @@ void main(void)
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
-        HUD_DrawMap(96, 0, TestMap, camera);
+        HUD_DrawMap(96, 0, &TestMap, &camera);
         
         
         
