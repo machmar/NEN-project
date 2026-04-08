@@ -23,6 +23,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "raycasting.h"
 #include "dogm128_fast.h"
+#include "fx8.h"
 
 // Screen and map dimensions:
 #define screenWidth 48
@@ -31,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Parameters for scaling and moving the sprites
 #define SPRITE_W_SCALE 1  // Scale factor for sprite width (1 = no scaling)
 #define SPRITE_H_SCALE 1  // Scale factor for sprite height (1 = no scaling)
-#define vMove 0.0 // Move sprite up and down
+#define vMove FX_ZERO // Move sprite up and down
 
 int RenderFrame(player_t player, line_t *buffer)
 {
@@ -139,7 +140,7 @@ int RenderFrame(player_t player, line_t *buffer)
             buffer[x].length = lineHeight;
         }
       //draw the pixels of the stripe as a vertical line
-      //player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
+      player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
     }
 
     return 0;
@@ -217,91 +218,123 @@ int MoveCamera(player_t *player, buttons_t buttons)
 
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer)
 {
-  // Calculate distance from player to each entity
-  /*for(int i = 0; i < amount; i++)
+  if (amount <= 0)
+      return;
+
+  // Precompute squared distance once, then insertion-sort (fewer moves than bubble sort for small arrays).
+  for (int i = 0; i < amount; i++)
   {
-    entities[i].distance = ((player->posX - entities[i].posX) * (player->posX - entities[i].posX) + (player->posY - entities[i].posY) * (player->posY - entities[i].posY));
+      fx_t dx = fx_sub(player->posX, entities[i].posX);
+      fx_t dy = fx_sub(player->posY, entities[i].posY);
+      entities[i].distance = fx_add(fx_mul(dx, dx), fx_mul(dy, dy));
   }
 
-  // Sort entities by distance from player (farthest to nearest) for rendering order
-  // Using bubble sort
-  for (int i = 0; i < amount - 1; i++)
+  for (int i = 1; i < amount; i++)
   {
-      for (int j = 0; j < amount - i - 1; j++)
+      entity_t key = entities[i];
+      int j = i - 1;
+      while (j >= 0 && entities[j].distance < key.distance)
       {
-          if (entities[j].distance < entities[j + 1].distance)
-          {
-              // Swap
-              entity_t temp = entities[j];
-              entities[j] = entities[j + 1];
-              entities[j + 1] = temp;
-          }
+          entities[j + 1] = entities[j];
+          j--;
       }
+      entities[j + 1] = key;
   }
-  
-  // Render entities
-  for(int i = 0; i < amount; i++)
+
+  fx_t *zBuffer = player->zBuffer;
+  int halfW = screenWidth >> 1;
+  int halfH = screenHeight >> 1;
+  fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(player->planeX, player->dirY), fx_mul(player->dirX, player->planeY)));
+
+  // Render entities.
+  for (int i = 0; i < amount; i++)
   {
-    //translate sprite position to relative to camera
-    float spriteX = entities[i].posX - player->posX;
-    float spriteY = entities[i].posY - player->posY;
-    //transform sprite with the inverse camera matrix
-    // [ planeX   dirX ] -1                                       [ dirY      -dirX ]
-    // [               ]       =  1/(planeX*dirY-dirX*planeY) *   [                 ]
-    // [ planeY   dirY ]                                          [ -planeY  planeX ]
+    uint8_t (*spriteTex)[SPRITE_WIDTH] = entities[i].sprite;
+    if (spriteTex == 0 || entities[i].health == 0)
+      continue;
 
-    float invDet = 1.0 / (player->planeX * player->dirY - player->dirX * player->planeY); //required for correct matrix multiplication
+    // Translate sprite position relative to camera.
+    fx_t spriteX = fx_sub(entities[i].posX, player->posX);
+    fx_t spriteY = fx_sub(entities[i].posY, player->posY);
 
-    float transformX = invDet * (player->dirY * spriteX - player->dirX * spriteY);
-    float transformY = invDet * (-player->planeY * spriteX + player->planeX * spriteY); //this is actually the depth inside the screen, that what Z is in 3D, the distance of sprite to player, matching sqrt(spriteDistance[i])
+    // Transform sprite with inverse camera matrix.
+    fx_t transformX = fx_mul(invDet, fx_sub(fx_mul(player->dirY, spriteX), fx_mul(player->dirX, spriteY)));
+    fx_t transformY = fx_mul(invDet, fx_add(fx_mul(fx_neg(player->planeY), spriteX), fx_mul(player->planeX, spriteY)));
+    if (transformY <= FX_ZERO)
+      continue;
 
-    int spriteScreenX = (int)((screenWidth / 2) * (1 + transformX / transformY));
-    int vMoveScreen = (int)(vMove / transformY);
+    int spriteScreenX = halfW + FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
+    int vMoveScreen = FX_I(fx_div(vMove, transformY));
 
-    //calculate height of the sprite on screen
-    int spriteHeight = abs_float((int)(screenHeight / (transformY))) / SPRITE_H_SCALE; //using "transformY" instead of the real distance prevents fisheye
-    //calculate lowest and highest pixel to fill in current stripe
-    int drawStartY = -spriteHeight / 2 + screenHeight / 2 + vMoveScreen;
-    if(drawStartY < 0) drawStartY = 0;
-    int drawEndY = spriteHeight / 2 + screenHeight / 2 + vMoveScreen;
-    if(drawEndY >= screenHeight) drawEndY = screenHeight - 1;
+    // Calculate projected sprite size.
+    int spriteHeight = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(SPRITE_H_SCALE))));
+    if (spriteHeight <= 0)
+      continue;
 
-    //calculate width of the sprite
-    int spriteWidth = abs_float((int)(screenHeight / (transformY))) / SPRITE_W_SCALE; // same as height of sprite, given that it's square
-    int drawStartX = -spriteWidth / 2 + spriteScreenX;
-    if(drawStartX < 0) drawStartX = 0;
-    int drawEndX = spriteWidth / 2 + spriteScreenX;
-    if(drawEndX >= screenWidth) drawEndX = screenWidth - 1;
+    int drawStartY = -(spriteHeight >> 1) + halfH + vMoveScreen;
+    if (drawStartY < 0) drawStartY = 0;
+    int drawEndY = (spriteHeight >> 1) + halfH + vMoveScreen;
+    if (drawEndY >= screenHeight) drawEndY = screenHeight - 1;
+    if (drawEndY <= drawStartY)
+      continue;
 
-    //loop through every vertical stripe of the sprite on screen
-    for(int stripe = drawStartX; stripe < drawEndX; stripe++)
+    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(SPRITE_W_SCALE))));
+    if (spriteWidth <= 0)
+      continue;
+
+    int spriteLeft = -(spriteWidth >> 1) + spriteScreenX;
+    int drawStartX = spriteLeft;
+    if (drawStartX < 0) drawStartX = 0;
+    int drawEndX = (spriteWidth >> 1) + spriteScreenX;
+    if (drawEndX >= screenWidth) drawEndX = screenWidth - 1;
+    if (drawEndX <= drawStartX)
+      continue;
+
+    // Incremental texture mapping removes divisions from inner loops.
+    int texXStep = (SPRITE_WIDTH << 8) / spriteWidth;
+    int texXPos = (drawStartX - spriteLeft) * texXStep;
+    int texYBase = ((drawStartY - vMoveScreen) << 8) - (screenHeight << 7) + (spriteHeight << 7);
+    int texYStep = (SPRITE_HEIGHT << 8) / spriteHeight;
+    int texYStart = (texYBase * SPRITE_HEIGHT) / spriteHeight;
+
+    for (int stripe = drawStartX; stripe < drawEndX; stripe++)
     {
-      int texX = (int)(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * SPRITE_WIDTH / spriteWidth) / 256;
-      //the conditions in the if are:
-      //1) it's in front of camera plane so you don't see things behind you
-      //2) ZBuffer, with perpendicular distance
-      if(transformY > 0 && transformY < player->zBuffer[stripe])
+      if (transformY >= zBuffer[stripe])
       {
-        int pageStart = drawStartY >> 3;
-        int pageEnd   = drawEndY   >> 3;
-
-        for(int page = pageStart; page <= pageEnd; page++)
-        {
-          uint8_t mask = 0;
-          for(int bit = 0; bit < 8; bit++)
-          {
-            int y = (page << 3) + bit;
-            if(y >= drawStartY && y < drawEndY)
-            {
-              int d = (y - vMoveScreen) * 256 - screenHeight * 128 + spriteHeight * 128;
-              int texY = ((d * SPRITE_HEIGHT) / spriteHeight) / 256;
-              if(texY >= 0 && texY < SPRITE_HEIGHT && entities[i].sprite[texY][texX])
-                mask |= (1 << bit);
-            }
-          }
-          if(mask) display_buffer[page * 128 + stripe] |= mask;
-        }
+        texXPos += texXStep;
+        continue;
       }
+
+      int texX = texXPos >> 8;
+      texXPos += texXStep;
+      if (texX < 0 || texX >= SPRITE_WIDTH)
+        continue;
+
+      int texYPos = texYStart;
+      uint8_t page = (uint8_t)(drawStartY >> 3);
+      int nextPageY = ((int)page + 1) << 3;
+      uint8_t mask = 0;
+
+      for (int y = drawStartY; y < drawEndY; y++)
+      {
+        if (y == nextPageY)
+        {
+          if (mask)
+            display_buffer[(page * screenWidth) + stripe] |= mask;
+          page++;
+          nextPageY += 8;
+          mask = 0;
+        }
+
+        int texY = texYPos >> 8;
+        if (texY >= 0 && texY < SPRITE_HEIGHT && spriteTex[texY][texX])
+          mask |= (uint8_t)(1u << (y & 7));
+
+        texYPos += texYStep;
+      }
+
+      if (mask)
+        display_buffer[(page * screenWidth) + stripe] |= mask;
     }
-  }*/
+  }
 }

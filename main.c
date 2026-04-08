@@ -144,13 +144,13 @@ void main(void)
     char buf[64];
 
     entity_t entities[10] = {0};
-    entities[0].posX = 17;
-    entities[0].posY = 12;
+    entities[0].posX = FX(20);
+    entities[0].posY = FX(14);
     entities[0].health = 100;
     entities[0].sprite = sprite;
 
-    entities[1].posX = 17;
-    entities[1].posY = 8.5;
+    entities[1].posX = FX(8);
+    entities[1].posY = FX(16);
     entities[1].health = 100;
     entities[1].sprite = sprite;
 
@@ -164,6 +164,7 @@ void main(void)
 
         MoveCamera(&camera, buttons);
         RenderFrame(camera, frame_buffer[0]);
+        DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb);
         DrawBuffer(frame_buffer[0]);
         HUD_DrawBanner((millis / 3000) % 5);        
         
@@ -172,7 +173,7 @@ void main(void)
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
         HUD_DrawMap(96, 0, 0, 0, TestMap, camera);
         
-        
+    
         
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf);

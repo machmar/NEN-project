@@ -74,7 +74,7 @@ typedef struct
     fx_t posX, posY; // position
     fx_t dirX, dirY; // direction vector
     fx_t planeX, planeY; // camera plane
-    fx_t zBuffer[3];
+    fx_t zBuffer[48];
 } player_t;
 
 typedef struct {
