@@ -204,13 +204,13 @@
     </div>
     <div class="small">
       Bitmap export rule: only <b>Type 0</b> counts as wall type. For Type 0, <b>Kind 0 = empty/white</b>, and any <b>Kind &gt; 0 = black</b>.
-      All other types are ignored and exported as white.
+      All other types are ignored and exported as white. If the map is smaller than <b>32×32</b>, the exported PNG is <b>32×32</b> and the map is centered using integer-division offset rules like C.
     </div>
   </div>
 
   <div class="map-wrap">
     <div class="toolbar">
-      <div class="small">Drag to paint. Right click also paints. Shift + drag draws line. Ctrl while painting temporarily erases.</div>
+      <div class="small">Left drag paints. Right drag erases. Shift + drag draws a line. Ctrl + left drag temporarily erases.</div>
     </div>
     <div id="map" class="map"></div>
   </div>
@@ -326,6 +326,7 @@
     height: 64,
     map: [],
     mouseDown: false,
+    dragMode: 'paint',
     tool: 'paint',
     selectedType: 0,
     selectedKind: 1,
@@ -558,6 +559,61 @@
     return { bg: '#ffffff', text: def.emoji || '•', textColor: '#111' };
   }
 
+  function actionValueForMode(mode) {
+    return mode === 'erase' ? 0 : selectedValue();
+  }
+
+  function resolveDragModeFromMouseEvent(e) {
+    if (e.ctrlKey) return 'erase';
+    if (e.button === 2) return 'erase';
+    return state.tool === 'erase' ? 'erase' : 'paint';
+  }
+
+  function applyDragActionAt(x, y, mode) {
+    state.map[x][y] = actionValueForMode(mode);
+    updateOneCell(x, y);
+  }
+
+  function drawLineMode(x0, y0, x1, y1, mode) {
+    const value = actionValueForMode(mode);
+    let dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    let dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    while (true) {
+      state.map[x0][y0] = value;
+      updateOneCell(x0, y0);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  }
+
+  function handleCellDragStart(e, x, y) {
+    e.preventDefault();
+    state.mouseDown = true;
+    state.dragMode = resolveDragModeFromMouseEvent(e);
+
+    if (e.shiftKey && state.lastPainted) {
+      drawLineMode(state.lastPainted.x, state.lastPainted.y, x, y, state.dragMode);
+    } else {
+      applyDragActionAt(x, y, state.dragMode);
+    }
+    state.lastPainted = { x, y };
+  }
+
+  function handleCellDragEnter(e, x, y) {
+    if (!state.mouseDown) return;
+    e.preventDefault();
+
+    if (e.shiftKey && state.lastPainted) {
+      drawLineMode(state.lastPainted.x, state.lastPainted.y, x, y, state.dragMode);
+    } else {
+      applyDragActionAt(x, y, state.dragMode);
+    }
+    state.lastPainted = { x, y };
+  }
+
   function renderMap() {
     els.map.style.gridTemplateColumns = `repeat(${state.width}, var(--cell))`;
     els.map.innerHTML = '';
@@ -584,29 +640,15 @@
         cell.title = tileTooltip(x, y, v);
 
         cell.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          state.mouseDown = true;
-          if (e.shiftKey && state.lastPainted) {
-            drawLine(state.lastPainted.x, state.lastPainted.y, x, y, e.ctrlKey ? 0 : selectedValue());
-          } else {
-            applyToolAt(x, y, e.ctrlKey);
-          }
-          state.lastPainted = { x, y };
+          handleCellDragStart(e, x, y);
         });
 
         cell.addEventListener('mouseenter', (e) => {
-          if (!state.mouseDown) return;
-          if (e.shiftKey && state.lastPainted) {
-            drawLine(state.lastPainted.x, state.lastPainted.y, x, y, e.ctrlKey ? 0 : selectedValue());
-          } else {
-            applyToolAt(x, y, e.ctrlKey);
-          }
-          state.lastPainted = { x, y };
+          handleCellDragEnter(e, x, y);
         });
 
         cell.addEventListener('contextmenu', (e) => {
           e.preventDefault();
-          applyToolAt(x, y, false);
         });
 
         els.map.appendChild(cell);
@@ -671,7 +713,10 @@
 
   function exportCArray() {
     const lines = [];
-    lines.push('int static const worldMap[mapWidth][mapHeight]=');
+    lines.push(`#define mapWidth ${state.width}`);
+    lines.push(`#define mapHeight ${state.height}`);
+    lines.push('');
+    lines.push('static const uint8_t worldMap[mapWidth][mapHeight] =');
     lines.push('{');
     for (let x = 0; x < state.width; x++) {
       const row = [];
@@ -833,32 +878,49 @@
   }
 
   function exportBitmapPNG() {
-    const w = state.width;
-    const h = state.height;
+    const srcW = state.width;
+    const srcH = state.height;
+
+    const outW = Math.max(32, srcW);
+    const outH = Math.max(32, srcH);
+
+    const offsetX = srcW < 32 ? Math.floor((32 - srcW) / 2) : 0;
+    const offsetY = srcH < 32 ? Math.floor((32 - srcH) / 2) : 0;
 
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
+      canvas.width = outW;
+      canvas.height = outH;
 
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Canvas context unavailable');
 
-      const img = ctx.createImageData(w, h);
+      const img = ctx.createImageData(outW, outH);
       const data = img.data;
 
-      let p = 0;
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
+      for (let p = 0; p < data.length; p += 4) {
+        data[p + 0] = 255;
+        data[p + 1] = 255;
+        data[p + 2] = 255;
+        data[p + 3] = 255;
+      }
+
+      for (let y = 0; y < srcH; y++) {
+        for (let x = 0; x < srcW; x++) {
           const v = state.map[x][y] & 0xFF;
           const type = (v >> 4) & 0x0F;
           const kind = v & 0x0F;
           const isWall = (type === 0 && kind > 0);
+
+          const dstX = x + offsetX;
+          const dstY = y + offsetY;
+          const p = (dstY * outW + dstX) * 4;
           const c = isWall ? 0 : 255;
-          data[p++] = c;
-          data[p++] = c;
-          data[p++] = c;
-          data[p++] = 255;
+
+          data[p + 0] = c;
+          data[p + 1] = c;
+          data[p + 2] = c;
+          data[p + 3] = 255;
         }
       }
 
@@ -872,7 +934,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `walls_${w}x${h}.png`;
+        a.download = `walls_${outW}x${outH}.png`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }, 'image/png');
@@ -903,6 +965,17 @@
 
   document.addEventListener('mouseup', () => {
     state.mouseDown = false;
+    state.dragMode = 'paint';
+    state.lastPainted = null;
+  });
+
+  els.map.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+  });
+
+  window.addEventListener('blur', () => {
+    state.mouseDown = false;
+    state.dragMode = 'paint';
     state.lastPainted = null;
   });
 
