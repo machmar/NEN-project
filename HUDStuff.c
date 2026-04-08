@@ -54,7 +54,7 @@ void HUD_DrawBanner(uint8_t number) {
     dogm128_blit_or(10, 0, &LevelBanners[number], 0);
 }
 
-void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, const map_t *map, const player_t *player) {
+void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, map_t *map, player_t *player) {
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;
     if (map->height > 32)

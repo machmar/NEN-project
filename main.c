@@ -121,6 +121,9 @@ void Backlight(uint16_t duty10)
 }
 
 static millis_t PMill = 0;
+player_t camera;
+buttons_t buttons = {0};
+static entity_t entities[2];
 
 void main(void)
 {
@@ -131,9 +134,7 @@ void main(void)
     Backlight(1023);
     set_LEDs(0x00);
 
-    buttons_t buttons = {0};
 
-    player_t camera;
     camera.posX = FX(22);
     camera.posY = FX(12);
     camera.angle = FX_ANGLE_HALF; // facing -X
@@ -144,7 +145,6 @@ void main(void)
     
     char buf[10];
 
-    static entity_t entities[2];
     entities[0].posX = 17;
     entities[0].posY = 12;
     entities[0].health = 100;
