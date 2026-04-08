@@ -172,6 +172,15 @@ void main(void)
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
+        dogm128_hline(96, 47, 32, DISP_COL_BLACK);
+        dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
+        int tmp = (millis / 3000) % 3;
+        if (tmp == 0)
+            dogm128_blit_or(96, 32, &item_hand, 0);
+        if (tmp == 1)
+            dogm128_blit_or(96, 32, &item_knife, 0);
+        if (tmp == 2)
+            dogm128_blit_or(96, 32, &item_gun, 0);
         HUD_DrawMap(96, 0, CurrentMap, &camera);
         
         

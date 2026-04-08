@@ -26,6 +26,12 @@ extern map_t SmallMap;
 extern map_t BigMap;
 extern map_t TestMap;
 
+extern dogm128_bitmap_t wiggleLineBitmap;
+
+extern dogm128_bitmap_t item_hand;
+extern dogm128_bitmap_t item_knife;
+extern dogm128_bitmap_t item_gun;
+
 typedef struct
 {
     fx_t posX, posY; // position
