@@ -33,12 +33,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPRITE_H_SCALE 1  // Scale factor for sprite height (1 = no scaling)
 #define vMove 0.0 // Move sprite up and down
 
-/* precomputed cameraX = (x*512/48) - 256 for x=0..47, avoids 32-bit division */
+/* precomputed cameraX = 256 - (x*512/48) for x=0..47, negated to fix screen mirror */
 static const fx_t cameraX_lut[48] = {
-    -256,-246,-235,-224,-214,-203,-192,-182,-171,-160,-150,-139,
-    -128,-118,-107, -96, -86, -75, -64, -54, -43, -32, -22, -11,
-       0,  10,  21,  32,  42,  53,  64,  74,  85,  96, 106, 117,
-     128, 138, 149, 160, 170, 181, 192, 202, 213, 224, 234, 245
+     256, 246, 235, 224, 214, 203, 192, 182, 171, 160, 150, 139,
+     128, 118, 107,  96,  86,  75,  64,  54,  43,  32,  22,  11,
+       0, -10, -21, -32, -42, -53, -64, -74, -85, -96,-106,-117,
+    -128,-138,-149,-160,-170,-181,-192,-202,-213,-224,-234,-245
 };
 
 int RenderFrame(const player_t *player, line_t *buffer)
@@ -96,7 +96,7 @@ int RenderFrame(const player_t *player, line_t *buffer)
         }
 
         /* DDA */
-        while (!hit)
+        for (uint8_t tmp_dist = 0; !hit && tmp_dist < 64; tmp_dist++)
         {
             if (sideDistX < sideDistY)
             {
@@ -132,8 +132,8 @@ int RenderFrame(const player_t *player, line_t *buffer)
             if (drawStart < 0) drawStart = 0;
             if (lineHeight > screenHeight) lineHeight = screenHeight;
 
-            buffer[x].start = drawStart;
-            buffer[x].length = lineHeight;
+            buffer[x].start = hit ? drawStart : 0;
+            buffer[x].length = hit ? lineHeight : 0;
         }
       //draw the pixels of the stripe as a vertical line
       //player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
@@ -174,10 +174,10 @@ int MoveCamera(player_t *player, buttons_t buttons)
     }
     //rotate to the right
     if(buttons.right)
-      player->angle = fx_sub(player->angle, rotSpeed);
+      player->angle = fx_add(player->angle, rotSpeed);
     //rotate to the left
     if(buttons.left)
-      player->angle = fx_add(player->angle, rotSpeed);
+      player->angle = fx_sub(player->angle, rotSpeed);
     
     //reconstruct dir and plane from angle (eliminates fixed-point drift)
     if(buttons.right || buttons.left)
