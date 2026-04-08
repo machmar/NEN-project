@@ -1,3 +1,4 @@
+#include <builtins.h>
 #include <xc.h>
 #include <stdint.h>
 #include "globals.h"
@@ -141,17 +142,20 @@ void main(void)
     camera.dirY = fx_sin(camera.angle);
     camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
     camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
+    for(int i = 0; i < 48 - 1; i++){
+        camera.zBuffer[i] = FX(64);
+    }
     
     char buf[64];
 
     entity_t entities[10] = {0};
-    entities[0].posX = FX(20);
-    entities[0].posY = FX(14);
+    entities[0].posX = FX(12);
+    entities[0].posY = FX(12);
     entities[0].health = 100;
     entities[0].sprite = sprite;
 
-    entities[1].posX = FX(8);
-    entities[1].posY = FX(16);
+    entities[1].posX = FX(2);
+    entities[1].posY = FX(2);
     entities[1].health = 100;
     entities[1].sprite = sprite;
 
@@ -164,9 +168,9 @@ void main(void)
         buttons = read_buttons();
 
         MoveCamera(&camera, buttons);
-        RenderFrame(camera, frame_buffer[0]);
-        DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb);
+        RenderFrame(&camera, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
+        DrawEntities(&camera, entities, 2, dogm_fb);
         HUD_DrawBanner((millis / 3000) % 5);        
         
         

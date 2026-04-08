@@ -12,12 +12,12 @@ typedef struct __attribute__((packed))
     bool front, back, use, left, right;
 } buttons_t;
 
-int RenderFrame(const player_t *player, line_t *buffer);
+int RenderFrame(player_t *player, line_t *buffer);
 void DrawBuffer(line_t *buffer);
 
 #define SPRITE_WIDTH 5
 #define SPRITE_HEIGHT 10
-
+/**
 int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
   {0, 1, 1, 1, 0},
   {0, 1, 0, 1, 0},
@@ -30,6 +30,20 @@ int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
   {1, 0, 0, 0, 1},
   {1, 0, 0, 0, 1},
 };
+*/
+int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
+  {1, 1, 1, 1, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 0, 1},
+  {1, 0, 0, 1, 1},
+  {1, 1, 1, 1, 1},
+};
+
 
 typedef struct
 {

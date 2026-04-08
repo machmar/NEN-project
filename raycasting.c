@@ -32,7 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Parameters for scaling and moving the sprites
 #define SPRITE_W_SCALE 1  // Scale factor for sprite width (1 = no scaling)
 #define SPRITE_H_SCALE 1  // Scale factor for sprite height (1 = no scaling)
-#define vMove FX_ZERO // Move sprite up and down
+#define vMove FX(5) // Move sprite up and down
 
 /* precomputed cameraX = 256 - (x*512/48) for x=0..47, negated to fix screen mirror */
 static const fx_t cameraX_lut[48] = {
@@ -42,7 +42,7 @@ static const fx_t cameraX_lut[48] = {
     -128,-138,-149,-160,-170,-181,-192,-202,-213,-224,-234,-245
 };
 
-int RenderFrame(const player_t *player, line_t *buffer)
+int RenderFrame(player_t *player, line_t *buffer)
 {
     int x;
 
@@ -137,7 +137,7 @@ int RenderFrame(const player_t *player, line_t *buffer)
             buffer[x].length = hit ? lineHeight : 0;
         }
       //draw the pixels of the stripe as a vertical line
-      //player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
+      player->zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
     }
 
     return 0;
@@ -222,8 +222,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   }
 
   fx_t *zBuffer = player->zBuffer;
-  int halfW = screenWidth >> 1;
+  int screenWidthPixels = screenWidth; // Half-resolution: 48 strips covering 96 pixels
+  int halfW = screenWidthPixels >> 1;
   int halfH = screenHeight >> 1;
+  
   fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(player->planeX, player->dirY), fx_mul(player->dirX, player->planeY)));
 
   // Render entities.
@@ -240,10 +242,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     // Transform sprite with inverse camera matrix.
     fx_t transformX = fx_mul(invDet, fx_sub(fx_mul(player->dirY, spriteX), fx_mul(player->dirX, spriteY)));
     fx_t transformY = fx_mul(invDet, fx_add(fx_mul(fx_neg(player->planeY), spriteX), fx_mul(player->planeX, spriteY)));
-    if (transformY <= FX_ZERO)
+    if (transformY <= 0X0005)
       continue;
 
-    int spriteScreenX = halfW + FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
+    int spriteScreenX = halfW - FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
     int vMoveScreen = FX_I(fx_div(vMove, transformY));
 
     // Calculate projected sprite size.
@@ -266,7 +268,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     int drawStartX = spriteLeft;
     if (drawStartX < 0) drawStartX = 0;
     int drawEndX = (spriteWidth >> 1) + spriteScreenX;
-    if (drawEndX >= screenWidth) drawEndX = screenWidth - 1;
+    if (drawEndX >= screenWidthPixels) drawEndX = screenWidthPixels - 1;
     if (drawEndX <= drawStartX)
       continue;
 
@@ -276,7 +278,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     int texYBase = ((drawStartY - vMoveScreen) << 8) - (screenHeight << 7) + (spriteHeight << 7);
     int texYStep = (SPRITE_HEIGHT << 8) / spriteHeight;
     int texYStart = (texYBase * SPRITE_HEIGHT) / spriteHeight;
-
+    
     for (int stripe = drawStartX; stripe < drawEndX; stripe++)
     {
       if (transformY >= zBuffer[stripe])
@@ -300,7 +302,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         if (y == nextPageY)
         {
           if (mask)
-            display_buffer[(page * screenWidth) + stripe] |= mask;
+          {
+            display_buffer[(page * 128) + stripe * 2]     |= mask;
+            display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
+          }
           page++;
           nextPageY += 8;
           mask = 0;
@@ -313,8 +318,11 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         texYPos += texYStep;
       }
 
-      if (mask)
-        display_buffer[(page * screenWidth) + stripe] |= mask;
+      if (mask) {
+        display_buffer[(page * 128) + stripe * 2]     |= mask;
+        display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
+      }
     }
   }
 }
+
