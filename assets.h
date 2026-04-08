@@ -19,6 +19,7 @@ typedef struct {
     dogm128_bitmap_t *minimap;
     uint8_t minimapScrollthresholds[2];
     uint8_t minimapTopLeftOffset[2];
+    dogm128_bitmap_t *Banner;
 } map_t;
 
 extern map_t SmallMap;

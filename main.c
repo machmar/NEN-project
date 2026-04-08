@@ -167,7 +167,7 @@ void main(void)
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
-        HUD_DrawBanner((millis / 3000) % 5);        
+        HUD_DrawBanner(CurrentMap->Banner);        
         
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
