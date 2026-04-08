@@ -183,8 +183,30 @@ void main(void)
             dogm128_blit_or(96, 32, &item_gun, 0);
         HUD_DrawMap(96, 0, CurrentMap, &camera);
         
-        
-        
+        /* rotating pointer placed at screen (119, 40) */
+        {
+            static const int8_t pointerPoints[3][2] = {{6,0},{-1,-2},{-1,2}};
+            uint8_t static rx[3], ry[3];
+            fx_t static prevAngle = INT16_MAX;
+            if (prevAngle != camera.angle)
+            {
+                prevAngle = camera.angle;
+                for (uint8_t i = 0; i < 3; i++)
+                {
+                    rx[i] = 120 + FX_I(fx_sub(fx_mul(FX(pointerPoints[i][0]), camera.dirX), fx_mul(FX(pointerPoints[i][1]), camera.dirY)));
+                    ry[i] = 40  + FX_I(fx_add(fx_mul(FX(pointerPoints[i][0]), camera.dirY), fx_mul(FX(pointerPoints[i][1]), camera.dirX)));
+                }
+            }
+            dogm128_line(rx[0], ry[0], rx[1], ry[1], DISP_COL_BLACK);
+            dogm128_line(rx[1], ry[1], rx[2], ry[2], DISP_COL_BLACK);
+            dogm128_line(rx[2], ry[2], rx[0], ry[0], DISP_COL_BLACK);
+            dogm128_pixel(120, 40, DISP_COL_BLACK); // anchor point
+            dogm128_pixel(120, 34, DISP_COL_BLACK); // four direction dots
+            dogm128_pixel(120, 45, DISP_COL_BLACK);
+            dogm128_pixel(127, 40, DISP_COL_BLACK);
+            dogm128_pixel(114, 40, DISP_COL_BLACK);
+        }
+
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf);
         dogm128_text(0, 0, buf);
