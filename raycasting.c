@@ -28,6 +28,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #define TEX_AT(map, x, y)  ((map)->data[(uint16_t)(y) * (map)->width + (uint8_t)(x)])
+/* flat map access: 2D array is [width][height], so stride = height */
+#define MAP_AT(map, x, y)  ((map)->data[(uint16_t)(x) * (map)->height + (uint8_t)(y)])
+#define MAP_IN_BOUNDS(map, x, y) ((x) >= 0 && (uint8_t)(x) < (map)->width && (y) >= 0 && (uint8_t)(y) < (map)->height)
 
 // Screen and map dimensions:
 #define screenWidth 48
@@ -46,7 +49,7 @@ static const fx_t cameraX_lut[48] = {
     -128,-138,-149,-160,-170,-181,-192,-202,-213,-224,-234,-245
 };
 
-int RenderFrame(player_t *player, line_t *buffer)
+int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 {
     int x;
 
@@ -116,7 +119,12 @@ int RenderFrame(player_t *player, line_t *buffer)
                 side = 1;
             }
 
-            if (worldMap[mapX][mapY] > 0)
+            if (!MAP_IN_BOUNDS(map, mapX, mapY))
+            {
+                hit = 1;
+                break;
+            }
+            if (MAP_AT(map, mapX, mapY) > 0)
                 hit = 1;
         }
 
@@ -155,26 +163,26 @@ void DrawBuffer(line_t *buffer)
     }
 }
 
-int MoveCamera(player_t *player, buttons_t buttons)
+int MoveCamera(player_t *player, map_t *map, buttons_t buttons)
 {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
     fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
     if(buttons.front)
     {
-      if(worldMap[FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed)))][FX_I(player->posY)] == false)
+      if(MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY)) == false)
         player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
       
-      if(worldMap[FX_I(player->posX)][FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed)))] == false)
+      if(MAP_AT(map, FX_I(player->posX), FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed)))) == false)
         player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //move backwards if no wall behind you
     if(buttons.back)
     {
-      if(worldMap[FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed)))][FX_I(player->posY)] == false)
+      if(MAP_AT(map, FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY)) == false)
         player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
       
-      if(worldMap[FX_I(player->posX)][FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed)))] == false)
+      if(MAP_AT(map, FX_I(player->posX), FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed)))) == false)
         player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //rotate to the right
@@ -195,8 +203,8 @@ int MoveCamera(player_t *player, buttons_t buttons)
     
     if (buttons.use)
     {
-        player->posX = FX(11);
-        player->posY = FX(11);
+        player->posX = FX(map->DefaultSpwanPoint[0]);
+        player->posY = FX(map->DefaultSpwanPoint[1]);
     }
 }
 

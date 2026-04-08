@@ -54,6 +54,28 @@ void HUD_DrawBanner(uint8_t number) {
     dogm128_blit_or(10, 0, &LevelBanners[number], 0);
 }
 
-void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, uint8_t width, uint8_t height, map_t map, player_t player) {
-    dogm128_blit_or(x_loc, y_loc, map.minimap, 0);
+void HUD_DrawMap(uint8_t x_loc, uint8_t y_loc, map_t *map, player_t *player) {
+    int16_t static height_scroll = 0;
+    uint8_t max_scroll = 0;
+    if (map->height > 32)
+        max_scroll = map->height - 32;
+    uint8_t top_edge_scroll_threshold = map->minimapScrollthresholds[0];
+    uint8_t bottom_edge_scroll_threshold = map->minimapScrollthresholds[1];
+    uint8_t x_player_offset = map->minimapTopLeftOffset[0];
+    uint8_t y_player_offset = map->minimapTopLeftOffset[1];
+
+    if (FX_I(player->posY) - height_scroll < top_edge_scroll_threshold && height_scroll > 0)
+        height_scroll--;
+
+    if (FX_I(player->posY) - height_scroll > bottom_edge_scroll_threshold && height_scroll < max_scroll)
+        height_scroll++;
+
+    dogm128_blit_or(x_loc, (int16_t) y_loc - height_scroll, map->minimap, 32 + height_scroll);
+
+    static uint8_t show = 0;
+    if (show & 0b100)
+        dogm128_pixel(((uint8_t) FX_I(player->posX)) + x_loc + x_player_offset,
+            (uint8_t) FX_I(player->posY) + (uint8_t) (y_loc - height_scroll) + y_player_offset,
+            DISP_COL_BLACK);
+    show++;
 }

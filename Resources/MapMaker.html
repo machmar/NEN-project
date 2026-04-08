@@ -1,1863 +1,1016 @@
-<!doctype html>
-<html lang="cs">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Editor mapy 8bit: per-kind barvy a ikony</title>
-  <style>
-    :root{
-      --bg: #0b1020;
-      --panel: #111a33;
-      --panel2: #0f1730;
-      --text: #e7ecff;
-      --muted: rgba(231,236,255,.78);
-      --border: rgba(231,236,255,.14);
-      --good: #35d07f;
-      --warn: #ffd166;
-      --bad: #ff6b6b;
-    }
-    * { box-sizing: border-box; }
-    body{
-      margin: 0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      background: radial-gradient(1200px 700px at 20% 0%, #15224b 0%, var(--bg) 55%, #070a14 100%);
-      color: var(--text);
-    }
-    .layout{
-      display: grid;
-      grid-template-columns: 1fr 560px;
-      gap: 16px;
-      padding: 16px;
-      align-items: start;
-    }
-    @media (max-width: 1150px){
-      .layout{ grid-template-columns: 1fr; }
-    }
-    .card{
-      background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.35);
-      overflow: hidden;
-    }
-    .leftHeader{
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .leftHeader .title{ font-weight: 700; letter-spacing: .2px; }
-    .leftHeader .sub{ font-size: 12px; color: var(--muted); }
-
-    .canvasWrap{
-      padding: 12px;
-      overflow: auto;
-      max-height: 78vh;
-    }
-    canvas{
-      display: block;
-      border: 1px solid rgba(0,0,0,.45);
-      border-radius: 10px;
-      background: #fff;
-      touch-action: none;
-      user-select: none;
-      image-rendering: pixelated;
-    }
-    .hint{
-      padding: 12px 14px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-      white-space: pre-wrap;
-    }
-
-    .panel{ padding: 14px; }
-    h1{
-      font-size: 18px;
-      margin: 0 0 10px 0;
-    }
-    details{
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 8px 10px;
-      background: rgba(0,0,0,.10);
-      margin: 10px 0;
-    }
-    summary{
-      cursor: pointer;
-      font-weight: 700;
-      color: var(--text);
-      list-style: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    summary::-webkit-details-marker{ display:none; }
-
-    .row{
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-      margin: 10px 0;
-    }
-    .grid2{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      align-items: end;
-      margin: 10px 0;
-    }
-    label{
-      font-size: 13px;
-      color: var(--muted);
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    input[type="text"], input[type="number"], select, textarea{
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      outline: none;
-    }
-    input[type="text"], input[type="number"], select{
-      padding: 10px 10px;
-    }
-    input[type="text"], select{ width: 100%; }
-    input[type="number"]{ width: 140px; }
-    input[type="color"]{
-      width: 44px;
-      height: 28px;
-      padding: 0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-    }
-    textarea{
-      width: 100%;
-      min-height: 140px;
-      resize: vertical;
-      padding: 10px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 12px;
-      line-height: 1.35;
-      white-space: pre;
-    }
-
-    .kindGrid{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .kindCell{
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: rgba(255,255,255,.04);
-      padding: 8px;
-      display: grid;
-      grid-template-columns: 1fr 52px;
-      grid-template-rows: 38px 30px;
-      gap: 8px;
-      align-items: center;
-    }
-    .kindBtn{
-      grid-column: 1 / 3;
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.07);
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 800;
-      letter-spacing: .5px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 10px;
-      gap: 8px;
-    }
-    .kindBtn .mini{
-      font-weight: 700;
-      opacity: .85;
-      font-size: 12px;
-    }
-    .kindBtn.active{
-      outline: 3px solid rgba(255,255,255,.9);
-      outline-offset: 2px;
-    }
-    .kindIconInput{
-      height: 30px;
-      padding: 6px 8px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .pill{
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.15);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 12px;
-      color: var(--text);
-    }
-
-    .btnRow{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    .btnRow3{
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
-      margin: 10px 0;
-    }
-    button.action{
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.08);
-      color: var(--text);
-      cursor: pointer;
-      font-weight: 650;
-    }
-    button.action:hover{ background: rgba(255,255,255,.12); }
-
-    .status{
-      margin-top: 12px;
-      padding: 10px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.20);
-      font-size: 13px;
-      color: var(--muted);
-      white-space: pre-wrap;
-    }
-    .status[data-kind="ok"]{ box-shadow: inset 0 0 0 9999px rgba(53,208,127,.06); }
-    .status[data-kind="warn"]{ box-shadow: inset 0 0 0 9999px rgba(255,209,102,.07); }
-    .status[data-kind="bad"]{ box-shadow: inset 0 0 0 9999px rgba(255,107,107,.07); }
-
-    .small{
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
-    .legend{
-      margin-top: 8px;
-      border-top: 1px solid var(--border);
-      padding-top: 8px;
-    }
-    .legendItem{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-      padding:6px 0;
-      color: var(--muted);
-      font-size: 12px;
-    }
-    .legendItem .ico{
-      width: 26px;
-      text-align:center;
-      font-size: 18px;
-      line-height: 1.1;
-    }
-    .legendItem .txt{ flex: 1; }
-    code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Doom-like Map Editor</title>
+<style>
+  :root {
+    --bg: #111318;
+    --panel: #1b1f27;
+    --panel2: #232936;
+    --text: #e9eef5;
+    --muted: #a7b0bf;
+    --border: #3a4252;
+    --accent: #6ea8fe;
+    --cell: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 360px 1fr 360px;
+    gap: 12px;
+    padding: 12px;
+    min-height: 100vh;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    overflow: auto;
+  }
+  h1, h2, h3 { margin: 0 0 10px 0; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; margin-top: 8px; }
+  h3 { font-size: 14px; margin-top: 10px; color: var(--muted); }
+  .row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .row > label {
+    min-width: 70px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  input[type="number"], input[type="text"], select, textarea {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 8px;
+    font-size: 13px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    resize: vertical;
+  }
+  button {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  button.active {
+    outline: 2px solid var(--accent);
+  }
+  .kind-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .kind-btn {
+    min-height: 46px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 12px;
+    line-height: 1.1;
+  }
+  .kind-chip {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1px solid #0008;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    background: #fff;
+    color: #111;
+  }
+  .map-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    overflow: auto;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .map {
+    display: grid;
+    gap: 1px;
+    background: #000;
+    width: max-content;
+    user-select: none;
+  }
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    background: #fff;
+    position: relative;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cell .tiny {
+    font-size: 11px;
+    filter: drop-shadow(0 0 1px #fff);
+  }
+  .small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .codebox {
+    width: 100%;
+    min-height: 220px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+</style>
 </head>
 <body>
-  <div class="layout">
-    <div class="card">
-      <div class="leftHeader">
-        <div>
-          <div class="title">Editor mapy 8bit (per‑kind barvy/ikony)</div>
-          <div class="sub">Typ=horní nibble • Kind=dolní nibble • LMB maluje • RMB maže • [ ] typ • 0–9/A–F kind</div>
-        </div>
-        <div class="sub"><span id="dims"></span> • <span id="cells"></span></div>
-      </div>
+<div class="app">
+  <div class="panel">
+    <h1>Doom-like Map Editor</h1>
+    <div class="small">8-bit tile format: upper 4 bits = Type, lower 4 bits = Kind</div>
 
-      <div class="canvasWrap">
-        <canvas id="mapCanvas" tabindex="0" aria-label="Mapa"></canvas>
-      </div>
-
-      <div class="hint" id="hoverInfo">Připraveno.</div>
+    <h2>Map</h2>
+    <div class="row">
+      <label>Width</label>
+      <input id="mapWidthInput" type="number" min="1" max="512" value="32" />
+      <label>Height</label>
+      <input id="mapHeightInput" type="number" min="1" max="512" value="64" />
+      <button id="resizeMapBtn">Resize</button>
+    </div>
+    <div class="row">
+      <label>Cell size</label>
+      <input id="cellSizeInput" type="number" min="4" max="48" value="18" />
+      <button id="applyCellSizeBtn">Apply</button>
     </div>
 
-    <div class="card panel">
-      <h1>Nástroje</h1>
+    <h2>Paint selection</h2>
+    <div class="row">
+      <label>Type</label>
+      <select id="typeSelect"></select>
+    </div>
+    <div id="kindButtons" class="kind-grid"></div>
+    <div class="row">
+      <button id="toolPaintBtn" class="active">Paint</button>
+      <button id="toolEraseBtn">Erase to 0x00</button>
+      <button id="fillBordersBtn">Fill borders with selected</button>
+      <button id="clearMapBtn">Clear map</button>
+    </div>
 
-      <div class="row">
-        <label>Režim:</label>
-        <label><input type="radio" name="mode" value="paint" checked> Malování (P)</label>
-        <label><input type="radio" name="mode" value="place"> Objekt/Spawn (O)</label>
-        <label><input type="radio" name="mode" value="meta"> Metadata (M)</label>
-      </div>
+    <h2>Current tile</h2>
+    <div class="small" id="currentSelectionInfo"></div>
 
-      <div class="row">
-        <label style="flex:1; min-width: 260px;">
-          Typ (0..15)
-          <select id="typeSelect"></select>
-        </label>
-        <span class="pill" id="typePill">typ=0</span>
-      </div>
-
-      <div class="row">
-        <label style="flex:1; min-width: 260px;">
-          Název typu (pro dropdown)
-          <input id="typeLabelInput" type="text" />
-        </label>
-      </div>
-
-      <div class="row">
-        <span class="pill" id="currentValuePill">0x00 (0)</span>
-        <label><input id="showGrid" type="checkbox" checked> Mřížka (G)</label>
-        <label>
-          Velikost buňky
-          <input id="tileSize" type="number" min="4" step="1" value="12" />
-        </label>
-      </div>
-
-      <div class="small">Kind paleta (per‑kind barva + ikona pro aktuální typ):</div>
-      <div class="kindGrid" id="kindGrid"></div>
-
-      <details open>
-        <summary>Definice zvoleného (typ, kind)</summary>
-        <div class="row">
-          <label style="flex:1; min-width:260px;">
-            Role
-            <select id="defRole">
-              <option value="tile">Dlaždice</option>
-              <option value="object">Objekt</option>
-              <option value="spawn">Spawn</option>
-            </select>
-          </label>
-        </div>
-        <div class="row">
-          <label style="flex:1; min-width:260px;">
-            Label
-            <input id="defLabel" type="text" placeholder="např. Medikit" />
-          </label>
-        </div>
-        <div class="row">
-          <label style="flex:1; min-width:260px;">
-            Popis
-            <input id="defDesc" type="text" placeholder="např. Léčí hráče / spawn bod" />
-          </label>
-        </div>
-        <div class="btnRow">
-          <button class="action" id="btnSaveDef" type="button">Uložit definici</button>
-          <button class="action" id="btnResetDef" type="button">Reset definice</button>
-        </div>
-        <div class="legend" id="legend"></div>
-      </details>
-
-      <details open>
-        <summary>Metadata instance (vybraná buňka)</summary>
-        <div class="small" id="selectedInfo">Nic nevybráno. V režimu „Metadata“ klikněte na buňku.</div>
-        <div class="row">
-          <label style="flex:1; min-width:260px;">
-            Název instance
-            <input id="metaName" type="text" />
-          </label>
-          <label style="flex:1; min-width:200px;">
-            Tag
-            <input id="metaTag" type="text" />
-          </label>
-        </div>
-        <div class="row">
-          <label>
-            Rotace (0–359)
-            <input id="metaRot" type="number" min="0" max="359" step="1" />
-          </label>
-        </div>
-        <div class="row">
-          <label style="flex:1;">
-            Data (JSON objekt, volitelné)
-            <textarea id="metaData" placeholder='např. {"team":1,"hp":50}'></textarea>
-          </label>
-        </div>
-        <div class="btnRow">
-          <button class="action" id="btnSaveMeta" type="button">Uložit metadata</button>
-          <button class="action" id="btnDeleteMeta" type="button">Smazat metadata</button>
-        </div>
-      </details>
-
-      <details open>
-        <summary>Rozměry mapy a operace</summary>
-        <div class="grid2">
-          <label style="display:block;">
-            Šířka (mapWidth)
-            <input id="mapW" type="number" min="1" step="1" value="32" />
-          </label>
-          <label style="display:block;">
-            Výška (mapHeight)
-            <input id="mapH" type="number" min="1" step="1" value="64" />
-          </label>
-        </div>
-        <div class="btnRow">
-          <button class="action" id="btnResize" type="button">Použít rozměry</button>
-          <button class="action" id="btnClear" type="button">Vše = 0</button>
-        </div>
-        <div class="btnRow">
-          <button class="action" id="btnBorder" type="button">Okraj = (T1,K0)</button>
-          <button class="action" id="btnToggleGrid" type="button">Přepnout mřížku</button>
-        </div>
-        <div class="small" id="sizeInfo"></div>
-      </details>
-
-      <details open>
-        <summary>Export/import C mapy</summary>
-        <div class="row">
-          <label style="flex:1; min-width:260px;">
-            Jméno pole (C)
-            <input id="mapName" type="text" value="worldMap" />
-          </label>
-          <label><input id="includeDefines" type="checkbox" checked /> Přidat #define mapWidth/mapHeight</label>
-        </div>
-        <div class="row">
-          <label><input type="radio" name="exportMode" value="xy" checked /> XY (worldMap[mapWidth][mapHeight], [x][y])</label>
-          <label><input type="radio" name="exportMode" value="yx" /> YX (worldMap[mapHeight][mapWidth], [y][x])</label>
-        </div>
-        <div class="btnRow3">
-          <button class="action" id="btnExportMap" type="button">Export</button>
-          <button class="action" id="btnCopyMap" type="button">Kopírovat</button>
-          <button class="action" id="btnDownloadMap" type="button">Stáhnout .h</button>
-        </div>
-        <textarea id="mapText" spellcheck="false" placeholder="C export (nebo sem vložte C kód pro import)"></textarea>
-        <div class="btnRow">
-          <button class="action" id="btnImportMap" type="button">Importovat z pole</button>
-          <button class="action" id="btnTestExport" type="button">Test exportu</button>
-        </div>
-      </details>
-
-      <details open>
-        <summary>Export/import JSON konfigurace</summary>
-        <div class="btnRow3">
-          <button class="action" id="btnExportCfg" type="button">Export config</button>
-          <button class="action" id="btnCopyCfg" type="button">Kopírovat</button>
-          <button class="action" id="btnDownloadCfg" type="button">Stáhnout .json</button>
-        </div>
-        <textarea id="cfgText" spellcheck="false" placeholder="JSON config (nebo sem vložte JSON pro import)"></textarea>
-        <div class="btnRow">
-          <button class="action" id="btnImportCfg" type="button">Importovat config</button>
-          <button class="action" id="btnAutoImport" type="button">Auto import (C+JSON)</button>
-        </div>
-      </details>
-
-      <div class="status" id="status" data-kind="ok">Připraveno.</div>
-      <div class="small">
-        Pozn.: Neexistuje hard max pro rozměry mapy – limity jsou dány prohlížečem a canvasem. Pokud kopírování selže, je to kvůli secure context omezením Clipboard API (zvykle pomůže HTTPS).
-      </div>
+    <h2>Map export/import</h2>
+    <div class="row">
+      <button id="exportCBtn">Export C array</button>
+      <button id="importCBtn">Import C array</button>
+    </div>
+    <textarea id="cImportText" placeholder="Paste C array here, then click Import C array"></textarea>
+    <div class="row">
+      <button id="exportJsonBtn">Export JSON</button>
+      <button id="importJsonBtn">Import JSON</button>
+      <input id="importJsonFile" type="file" accept=".json,application/json" style="display:none" />
+    </div>
+    <div class="row">
+      <button id="exportBitmapBtn">Export wall bitmap PNG</button>
+    </div>
+    <div class="small">
+      Bitmap export rule: only <b>Type 0</b> counts as wall type. For Type 0, <b>Kind 0 = empty/white</b>, and any <b>Kind &gt; 0 = black</b>.
+      All other types are ignored and exported as white.
     </div>
   </div>
 
+  <div class="map-wrap">
+    <div class="toolbar">
+      <div class="small">Drag to paint. Right click also paints. Shift + drag draws line. Ctrl while painting temporarily erases.</div>
+    </div>
+    <div id="map" class="map"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Type / Kind editor</h2>
+    <div class="row">
+      <label>Edit type</label>
+      <select id="editTypeSelect"></select>
+    </div>
+    <div class="row">
+      <label>Type name</label>
+      <input id="typeNameInput" type="text" />
+    </div>
+    <div class="row">
+      <button id="saveTypeBtn">Save type name</button>
+    </div>
+
+    <h3>Selected kind</h3>
+    <div class="small" id="editingKindInfo"></div>
+    <div class="row">
+      <label>Kind name</label>
+      <input id="kindNameInput" type="text" />
+    </div>
+    <div class="row">
+      <label>Mode</label>
+      <select id="kindModeSelect">
+        <option value="color">Color</option>
+        <option value="emoji">Emoji/Icon</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>Color</label>
+      <input id="kindColorInput" type="color" value="#ff0000" />
+    </div>
+    <div class="row">
+      <label>Emoji</label>
+      <input id="kindEmojiInput" type="text" maxlength="4" placeholder="👾" />
+    </div>
+    <div class="row">
+      <label>Description</label>
+    </div>
+    <textarea id="kindDescriptionInput" placeholder="Describe what this kind means"></textarea>
+    <div class="row">
+      <button id="saveKindBtn">Save kind</button>
+      <button id="resetKindBtn">Reset selected kind</button>
+    </div>
+
+    <h2>Configuration export/import</h2>
+    <div class="row">
+      <button id="exportConfigBtn">Export config JSON</button>
+      <button id="importConfigBtn">Import config JSON</button>
+      <input id="importConfigFile" type="file" accept=".json,application/json" style="display:none" />
+    </div>
+
+    <h2>Output</h2>
+    <textarea id="output" class="codebox" spellcheck="false"></textarea>
+  </div>
+</div>
+
 <script>
 (() => {
-  'use strict';
-
-  // ======= helpers =======
-  function clampInt(n, lo, hi) {
-    n = Number(n);
-    if (!Number.isFinite(n)) return lo;
-    n = Math.trunc(n);
-    return Math.max(lo, Math.min(hi, n));
-  }
-  function parsePositiveInt(raw) {
-    const n = Number(raw);
-    if (!Number.isFinite(n) || !Number.isInteger(n) || n < 1) return null;
-    return n;
-  }
-  function encode(type, kind) { return ((type & 0xF) << 4) | (kind & 0xF); }
-  function decodeType(v) { return (v >> 4) & 0xF; }
-  function decodeKind(v) { return v & 0xF; }
-  function clampByte(v) {
-    v = Number(v);
-    if (!Number.isFinite(v)) return 0;
-    v = Math.trunc(v);
-    if (v < 0) return 0;
-    if (v > 255) return 255;
-    return v;
-  }
-  function isHexColor(s) { return /^#([0-9a-fA-F]{6})$/.test(String(s || '').trim()); }
-  function normHex(s, fallback='#FFFFFF') {
-    const x = String(s || '').trim().toUpperCase();
-    return isHexColor(x) ? x : fallback;
-  }
-  // Emoji validation je neupřesněná. Best-effort: trim, max 4 code units.
-  function safeIcon(s) {
-    s = String(s ?? '').trim();
-    if (!s) return '';
-    return s.slice(0, 4);
-  }
-  function strLimit(s, maxLen) {
-    s = String(s ?? '');
-    return s.length > maxLen ? s.slice(0, maxLen) : s;
-  }
-  function hexToRgb(hex) {
-    const m = /^#([0-9a-fA-F]{6})$/.exec(String(hex||'').trim());
-    if (!m) return {r:255,g:255,b:255};
-    const x = parseInt(m[1], 16);
-    return { r:(x>>16)&255, g:(x>>8)&255, b:x&255 };
-  }
-  function rgbToHex(r,g,b) {
-    const rr = clampInt(r,0,255).toString(16).padStart(2,'0');
-    const gg = clampInt(g,0,255).toString(16).padStart(2,'0');
-    const bb = clampInt(b,0,255).toString(16).padStart(2,'0');
-    return ('#'+rr+gg+bb).toUpperCase();
-  }
-  function shade(hex, kind) {
-    const {r,g,b} = hexToRgb(hex);
-    const t = (kind - 7.5) / 7.5; // -1..+1
-    const amt = Math.round(t * 28); // jemnější shading
-    return rgbToHex(r+amt, g+amt, b+amt);
-  }
-
-  // ======= defaults =======
-  const DEFAULT_W = 32;
-  const DEFAULT_H = 64;
-
-  // Base paleta pro seed barev (není „hard rule“, jen default)
-  const BASE_TYPE_COLORS = [
-    '#FFFFFF','#2B2B2B','#3B82F6','#EF4444',
-    '#22C55E','#A855F7','#F59E0B','#06B6D4',
-    '#64748B','#E11D48','#10B981','#F97316',
-    '#0EA5E9','#8B5CF6','#FBBF24','#14B8A6'
-  ];
-
-  const ROLE_LABEL = { tile: 'Dlaždice', object: 'Objekt', spawn: 'Spawn' };
-
-  function makeDefaultConfig() {
-    const typeLabels = Array.from({length:16}, (_,t)=>`Typ ${t}`);
-    typeLabels[0]  = 'Prázdno';
-    typeLabels[1]  = 'Stěna';
-    typeLabels[14] = 'Objekty';
-    typeLabels[15] = 'Spawn';
-
-    const defs = Array.from({length:16}, (_,t) => {
-      const base = BASE_TYPE_COLORS[t] || '#FFFFFF';
-      return Array.from({length:16}, (_,k) => ({
-        role: 'tile',
-        color: shade(base, k),
-        icon: '',
-        label: '',
-        desc: ''
-      }));
-    });
-
-    // pár ukázkových definic
-    defs[15][0] = { role:'spawn', color: shade(BASE_TYPE_COLORS[15],0), icon:'🧍', label:'Spawn hráče', desc:'Start hráče' };
-    defs[15][1] = { role:'spawn', color: shade(BASE_TYPE_COLORS[15],1), icon:'👾', label:'Spawn nepřítele', desc:'Start nepřítele' };
-    defs[14][0] = { role:'object', color: shade(BASE_TYPE_COLORS[14],0), icon:'📦', label:'Bedna', desc:'Dekorace/kolize' };
-    defs[14][2] = { role:'object', color: shade(BASE_TYPE_COLORS[14],2), icon:'💊', label:'Medikit', desc:'Léčení' };
-
-    return { format:'map-editor-config-v2', version:2, typeLabels, defs };
-  }
-
-  let config = makeDefaultConfig();
-
-  // ======= map state =======
-  let mapWidth = DEFAULT_W;
-  let mapHeight = DEFAULT_H;
-  let mapData = new Uint8Array(mapWidth * mapHeight); // init to 0
-  let cellMeta = new Map(); // "x,y" -> {name,tag,rotation,data}
-
-  // editor state
-  let tileSize = 12;
-  let showGrid = true;
-  let mode = 'paint'; // paint | place | meta
-  let currentType = 1;
-  let currentKind = 0;
-
-  let isDrawing = false;
-  let activePointerId = null;
-  let lastPaintIndex = -1;
-
-  let selectedCell = null;
-  let lastHover = null;
-
-  function idx(x,y){ return y*mapWidth + x; }
-  function keyXY(x,y){ return `${x},${y}`; }
-
-  // ======= DOM =======
-  const canvas = document.getElementById('mapCanvas');
-  const ctx = canvas.getContext('2d', { alpha:false });
-
-  const dimsEl = document.getElementById('dims');
-  const cellsEl = document.getElementById('cells');
-  const hoverInfoEl = document.getElementById('hoverInfo');
-  const statusEl = document.getElementById('status');
-
-  const typeSelect = document.getElementById('typeSelect');
-  const typeLabelInput = document.getElementById('typeLabelInput');
-  const typePill = document.getElementById('typePill');
-  const currentValuePill = document.getElementById('currentValuePill');
-  const kindGrid = document.getElementById('kindGrid');
-
-  const defRole = document.getElementById('defRole');
-  const defLabel = document.getElementById('defLabel');
-  const defDesc = document.getElementById('defDesc');
-  const legendEl = document.getElementById('legend');
-
-  const selectedInfo = document.getElementById('selectedInfo');
-  const metaName = document.getElementById('metaName');
-  const metaTag = document.getElementById('metaTag');
-  const metaRot = document.getElementById('metaRot');
-  const metaData = document.getElementById('metaData');
-
-  const mapWInput = document.getElementById('mapW');
-  const mapHInput = document.getElementById('mapH');
-  const sizeInfo = document.getElementById('sizeInfo');
-
-  const showGridInput = document.getElementById('showGrid');
-  const tileSizeInput = document.getElementById('tileSize');
-
-  const mapNameInput = document.getElementById('mapName');
-  const includeDefinesInput = document.getElementById('includeDefines');
-  const mapText = document.getElementById('mapText');
-
-  const cfgText = document.getElementById('cfgText');
-
-  function setStatus(msg, kind='ok'){
-    statusEl.textContent = msg;
-    statusEl.dataset.kind = kind;
-  }
-
-  // ======= UI build/refresh =======
-  function refreshDimsUI(){
-    dimsEl.textContent = `${mapWidth}×${mapHeight}`;
-    cellsEl.textContent = `${mapWidth*mapHeight} buněk`;
-    mapWInput.value = String(mapWidth);
-    mapHInput.value = String(mapHeight);
-    refreshSizeInfo();
-  }
-
-  function refreshSizeInfo(){
-    const dpr = window.devicePixelRatio || 1;
-    const cssW = mapWidth * tileSize;
-    const cssH = mapHeight * tileSize;
-    const bufW = Math.round(cssW * dpr);
-    const bufH = Math.round(cssH * dpr);
-
-    let msg = `Canvas: ${cssW}×${cssH} CSS px; buffer: ${bufW}×${bufH} px; DPR=${dpr.toFixed(2)}.`;
-    if (bufW > 10000 || bufH > 10000) msg += `\n⚠️ Velmi velký canvas (v některých prostředích může selhat).`;
-    if (bufW > 4096 || bufH > 4096) msg += `\nℹ️ iOS může limitovat canvas ~4096×4096 px.`;
-    sizeInfo.textContent = msg;
-  }
-
-  function buildTypeSelect(){
-    typeSelect.innerHTML = '';
-    for (let t=0; t<16; t++){
-      const opt = document.createElement('option');
-      opt.value = String(t);
-      opt.textContent = `T${t} – ${config.typeLabels[t] || `Typ ${t}`}`;
-      typeSelect.appendChild(opt);
-    }
-    typeSelect.value = String(currentType);
-  }
-
-  function buildKindGrid(){
-    kindGrid.innerHTML = '';
-    for (let k=0; k<16; k++){
-      const cell = document.createElement('div');
-      cell.className = 'kindCell';
-      cell.dataset.kind = String(k);
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'kindBtn';
-      btn.dataset.kind = String(k);
-      btn.innerHTML = `<span>K${k.toString(16).toUpperCase()}</span><span class="mini">${k}</span>`;
-      btn.addEventListener('click', () => setKind(k));
-
-      const color = document.createElement('input');
-      color.type = 'color';
-      color.className = 'kindColor';
-      color.dataset.kind = String(k);
-      color.title = `Barva pro T${currentType}, K${k}`;
-
-      const icon = document.createElement('input');
-      icon.type = 'text';
-      icon.className = 'kindIconInput';
-      icon.dataset.kind = String(k);
-      icon.placeholder = '🙂';
-      icon.title = `Ikona pro T${currentType}, K${k}`;
-
-      // změny configu (per currentType)
-      color.addEventListener('input', () => {
-        const kk = Number(color.dataset.kind);
-        const def = config.defs[currentType][kk];
-        const v = normHex(color.value, def.color || '#FFFFFF');
-        def.color = v;
-        scheduleFullRender();
-        scheduleConfigExport();
-      });
-
-      // debounce pro text input
-      let iconTimer = 0;
-      icon.addEventListener('input', () => {
-        clearTimeout(iconTimer);
-        iconTimer = setTimeout(() => {
-          const kk = Number(icon.dataset.kind);
-          const def = config.defs[currentType][kk];
-          def.icon = safeIcon(icon.value);
-          scheduleFullRender();
-          scheduleConfigExport();
-          refreshKindButtonTitles(); // tooltipy
-        }, 120);
-      });
-
-      cell.appendChild(btn);
-      cell.appendChild(color);
-      cell.appendChild(icon);
-
-      kindGrid.appendChild(cell);
-    }
-
-    refreshKindGridValues();
-  }
-
-  function refreshKindButtonTitles(){
-    kindGrid.querySelectorAll('.kindBtn').forEach(btn => {
-      const k = Number(btn.dataset.kind);
-      const def = config.defs[currentType][k];
-      const role = ROLE_LABEL[def.role] || def.role;
-      const label = (def.label || '').trim();
-      const desc  = (def.desc || '').trim();
-      const icon  = (def.icon || '').trim();
-      btn.title = `T${currentType} ${config.typeLabels[currentType] || ''}\nK${k} (${k})\n${role}${icon ? ` • ${icon}`:''}${label?` • ${label}`:''}${desc?`\n${desc}`:''}`;
-    });
-  }
-
-  function refreshKindGridValues(){
-    // aktualizuje 16 color pickers + 16 icon inputs dle defs[currentType]
-    kindGrid.querySelectorAll('.kindCell').forEach(cell => {
-      const k = Number(cell.dataset.kind);
-      const def = config.defs[currentType][k];
-
-      const color = cell.querySelector('input[type="color"]');
-      const icon  = cell.querySelector('input[type="text"]');
-
-      color.value = normHex(def.color, '#FFFFFF');
-      icon.value  = def.icon || '';
-
-      const btn = cell.querySelector('.kindBtn');
-      btn.classList.toggle('active', k === currentKind);
-    });
-
-    refreshKindButtonTitles();
-  }
-
-  function refreshCurrentPills(){
-    typePill.textContent = `typ=${currentType} (0x${currentType.toString(16).toUpperCase()})`;
-    const value = encode(currentType, currentKind);
-    currentValuePill.textContent = `0x${value.toString(16).padStart(2,'0').toUpperCase()} (${value})  —  typ=${currentType}, kind=${currentKind}`;
-    typeLabelInput.value = config.typeLabels[currentType] || `Typ ${currentType}`;
-  }
-
-  function refreshDefEditor(){
-    const def = config.defs[currentType][currentKind];
-    defRole.value = def.role || 'tile';
-    defLabel.value = def.label || '';
-    defDesc.value = def.desc || '';
-  }
-
-  function rebuildLegend(){
-    const items = [];
-    for (let t=0;t<16;t++){
-      for (let k=0;k<16;k++){
-        const d = config.defs[t][k];
-        if (!d) continue;
-        if (d.role === 'tile') continue;
-        const icon = safeIcon(d.icon || '');
-        const label = (d.label || '').trim();
-        const desc = (d.desc || '').trim();
-        items.push({t,k,role:d.role,icon,label,desc});
-      }
-    }
-
-    legendEl.innerHTML = '';
-    if (items.length === 0){
-      const p = document.createElement('div');
-      p.className = 'small';
-      p.textContent = 'Legenda: nejsou definované žádné objekty/spawny (role != tile).';
-      legendEl.appendChild(p);
-      return;
-    }
-
-    const title = document.createElement('div');
-    title.className = 'small';
-    title.textContent = 'Legenda objektů/spawnů:';
-    legendEl.appendChild(title);
-
-    for (const it of items){
-      const row = document.createElement('div');
-      row.className = 'legendItem';
-
-      const ico = document.createElement('div');
-      ico.className = 'ico';
-      ico.textContent = it.icon || (it.role === 'spawn' ? '⭐' : '📦');
-
-      const txt = document.createElement('div');
-      txt.className = 'txt';
-      const nm = it.label ? it.label : '(bez labelu)';
-      const dd = it.desc ? ` — ${it.desc}` : '';
-      txt.textContent = `${ico.textContent} ${nm}${dd}  [T${it.t} K${it.k} ${ROLE_LABEL[it.role]}]`;
-
-      row.appendChild(ico);
-      row.appendChild(txt);
-      legendEl.appendChild(row);
-    }
-  }
-
-  function setType(t){
-    currentType = clampInt(t,0,15);
-    typeSelect.value = String(currentType);
-    refreshCurrentPills();
-    refreshKindGridValues();
-    refreshDefEditor();
-  }
-  function setKind(k){
-    currentKind = clampInt(k,0,15);
-    refreshCurrentPills();
-    refreshKindGridValues();
-    refreshDefEditor();
-  }
-
-  // ======= canvas =======
-  function configureCanvas(){
-    const dpr = window.devicePixelRatio || 1;
-    const cssW = mapWidth * tileSize;
-    const cssH = mapHeight * tileSize;
-
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    ctx.imageSmoothingEnabled = false;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    renderAll();
-    refreshSizeInfo();
-  }
-
-  function drawCell(x,y){
-    const v = mapData[idx(x,y)];
-    const t = decodeType(v);
-    const k = decodeKind(v);
-    const def = config.defs[t][k];
-
-    // barva per-kind
-    const fill = normHex(def?.color, '#FFFFFF');
-    ctx.fillStyle = fill;
-    ctx.fillRect(x*tileSize, y*tileSize, tileSize, tileSize);
-
-    if (showGrid){
-      ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x*tileSize + 0.5, y*tileSize + 0.5, tileSize, tileSize);
-    }
-
-    // overlay ikona: pokud existuje nebo role != tile
-    const icon = safeIcon(def?.icon || '');
-    const role = def?.role || 'tile';
-    if (icon || role !== 'tile'){
-      // spawn highlight
-      if (role === 'spawn'){
-        ctx.strokeStyle = 'rgba(255,209,102,0.95)';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x*tileSize + 1, y*tileSize + 1, tileSize - 2, tileSize - 2);
-      }
-
-      if (icon){
-        const cx = x*tileSize + tileSize/2;
-        const cy = y*tileSize + tileSize/2;
-        const fontPx = Math.max(10, Math.floor(tileSize*0.72));
-        ctx.font = `${fontPx}px sans-serif`;
-
-        // jednoduchý kontrast: stín
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.fillText(icon, cx+1, cy+1);
-        ctx.fillStyle = 'rgba(0,0,0,0.85)';
-        ctx.fillText(icon, cx, cy);
-      }
-    }
-
-    // selected highlight
-    if (selectedCell && selectedCell.x === x && selectedCell.y === y){
-      ctx.strokeStyle = 'rgba(255,215,0,0.95)';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(x*tileSize + 1.5, y*tileSize + 1.5, tileSize - 3, tileSize - 3);
-    }
-  }
-
-  function renderAll(){
-    const w = mapWidth*tileSize;
-    const h = mapHeight*tileSize;
-    ctx.clearRect(0,0,w,h);
-    for (let y=0;y<mapHeight;y++){
-      for (let x=0;x<mapWidth;x++){
-        drawCell(x,y);
-      }
-    }
-  }
-
-  let fullRenderTimer = 0;
-  function scheduleFullRender(){
-    clearTimeout(fullRenderTimer);
-    fullRenderTimer = setTimeout(renderAll, 80);
-  }
-
-  function getCellFromEvent(e){
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left)/tileSize);
-    const y = Math.floor((e.clientY - rect.top)/tileSize);
-    if (x<0 || x>=mapWidth || y<0 || y>=mapHeight) return null;
-    return {x,y};
-  }
-
-  function updateHoverInfo(cell){
-    if (!cell){
-      hoverInfoEl.textContent = '—';
-      return;
-    }
-    const v = mapData[idx(cell.x,cell.y)];
-    const t = decodeType(v);
-    const k = decodeKind(v);
-    const def = config.defs[t][k] || {role:'tile',color:'#FFFFFF',icon:'',label:'',desc:''};
-    const typeName = config.typeLabels[t] || `Typ ${t}`;
-    const kv = `0x${v.toString(16).padStart(2,'0').toUpperCase()} (${v})`;
-    const icon = safeIcon(def.icon || '');
-    const label = (def.label || '').trim();
-    const desc  = (def.desc || '').trim();
-    const meta = cellMeta.get(keyXY(cell.x,cell.y));
-
-    let line = `x=${cell.x}, y=${cell.y} • ${kv} • typ=${t} (${typeName}), kind=${k}\n`;
-    line += `Role: ${ROLE_LABEL[def.role] || def.role} • barva=${normHex(def.color,'#FFFFFF')}\n`;
-    if (icon || label || desc){
-      line += `Def: ${icon ? icon+' ' : ''}${label || '(bez labelu)'}${desc ? ' — '+desc : ''}\n`;
-    }
-    if (meta){
-      line += `Meta: name=${meta.name||''} tag=${meta.tag||''} rot=${meta.rotation??0}`;
-    } else {
-      line += `Meta: —`;
-    }
-    hoverInfoEl.textContent = line;
-  }
-
-  // ======= selection + metadata =======
-  function setSelectedCell(cell){
-    const prev = selectedCell;
-    selectedCell = cell;
-
-    if (prev) drawCell(prev.x, prev.y);
-    if (selectedCell) drawCell(selectedCell.x, selectedCell.y);
-
-    refreshMetaEditor();
-  }
-
-  function refreshMetaEditor(){
-    if (!selectedCell){
-      selectedInfo.textContent = 'Nic nevybráno. V režimu „Metadata“ klikněte na buňku.';
-      metaName.value = '';
-      metaTag.value = '';
-      metaRot.value = '';
-      metaData.value = '';
-      return;
-    }
-    const x = selectedCell.x, y = selectedCell.y;
-    const v = mapData[idx(x,y)];
-    const t = decodeType(v), k = decodeKind(v);
-    const def = config.defs[t][k] || {role:'tile',label:'',desc:'',icon:''};
-    const kv = `0x${v.toString(16).padStart(2,'0').toUpperCase()} (${v})`;
-    selectedInfo.textContent =
-      `Vybráno: x=${x}, y=${y} • ${kv}\n`+
-      `typ=${t} (${config.typeLabels[t]||`Typ ${t}`}), kind=${k}\n`+
-      `Role=${ROLE_LABEL[def.role]||def.role} • ${safeIcon(def.icon)||''} ${def.label||''}`;
-
-    const meta = cellMeta.get(keyXY(x,y));
-    metaName.value = meta?.name || '';
-    metaTag.value  = meta?.tag  || '';
-    metaRot.value  = (meta?.rotation ?? 0).toString();
-    metaData.value = meta?.data ? JSON.stringify(meta.data, null, 2) : '';
-  }
-
-  function defaultMetaForCell(x,y){
-    const v = mapData[idx(x,y)];
-    const t = decodeType(v), k = decodeKind(v);
-    const def = config.defs[t][k] || {label:''};
-    return { name:(def.label||'').trim(), tag:'', rotation:0, data:{} };
-  }
-
-  function saveMetaFromUI(){
-    if (!selectedCell){ setStatus('Metadata: není vybraná buňka.', 'warn'); return; }
-    const x = selectedCell.x, y = selectedCell.y;
-    const v = mapData[idx(x,y)];
-    if (v === 0){ setStatus('Metadata: buňka je 0 (prázdno).', 'warn'); return; }
-
-    const name = strLimit(metaName.value.trim(), 80);
-    const tag  = strLimit(metaTag.value.trim(), 40);
-    const rotation = clampInt(metaRot.value, 0, 359);
-
-    let dataObj = {};
-    const raw = metaData.value.trim();
-    if (raw){
-      try { dataObj = JSON.parse(raw); }
-      catch { setStatus('Metadata: neplatný JSON v poli „Data“.', 'bad'); return; }
-    }
-
-    cellMeta.set(keyXY(x,y), { name, tag, rotation, data: dataObj });
-    scheduleConfigExport();
-    setStatus('Metadata uložena.', 'ok');
-    updateHoverInfo({x,y});
-  }
-
-  function deleteMeta(){
-    if (!selectedCell){ setStatus('Smazat metadata: není vybráno.', 'warn'); return; }
-    const x = selectedCell.x, y = selectedCell.y;
-    cellMeta.delete(keyXY(x,y));
-    scheduleConfigExport();
-    setStatus('Metadata smazána.', 'ok');
-    refreshMetaEditor();
-    updateHoverInfo({x,y});
-  }
-
-  document.getElementById('btnSaveMeta').addEventListener('click', saveMetaFromUI);
-  document.getElementById('btnDeleteMeta').addEventListener('click', deleteMeta);
-
-  // ======= paint/place/meta logic =======
-  function applyCellValue(x,y,newValue, sourceMode){
-    const i = idx(x,y);
-    const old = mapData[i];
-    if (old === newValue) return;
-
-    mapData[i] = newValue;
-
-    const key = keyXY(x,y);
-
-    if (newValue === 0){
-      cellMeta.delete(key);
-    } else {
-      const t = decodeType(newValue);
-      const k = decodeKind(newValue);
-      const def = config.defs[t][k] || { role:'tile' };
-
-      if (def.role === 'tile'){
-        cellMeta.delete(key);
-      } else if (sourceMode === 'place'){
-        if (!cellMeta.has(key)) cellMeta.set(key, defaultMetaForCell(x,y));
-      }
-    }
-
-    drawCell(x,y);
-    scheduleMapExport();
-    scheduleConfigExport();
-  }
-
-  function paintFromEvent(e){
-    const cell = getCellFromEvent(e);
-    if (!cell) return;
-
-    const i = idx(cell.x, cell.y);
-    if (i === lastPaintIndex) return;
-
-    const left  = (e.type === 'pointerdown') ? (e.button === 0) : ((e.buttons & 1) === 1);
-    const right = (e.type === 'pointerdown') ? (e.button === 2) : ((e.buttons & 2) === 2);
-
-    let newValue;
-    if (right) newValue = 0;
-    else if (left) newValue = encode(currentType, currentKind);
-    else return;
-
-    applyCellValue(cell.x, cell.y, newValue, mode);
-
-    if (mode === 'place' && left){
-      setSelectedCell(cell);
-    }
-
-    lastPaintIndex = i;
-    updateHoverInfo(cell);
-  }
-
-  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-
-  canvas.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    canvas.focus();
-
-    const cell = getCellFromEvent(e);
-    if (cell){
-      updateHoverInfo(cell);
-      setSelectedCell(cell);
-    }
-
-    if (mode === 'meta') return;
-
-    canvas.setPointerCapture(e.pointerId);
-    activePointerId = e.pointerId;
-    isDrawing = true;
-    lastPaintIndex = -1;
-    paintFromEvent(e);
-  });
-
-  canvas.addEventListener('pointermove', (e) => {
-    if (isDrawing){
-      if (activePointerId !== null && e.pointerId !== activePointerId) return;
-      paintFromEvent(e);
-      return;
-    }
-    const cell = getCellFromEvent(e);
-    if (!cell) return;
-    if (!lastHover || lastHover.x !== cell.x || lastHover.y !== cell.y){
-      lastHover = cell;
-      updateHoverInfo(cell);
-    }
-  });
-
-  function stopDrawing(e){
-    if (activePointerId !== null && e.pointerId !== activePointerId) return;
-    isDrawing = false;
-    activePointerId = null;
-    lastPaintIndex = -1;
-  }
-  canvas.addEventListener('pointerup', stopDrawing);
-  canvas.addEventListener('pointercancel', stopDrawing);
-
-  // ======= mode switching + shortcuts =======
-  function setMode(next){
-    mode = next;
-    document.querySelectorAll('input[name="mode"]').forEach(r => r.checked = (r.value === next));
-    setStatus(`Režim: ${next === 'paint' ? 'Malování' : next === 'place' ? 'Objekt/Spawn' : 'Metadata'}`, 'ok');
-  }
-  document.querySelectorAll('input[name="mode"]').forEach(r => {
-    r.addEventListener('change', () => setMode(document.querySelector('input[name="mode"]:checked').value));
-  });
-
-  function toggleGrid(){
-    showGrid = !showGrid;
-    showGridInput.checked = showGrid;
-    configureCanvas();
-    setStatus(`Mřížka: ${showGrid ? 'zapnuto' : 'vypnuto'}`, 'ok');
-  }
-
-  document.addEventListener('keydown', (e) => {
-    const t = e.target;
-    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
-
-    const key = e.key;
-
-    if (key === '[') { setType((currentType + 15) % 16); return; }
-    if (key === ']') { setType((currentType + 1) % 16); return; }
-
-    if (key === 'g' || key === 'G') { toggleGrid(); return; }
-    if (key === 'p' || key === 'P') { setMode('paint'); return; }
-    if (key === 'o' || key === 'O') { setMode('place'); return; }
-    if (key === 'm' || key === 'M') { setMode('meta'); return; }
-
-    if (/^[0-9]$/.test(key)) { setKind(Number(key)); return; }
-    if (/^[a-fA-F]$/.test(key)) { setKind(parseInt(key, 16)); return; }
-  });
-
-  // ======= defs editor =======
-  function saveDefFromUI(){
-    const def = config.defs[currentType][currentKind];
-    const role = defRole.value;
-    def.role = (role === 'tile' || role === 'object' || role === 'spawn') ? role : 'tile';
-    def.label = strLimit(defLabel.value.trim(), 80);
-    def.desc  = strLimit(defDesc.value.trim(), 140);
-
-    rebuildLegend();
-    scheduleFullRender();
-    scheduleConfigExport();
-    setStatus('Definice uložena.', 'ok');
-  }
-
-  function resetDef(){
-    const base = BASE_TYPE_COLORS[currentType] || '#FFFFFF';
-    config.defs[currentType][currentKind] = {
-      role: 'tile',
-      color: shade(base, currentKind),
-      icon: '',
-      label: '',
-      desc: ''
-    };
-    refreshKindGridValues();
-    refreshDefEditor();
-    rebuildLegend();
-    scheduleFullRender();
-    scheduleConfigExport();
-    setStatus('Definice resetována.', 'ok');
-  }
-
-  document.getElementById('btnSaveDef').addEventListener('click', saveDefFromUI);
-  document.getElementById('btnResetDef').addEventListener('click', resetDef);
-
-  typeSelect.addEventListener('change', () => setType(Number(typeSelect.value)));
-
-  typeLabelInput.addEventListener('input', () => {
-    const name = strLimit(typeLabelInput.value.trim(), 60) || `Typ ${currentType}`;
-    config.typeLabels[currentType] = name;
-    const opt = typeSelect.querySelector(`option[value="${currentType}"]`);
-    if (opt) opt.textContent = `T${currentType} – ${name}`;
-    scheduleConfigExport();
-  });
-
-  // ======= resize + ops =======
-  function countLoss(oldW, oldH, oldBuf, newW, newH){
-    if (newW >= oldW && newH >= oldH) return { lostNonZero:0, lostMeta:0 };
-    let lostNonZero = 0;
-    for (let y=0;y<oldH;y++){
-      for (let x=0;x<oldW;x++){
-        if (x<newW && y<newH) continue;
-        if (oldBuf[y*oldW+x] !== 0) lostNonZero++;
-      }
-    }
-    let lostMeta = 0;
-    for (const k of cellMeta.keys()){
-      const [xs,ys] = k.split(',');
-      const x = Number(xs), y = Number(ys);
-      if (x>=newW || y>=newH) lostMeta++;
-    }
-    return { lostNonZero, lostMeta };
-  }
-
-  function resizeMap(newW, newH, {confirmLoss=true} = {}){
-    const oldW = mapWidth, oldH = mapHeight;
-    const oldBuf = mapData;
-
-    if (newW === oldW && newH === oldH){
-      setStatus('Rozměry beze změny.', 'ok');
-      return true;
-    }
-
-    if (confirmLoss && (newW < oldW || newH < oldH)){
-      const {lostNonZero, lostMeta} = countLoss(oldW, oldH, oldBuf, newW, newH);
-      if (lostNonZero > 0 || lostMeta > 0){
-        const ok = confirm(
-          `Zmenšení mapy může zahodit data.\n` +
-          `Nenulové buňky mimo nový rozsah: ${lostNonZero}\n` +
-          `Metadata instancí mimo nový rozsah: ${lostMeta}\n\n` +
-          `Pokračovat?`
-        );
-        if (!ok){
-          setStatus('Resize zrušen.', 'warn');
-          return false;
-        }
-      }
-    }
-
-    let newBuf;
-    try { newBuf = new Uint8Array(newW * newH); }
-    catch { setStatus(`Nelze alokovat ${newW}×${newH} (paměť/limit).`, 'bad'); return false; }
-
-    const copyW = Math.min(oldW, newW);
-    const copyH = Math.min(oldH, newH);
-    for (let y=0;y<copyH;y++){
-      const srcStart = y*oldW;
-      const dstStart = y*newW;
-      newBuf.set(oldBuf.subarray(srcStart, srcStart+copyW), dstStart);
-    }
-
-    // meta prune
-    const newMeta = new Map();
-    for (const [k,meta] of cellMeta.entries()){
-      const [xs,ys] = k.split(',');
-      const x = Number(xs), y = Number(ys);
-      if (x<newW && y<newH) newMeta.set(k, meta);
-    }
-    cellMeta = newMeta;
-
-    mapWidth = newW;
-    mapHeight = newH;
-    mapData = newBuf;
-
-    if (selectedCell && (selectedCell.x>=newW || selectedCell.y>=newH)){
-      selectedCell = null;
-    }
-
-    refreshDimsUI();
-    configureCanvas();
-    refreshMetaEditor();
-    scheduleMapExport();
-    scheduleConfigExport();
-    setStatus(`Mapa změněna na ${newW}×${newH}.`, 'ok');
-    return true;
-  }
-
-  document.getElementById('btnResize').addEventListener('click', () => {
-    const w = parsePositiveInt(mapWInput.value);
-    const h = parsePositiveInt(mapHInput.value);
-    if (w === null || h === null){
-      setStatus('Neplatné rozměry. Zadejte celá čísla ≥ 1.', 'bad');
-      mapWInput.value = String(mapWidth);
-      mapHInput.value = String(mapHeight);
-      return;
-    }
-    resizeMap(w,h,{confirmLoss:true});
-  });
-
-  document.getElementById('btnClear').addEventListener('click', () => {
-    mapData.fill(0);
-    cellMeta.clear();
-    selectedCell = null;
-    configureCanvas();
-    refreshMetaEditor();
-    scheduleMapExport();
-    scheduleConfigExport();
-    setStatus('Mapa vynulována (vše = 0).', 'ok');
-  });
-
-  document.getElementById('btnBorder').addEventListener('click', () => {
-    const wall = encode(1,0);
-    for (let x=0;x<mapWidth;x++){
-      mapData[idx(x,0)] = wall;
-      mapData[idx(x,mapHeight-1)] = wall;
-      drawCell(x,0);
-      drawCell(x,mapHeight-1);
-    }
-    for (let y=0;y<mapHeight;y++){
-      mapData[idx(0,y)] = wall;
-      mapData[idx(mapWidth-1,y)] = wall;
-      drawCell(0,y);
-      drawCell(mapWidth-1,y);
-    }
-    scheduleMapExport();
-    setStatus('Okraj nastaven na (T1,K0).', 'ok');
-  });
-
-  document.getElementById('btnToggleGrid').addEventListener('click', toggleGrid);
-  showGridInput.addEventListener('change', () => { showGrid = showGridInput.checked; configureCanvas(); });
-
-  tileSizeInput.addEventListener('change', () => {
-    const n = parsePositiveInt(tileSizeInput.value);
-    if (n === null){
-      tileSizeInput.value = String(tileSize);
-      return;
-    }
-    tileSize = clampInt(n, 4, 96);
-    tileSizeInput.value = String(tileSize);
-    configureCanvas();
-    scheduleMapExport();
-  });
-
-  // ======= C export/import =======
-  function currentExportMode(){
-    return document.querySelector('input[name="exportMode"]:checked').value;
-  }
-
-  function generateC(width, height, buf, modeXY, name, includeDefines){
-    const safeName = (name || 'worldMap').trim() || 'worldMap';
-    const idxLocal = (x,y) => y*width + x;
-
-    let decl = '';
-    let outerCount=0, innerCount=0;
-
-    if (modeXY === 'xy'){
-      decl='[mapWidth][mapHeight]'; outerCount=width; innerCount=height;
-    } else {
-      decl='[mapHeight][mapWidth]'; outerCount=height; innerCount=width;
-    }
-
-    let s='';
-    if (includeDefines){
-      s += `#define mapWidth ${width}\n#define mapHeight ${height}\n`;
-    }
-    s += `int static const ${safeName}${decl}=\n{\n`;
-
-    for (let outer=0; outer<outerCount; outer++){
-      s += '  {';
-      for (let inner=0; inner<innerCount; inner++){
-        let v=0;
-        if (modeXY === 'xy'){
-          v = buf[idxLocal(outer, inner)];
+  const DEFAULT_TYPE_COUNT = 16;
+  const DEFAULT_KIND_COUNT = 16;
+
+  const els = {
+    map: document.getElementById('map'),
+    mapWidthInput: document.getElementById('mapWidthInput'),
+    mapHeightInput: document.getElementById('mapHeightInput'),
+    resizeMapBtn: document.getElementById('resizeMapBtn'),
+    cellSizeInput: document.getElementById('cellSizeInput'),
+    applyCellSizeBtn: document.getElementById('applyCellSizeBtn'),
+
+    typeSelect: document.getElementById('typeSelect'),
+    editTypeSelect: document.getElementById('editTypeSelect'),
+    typeNameInput: document.getElementById('typeNameInput'),
+    saveTypeBtn: document.getElementById('saveTypeBtn'),
+
+    kindButtons: document.getElementById('kindButtons'),
+    editingKindInfo: document.getElementById('editingKindInfo'),
+    currentSelectionInfo: document.getElementById('currentSelectionInfo'),
+    kindNameInput: document.getElementById('kindNameInput'),
+    kindModeSelect: document.getElementById('kindModeSelect'),
+    kindColorInput: document.getElementById('kindColorInput'),
+    kindEmojiInput: document.getElementById('kindEmojiInput'),
+    kindDescriptionInput: document.getElementById('kindDescriptionInput'),
+    saveKindBtn: document.getElementById('saveKindBtn'),
+    resetKindBtn: document.getElementById('resetKindBtn'),
+
+    toolPaintBtn: document.getElementById('toolPaintBtn'),
+    toolEraseBtn: document.getElementById('toolEraseBtn'),
+    fillBordersBtn: document.getElementById('fillBordersBtn'),
+    clearMapBtn: document.getElementById('clearMapBtn'),
+
+    exportCBtn: document.getElementById('exportCBtn'),
+    importCBtn: document.getElementById('importCBtn'),
+    cImportText: document.getElementById('cImportText'),
+
+    exportJsonBtn: document.getElementById('exportJsonBtn'),
+    importJsonBtn: document.getElementById('importJsonBtn'),
+    importJsonFile: document.getElementById('importJsonFile'),
+
+    exportConfigBtn: document.getElementById('exportConfigBtn'),
+    importConfigBtn: document.getElementById('importConfigBtn'),
+    importConfigFile: document.getElementById('importConfigFile'),
+
+    exportBitmapBtn: document.getElementById('exportBitmapBtn'),
+    output: document.getElementById('output'),
+  };
+
+  const state = {
+    width: 32,
+    height: 64,
+    map: [],
+    mouseDown: false,
+    tool: 'paint',
+    selectedType: 0,
+    selectedKind: 1,
+    lastPainted: null,
+    types: [],
+  };
+
+  function makeDefaultTypes() {
+    const types = [];
+    for (let t = 0; t < DEFAULT_TYPE_COUNT; t++) {
+      const typeName = (
+        t === 0 ? 'Wall' :
+        t === 1 ? 'Enemy' :
+        t === 2 ? 'Spawn' :
+        t === 3 ? 'Item' :
+        `Type ${t}`
+      );
+      const type = { id: t, name: typeName, kinds: [] };
+
+      for (let k = 0; k < DEFAULT_KIND_COUNT; k++) {
+        const isWallType = t === 0;
+        let mode = isWallType ? 'color' : 'emoji';
+        let color = '#ffffff';
+        let emoji = '';
+        let name = `Kind ${k}`;
+        let description = '';
+
+        if (t === 0) {
+          if (k === 0) {
+            name = 'Empty';
+            color = '#ffffff';
+            description = 'No wall';
+          } else if (k === 1) {
+            name = 'Red';
+            color = '#ff4040';
+            description = 'Wall variant';
+          } else if (k === 2) {
+            name = 'Gray 1';
+            color = '#999999';
+          } else if (k === 3) {
+            name = 'Gray 2';
+            color = '#666666';
+          } else {
+            name = `Wall ${k}`;
+            color = randomPrettyColor(k * 19 + t);
+          }
+        } else if (t === 1) {
+          name = k === 0 ? 'Unused' : `Enemy ${k}`;
+          emoji = ['','👾','💀','🤖','👹','🕷️','🧟','🐍','🦂','🦇','👻','🔥','☠️','🧨','🛡️','⚔️'][k] || '👾';
+          description = 'Enemy/object slot';
+        } else if (t === 2) {
+          name = k === 0 ? 'Unused' : `Spawn ${k}`;
+          emoji = ['','▶️','🟢','🔵','🟡','🟣','🟠','⚪','⚫','⭐','🚪','🏁','📍','⬆️','⬇️','⏺️'][k] || '📍';
+          description = 'Spawn/marker slot';
+        } else if (t === 3) {
+          name = k === 0 ? 'Unused' : `Item ${k}`;
+          emoji = ['','🔑','❤️','💎','🪙','🔋','💣','🧪','📦','🗝️','🧰','🧿','🍖','🛢️','🔮','🧲'][k] || '📦';
+          description = 'Item slot';
         } else {
-          v = buf[idxLocal(inner, outer)];
+          if (k === 0) {
+            name = 'Unused';
+            mode = 'emoji';
+            emoji = '';
+          } else {
+            mode = t % 2 === 0 ? 'color' : 'emoji';
+            color = randomPrettyColor(k * 13 + t * 23);
+            emoji = '•';
+          }
         }
-        s += String(v);
-        if (inner !== innerCount-1) s += ',';
+
+        type.kinds.push({ id: k, name, mode, color, emoji, description });
       }
-      s += '}';
-      if (outer !== outerCount-1) s += ',';
-      s += '\n';
+      types.push(type);
     }
-    s += '};\n';
-    return s;
+    return types;
   }
 
-  function updateMapExport(){
-    mapText.value = generateC(mapWidth, mapHeight, mapData, currentExportMode(), mapNameInput.value, includeDefinesInput.checked);
+  function randomPrettyColor(seed) {
+    const hue = (seed * 37) % 360;
+    return hslToHex(hue, 70, 55);
   }
 
-  let mapExportTimer=0;
-  function scheduleMapExport(){
-    clearTimeout(mapExportTimer);
-    const cells = mapWidth*mapHeight;
-    const delay = (cells>200000) ? 300 : (cells>20000 ? 120 : 40);
-    mapExportTimer = setTimeout(updateMapExport, delay);
+  function hslToHex(h, s, l) {
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+      Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))));
+    return "#" + [f(0), f(8), f(4)].map(x => x.toString(16).padStart(2, "0")).join("");
   }
 
-  function stripComments(s){
-    return String(s||'')
-      .replace(/\/\*[\s\S]*?\*\//g,'')
-      .replace(/\/\/.*$/gm,'');
+  function createEmptyMap(w, h) {
+    return Array.from({ length: w }, () => Array(h).fill(0));
   }
-  function findDefine(code, name){
-    const re = new RegExp(`#\\s*define\\s+${name}\\s+(\\d+)`);
-    const m = re.exec(code);
-    if (!m) return null;
-    const n = Number(m[1]);
-    return (Number.isInteger(n) && n>=1) ? n : null;
-  }
-  function detectDeclMode(code){
-    if (/\[\s*mapWidth\s*\]\s*\[\s*mapHeight\s*\]/.test(code)) return 'xy';
-    if (/\[\s*mapHeight\s*\]\s*\[\s*mapWidth\s*\]/.test(code)) return 'yx';
-    return null;
-  }
-  function extractInitializerBlock(code){
-    const eq = code.indexOf('=');
-    const startFrom = (eq>=0) ? eq : 0;
-    const start = code.indexOf('{', startFrom);
-    if (start<0) return null;
-    let depth=0;
-    for (let i=start;i<code.length;i++){
-      const ch = code[i];
-      if (ch === '{') depth++;
-      else if (ch === '}'){
-        depth--;
-        if (depth===0) return code.slice(start, i+1);
+
+  function resizeMap(newW, newH) {
+    newW = clampInt(newW, 1, 512);
+    newH = clampInt(newH, 1, 512);
+    const newMap = createEmptyMap(newW, newH);
+    for (let x = 0; x < Math.min(state.width, newW); x++) {
+      for (let y = 0; y < Math.min(state.height, newH); y++) {
+        newMap[x][y] = state.map[x][y];
       }
     }
-    return null;
+    state.width = newW;
+    state.height = newH;
+    state.map = newMap;
+    els.mapWidthInput.value = newW;
+    els.mapHeightInput.value = newH;
+    renderMap();
   }
-  function parseNums(text){
-    // decimal + 0xHH
-    const re = /0x[0-9a-fA-F]+|-?\d+/g;
-    const toks = text.match(re) || [];
-    const out=[];
-    for (const tok of toks){
-      let v;
-      if (/^0x/i.test(tok)) v = parseInt(tok,16);
-      else v = parseInt(tok,10);
-      if (Number.isFinite(v)) out.push(v);
+
+  function clampInt(v, min, max) {
+    v = parseInt(v, 10);
+    if (Number.isNaN(v)) return min;
+    return Math.min(max, Math.max(min, v));
+  }
+
+  function selectedValue() {
+    return ((state.selectedType & 0x0F) << 4) | (state.selectedKind & 0x0F);
+  }
+
+  function decodeTile(v) {
+    return { type: (v >> 4) & 0x0F, kind: v & 0x0F };
+  }
+
+  function getKindDef(typeId, kindId) {
+    const type = state.types[typeId] || state.types[0];
+    return (type && type.kinds[kindId]) || { name: `Kind ${kindId}`, mode: 'color', color: '#ffffff', emoji: '', description: '' };
+  }
+
+  function typeName(typeId) {
+    return (state.types[typeId] && state.types[typeId].name) || `Type ${typeId}`;
+  }
+
+  function renderTypeSelectors() {
+    const selects = [els.typeSelect, els.editTypeSelect];
+    for (const sel of selects) {
+      const current = parseInt(sel.value || '0', 10);
+      sel.innerHTML = '';
+      for (let t = 0; t < DEFAULT_TYPE_COUNT; t++) {
+        const opt = document.createElement('option');
+        opt.value = String(t);
+        opt.textContent = `T${t} - ${state.types[t].name}`;
+        sel.appendChild(opt);
+      }
+      sel.value = String(Number.isFinite(current) ? current : 0);
+    }
+  }
+
+  function renderKindButtons() {
+    els.kindButtons.innerHTML = '';
+    const typeId = state.selectedType;
+    for (let k = 0; k < DEFAULT_KIND_COUNT; k++) {
+      const def = getKindDef(typeId, k);
+      const btn = document.createElement('button');
+      btn.className = 'kind-btn' + (k === state.selectedKind ? ' active' : '');
+      btn.dataset.kind = String(k);
+
+      const chip = document.createElement('span');
+      chip.className = 'kind-chip';
+      if (def.mode === 'color') {
+        chip.style.background = def.color || '#ffffff';
+        chip.textContent = '';
+      } else {
+        chip.style.background = '#fff';
+        chip.textContent = def.emoji || '·';
+      }
+
+      const line1 = document.createElement('div');
+      line1.textContent = `K${k}`;
+      const line2 = document.createElement('div');
+      line2.textContent = def.name || `Kind ${k}`;
+
+      btn.append(chip, line1, line2);
+      btn.addEventListener('click', () => {
+        state.selectedKind = k;
+        renderKindButtons();
+        syncKindEditor();
+        updateSelectionInfo();
+      });
+      els.kindButtons.appendChild(btn);
+    }
+  }
+
+  function syncTypeEditor() {
+    const t = clampInt(els.editTypeSelect.value, 0, 15);
+    els.typeNameInput.value = state.types[t].name;
+    syncKindEditor();
+  }
+
+  function syncKindEditor() {
+    const t = clampInt(els.editTypeSelect.value, 0, 15);
+    const k = state.selectedKind;
+    const def = getKindDef(t, k);
+    els.editingKindInfo.textContent = `Editing T${t} (${typeName(t)}), K${k}`;
+    els.kindNameInput.value = def.name || '';
+    els.kindModeSelect.value = def.mode || 'color';
+    els.kindColorInput.value = normalizeColor(def.color || '#ffffff');
+    els.kindEmojiInput.value = def.emoji || '';
+    els.kindDescriptionInput.value = def.description || '';
+  }
+
+  function normalizeColor(c) {
+    const probe = document.createElement('input');
+    probe.type = 'color';
+    try { probe.value = c; } catch {}
+    return probe.value || '#ffffff';
+  }
+
+  function updateSelectionInfo() {
+    const def = getKindDef(state.selectedType, state.selectedKind);
+    const value = selectedValue();
+    els.currentSelectionInfo.textContent =
+      `Selected: T${state.selectedType} (${typeName(state.selectedType)}), K${state.selectedKind} (${def.name}) => 0x${value.toString(16).padStart(2, '0').toUpperCase()}`;
+  }
+
+  function cellVisual(value) {
+    const { type, kind } = decodeTile(value);
+    const def = getKindDef(type, kind);
+
+    if (type === 0 && kind === 0) {
+      return { bg: '#ffffff', text: '', textColor: '#111' };
+    }
+
+    if (def.mode === 'color') {
+      return { bg: def.color || '#ffffff', text: '', textColor: '#111' };
+    }
+    return { bg: '#ffffff', text: def.emoji || '•', textColor: '#111' };
+  }
+
+  function renderMap() {
+    els.map.style.gridTemplateColumns = `repeat(${state.width}, var(--cell))`;
+    els.map.innerHTML = '';
+
+    for (let y = 0; y < state.height; y++) {
+      for (let x = 0; x < state.width; x++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.x = String(x);
+        cell.dataset.y = String(y);
+
+        const v = state.map[x][y];
+        const vis = cellVisual(v);
+        cell.style.background = vis.bg;
+
+        if (vis.text) {
+          const span = document.createElement('span');
+          span.className = 'tiny';
+          span.textContent = vis.text;
+          span.style.color = vis.textColor;
+          cell.appendChild(span);
+        }
+
+        cell.title = tileTooltip(x, y, v);
+
+        cell.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          state.mouseDown = true;
+          if (e.shiftKey && state.lastPainted) {
+            drawLine(state.lastPainted.x, state.lastPainted.y, x, y, e.ctrlKey ? 0 : selectedValue());
+          } else {
+            applyToolAt(x, y, e.ctrlKey);
+          }
+          state.lastPainted = { x, y };
+        });
+
+        cell.addEventListener('mouseenter', (e) => {
+          if (!state.mouseDown) return;
+          if (e.shiftKey && state.lastPainted) {
+            drawLine(state.lastPainted.x, state.lastPainted.y, x, y, e.ctrlKey ? 0 : selectedValue());
+          } else {
+            applyToolAt(x, y, e.ctrlKey);
+          }
+          state.lastPainted = { x, y };
+        });
+
+        cell.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          applyToolAt(x, y, false);
+        });
+
+        els.map.appendChild(cell);
+      }
+    }
+  }
+
+  function tileTooltip(x, y, value) {
+    const { type, kind } = decodeTile(value);
+    const def = getKindDef(type, kind);
+    return `(${x}, ${y})  0x${value.toString(16).padStart(2, '0').toUpperCase()}  T${type} ${typeName(type)}  K${kind} ${def.name}`;
+  }
+
+  function updateOneCell(x, y) {
+    const index = y * state.width + x;
+    const cell = els.map.children[index];
+    if (!cell) return;
+    const v = state.map[x][y];
+    const vis = cellVisual(v);
+    cell.style.background = vis.bg;
+    cell.innerHTML = '';
+    if (vis.text) {
+      const span = document.createElement('span');
+      span.className = 'tiny';
+      span.textContent = vis.text;
+      span.style.color = vis.textColor;
+      cell.appendChild(span);
+    }
+    cell.title = tileTooltip(x, y, v);
+  }
+
+  function applyToolAt(x, y, ctrlErase = false) {
+    let value = 0;
+    if (ctrlErase || state.tool === 'erase') {
+      value = 0;
+    } else {
+      value = selectedValue();
+    }
+    state.map[x][y] = value;
+    updateOneCell(x, y);
+  }
+
+  function drawLine(x0, y0, x1, y1, value) {
+    let dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+    let dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+    let err = dx + dy;
+    while (true) {
+      state.map[x0][y0] = value;
+      updateOneCell(x0, y0);
+      if (x0 === x1 && y0 === y1) break;
+      const e2 = 2 * err;
+      if (e2 >= dy) { err += dy; x0 += sx; }
+      if (e2 <= dx) { err += dx; y0 += sy; }
+    }
+  }
+
+  function setTool(tool) {
+    state.tool = tool;
+    els.toolPaintBtn.classList.toggle('active', tool === 'paint');
+    els.toolEraseBtn.classList.toggle('active', tool === 'erase');
+  }
+
+  function exportCArray() {
+    const lines = [];
+    lines.push('int static const worldMap[mapWidth][mapHeight]=');
+    lines.push('{');
+    for (let x = 0; x < state.width; x++) {
+      const row = [];
+      for (let y = 0; y < state.height; y++) {
+        row.push(state.map[x][y]);
+      }
+      const comma = x < state.width - 1 ? ',' : '';
+      lines.push(`  {${row.join(',')}}${comma}`);
+    }
+    lines.push('};');
+    const text = lines.join('\n');
+    els.output.value = text;
+    return text;
+  }
+
+  function importCArray(text) {
+    try {
+      const match = text.match(/\{([\s\S]*)\}\s*;/);
+      if (!match) throw new Error('No C array body found');
+
+      const body = match[1];
+      const rows = [...body.matchAll(/\{([^{}]*)\}/g)].map(m => m[1]);
+
+      if (rows.length === 0) throw new Error('No rows found');
+
+      const parsed = rows.map(row =>
+        row.split(',')
+          .map(v => parseFlexibleInt(v.trim()))
+          .filter(v => !Number.isNaN(v))
+      );
+
+      const width = parsed.length;
+      const height = parsed[0].length;
+
+      if (height === 0) throw new Error('Rows are empty');
+
+      for (let x = 0; x < width; x++) {
+        if (parsed[x].length !== height) {
+          throw new Error('Non-rectangular array');
+        }
+      }
+
+      const newMap = Array.from({ length: width }, (_, x) =>
+        Array.from({ length: height }, (_, y) =>
+          clampInt(parsed[x][y], 0, 255)
+        )
+      );
+
+      state.width = width;
+      state.height = height;
+      state.map = newMap;
+
+      els.mapWidthInput.value = width;
+      els.mapHeightInput.value = height;
+      els.cImportText.value = text;
+
+      renderMap();
+      exportCArray();
+    } catch (err) {
+      alert('C array import failed: ' + err.message);
+    }
+  }
+
+  function parseFlexibleInt(str) {
+    if (/^0x[0-9a-f]+$/i.test(str)) {
+      return parseInt(str, 16);
+    }
+    return parseInt(str, 10);
+  }
+
+  function exportJSON() {
+    const data = {
+      width: state.width,
+      height: state.height,
+      map: state.map
+    };
+    downloadTextFile(`map_${state.width}x${state.height}.json`, JSON.stringify(data, null, 2), 'application/json');
+  }
+
+  function exportConfigJSON() {
+    const data = { types: state.types };
+    downloadTextFile('map_config.json', JSON.stringify(data, null, 2), 'application/json');
+  }
+
+  function importJSONFile(file, mode) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (mode === 'map') {
+          if (!Number.isInteger(data.width) || !Number.isInteger(data.height) || !Array.isArray(data.map)) {
+            throw new Error('Invalid map JSON');
+          }
+          const w = clampInt(data.width, 1, 512);
+          const h = clampInt(data.height, 1, 512);
+          const newMap = createEmptyMap(w, h);
+          for (let x = 0; x < w; x++) {
+            for (let y = 0; y < h; y++) {
+              const v = data.map?.[x]?.[y];
+              newMap[x][y] = clampInt(v ?? 0, 0, 255);
+            }
+          }
+          state.width = w;
+          state.height = h;
+          state.map = newMap;
+          els.mapWidthInput.value = w;
+          els.mapHeightInput.value = h;
+          renderMap();
+          exportCArray();
+        } else if (mode === 'config') {
+          if (!Array.isArray(data.types)) throw new Error('Invalid config JSON');
+          state.types = normalizeTypes(data.types);
+          renderTypeSelectors();
+          renderKindButtons();
+          syncTypeEditor();
+          updateSelectionInfo();
+          renderMap();
+        }
+      } catch (err) {
+        alert('Import failed: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function normalizeTypes(typesIn) {
+    const out = [];
+    for (let t = 0; t < DEFAULT_TYPE_COUNT; t++) {
+      const srcType = typesIn[t] || {};
+      const type = {
+        id: t,
+        name: typeof srcType.name === 'string' && srcType.name.trim() ? srcType.name : (t === 0 ? 'Wall' : `Type ${t}`),
+        kinds: []
+      };
+      for (let k = 0; k < DEFAULT_KIND_COUNT; k++) {
+        const srcKind = srcType.kinds?.[k] || {};
+        type.kinds.push({
+          id: k,
+          name: typeof srcKind.name === 'string' ? srcKind.name : `Kind ${k}`,
+          mode: srcKind.mode === 'emoji' ? 'emoji' : 'color',
+          color: normalizeColor(srcKind.color || '#ffffff'),
+          emoji: typeof srcKind.emoji === 'string' ? srcKind.emoji : '',
+          description: typeof srcKind.description === 'string' ? srcKind.description : '',
+        });
+      }
+      out.push(type);
     }
     return out;
   }
-  function parseOuterArrays(initBlock){
-    const outer=[];
-    let depth=0;
-    let innerStart=-1;
-    for (let i=0;i<initBlock.length;i++){
-      const ch = initBlock[i];
-      if (ch==='{' ){
-        depth++;
-        if (depth===2) innerStart=i+1;
-      } else if (ch==='}'){
-        if (depth===2 && innerStart>=0){
-          outer.push(parseNums(initBlock.slice(innerStart,i)));
-          innerStart=-1;
-        }
-        depth--;
-      }
-    }
-    return outer;
-  }
 
-  function importCMapFromText(raw){
-    const code = stripComments(raw);
-    const defW = findDefine(code,'mapWidth');
-    const defH = findDefine(code,'mapHeight');
-    const declMode = detectDeclMode(code);
-
-    const initBlock = extractInitializerBlock(code);
-    if (!initBlock){ setStatus('Import C: nenalezen initializer blok {...}.','bad'); return false; }
-
-    const outer = parseOuterArrays(initBlock);
-    const hasNested = outer.length>0;
-
-    let mode = declMode || currentExportMode();
-    let W=defW, H=defH;
-
-    if (!W || !H){
-      if (!hasNested){
-        setStatus('Import C: chybí rozměry (#define) a nenašel jsem vnořené {..} pro inferenci.','bad');
-        return false;
-      }
-      const outerCount = outer.length;
-      const innerMax = outer.reduce((m,a)=>Math.max(m,a.length),0);
-      if (mode==='xy'){ W=Math.max(1,outerCount); H=Math.max(1,innerMax); }
-      else { H=Math.max(1,outerCount); W=Math.max(1,innerMax); }
-    }
-
-    if (!Number.isInteger(W)||!Number.isInteger(H)||W<1||H<1){
-      setStatus('Import C: neplatné rozměry.','bad'); return false;
-    }
-
-    let newBuf;
-    try { newBuf = new Uint8Array(W*H); }
-    catch { setStatus(`Import C: nelze alokovat ${W}×${H}.`,'bad'); return false; }
-
-    let clamped=0;
-
-    if (hasNested){
-      if (mode==='xy'){
-        for (let x=0;x<W;x++){
-          const col = outer[x] || [];
-          for (let y=0;y<H;y++){
-            const rawv = (y<col.length)?col[y]:0;
-            const v = clampByte(rawv);
-            if (v!==rawv) clamped++;
-            newBuf[y*W+x]=v;
-          }
-        }
-      } else {
-        for (let y=0;y<H;y++){
-          const row = outer[y] || [];
-          for (let x=0;x<W;x++){
-            const rawv = (x<row.length)?row[x]:0;
-            const v = clampByte(rawv);
-            if (v!==rawv) clamped++;
-            newBuf[y*W+x]=v;
-          }
-        }
-      }
-    } else {
-      const nums = parseNums(initBlock);
-      const outerCount = (mode==='xy') ? W : H;
-      const innerCount = (mode==='xy') ? H : W;
-      let k=0;
-      for (let o=0;o<outerCount;o++){
-        for (let inn=0;inn<innerCount;inn++){
-          const rawv = (k<nums.length)?nums[k++]:0;
-          const v = clampByte(rawv);
-          if (v!==rawv) clamped++;
-          if (mode==='xy') newBuf[inn*W+o]=v;
-          else newBuf[o*W+inn]=v;
-        }
-      }
-    }
-
-    // commit + metadata reset (best-effort)
-    mapWidth=W; mapHeight=H; mapData=newBuf;
-    cellMeta.clear();
-    selectedCell=null;
-
-    refreshDimsUI();
-    configureCanvas();
-    refreshMetaEditor();
-    scheduleMapExport();
-    scheduleConfigExport();
-    setStatus(`Import C OK: ${W}×${H}, režim ${mode.toUpperCase()}, upraveno(clamp)=${clamped}. Metadata vyčištěna.`, clamped? 'warn':'ok');
-    return true;
-  }
-
-  // wire map buttons
-  document.getElementById('btnExportMap').addEventListener('click', () => { updateMapExport(); setStatus('C export vygenerován.','ok'); });
-  document.getElementById('btnImportMap').addEventListener('click', () => importCMapFromText(mapText.value));
-  document.getElementById('btnTestExport').addEventListener('click', () => runExportTest());
-
-  document.querySelectorAll('input[name="exportMode"]').forEach(r => r.addEventListener('change', scheduleMapExport));
-  includeDefinesInput.addEventListener('change', scheduleMapExport);
-  mapNameInput.addEventListener('input', scheduleMapExport);
-
-  // ======= JSON config export/import =======
-  function buildConfigExportObject(){
-    const instances = [];
-    for (const [k, meta] of cellMeta.entries()){
-      const [xs,ys] = k.split(',');
-      const x = Number(xs), y = Number(ys);
-      if (!Number.isInteger(x)||!Number.isInteger(y)) continue;
-      if (x<0||y<0||x>=mapWidth||y>=mapHeight) continue;
-      const v = mapData[idx(x,y)];
-      instances.push({
-        x,y,
-        value: v,
-        meta: {
-          name: strLimit(meta?.name ?? '', 80),
-          tag: strLimit(meta?.tag ?? '', 40),
-          rotation: clampInt(meta?.rotation ?? 0, 0, 359),
-          data: (meta?.data && typeof meta.data === 'object') ? meta.data : {}
-        }
-      });
-    }
-
-    return {
-      format: 'map-editor-config-v2',
-      version: 2,
-      map: { width: mapWidth, height: mapHeight },
-      typeLabels: config.typeLabels,
-      defs: config.defs,
-      instances
-    };
-  }
-
-  function updateConfigExport(){
-    cfgText.value = JSON.stringify(buildConfigExportObject(), null, 2);
-  }
-
-  let cfgExportTimer=0;
-  function scheduleConfigExport(){
-    clearTimeout(cfgExportTimer);
-    cfgExportTimer = setTimeout(updateConfigExport, 140);
-  }
-
-  function validateAndApplyConfig(obj){
-    if (!obj || typeof obj !== 'object'){ setStatus('Config import: JSON není objekt.','bad'); return false; }
-
-    const fmt = obj.format;
-    const ver = obj.version;
-    if (fmt !== 'map-editor-config-v2' || ver !== 2){
-      setStatus(`Config import: neočekávaný format/version (${fmt}, v${ver}). Import pokračuje best-effort.`, 'warn');
-    }
-
-    // map dims optional
-    const mw = obj.map?.width;
-    const mh = obj.map?.height;
-    if (Number.isInteger(mw) && Number.isInteger(mh) && mw>=1 && mh>=1){
-      if (mw !== mapWidth || mh !== mapHeight){
-        const ok = confirm(
-          `Konfigurace obsahuje rozměry mapy ${mw}×${mh}, aktuální je ${mapWidth}×${mapHeight}.\n`+
-          `Chcete mapu přenastavit na rozměry z konfigurace? (preserve top-left)`
-        );
-        if (ok) resizeMap(mw, mh, {confirmLoss:true});
-      }
-    }
-
-    // typeLabels
-    if (Array.isArray(obj.typeLabels) && obj.typeLabels.length === 16){
-      config.typeLabels = obj.typeLabels.map((s,i)=>strLimit(String(s ?? `Typ ${i}`), 60));
-    } else if (obj.typeLabels !== undefined){
-      setStatus('Config import: typeLabels není pole délky 16 (ignorováno).','warn');
-    }
-
-    // defs 16x16 with color/icon/role/label/desc
-    if (Array.isArray(obj.defs) && obj.defs.length === 16){
-      const newDefs = Array.from({length:16}, (_,t) => Array.from({length:16}, (_,k) => {
-        const base = BASE_TYPE_COLORS[t] || '#FFFFFF';
-        return { role:'tile', color: shade(base, k), icon:'', label:'', desc:'' };
-      }));
-      let bad=0;
-      for (let t=0;t<16;t++){
-        const row = obj.defs[t];
-        if (!Array.isArray(row) || row.length !== 16){ bad++; continue; }
-        for (let k=0;k<16;k++){
-          const d = row[k];
-          if (!d || typeof d !== 'object') continue;
-          const role = (d.role === 'tile' || d.role === 'object' || d.role === 'spawn') ? d.role : 'tile';
-          const color = normHex(d.color, newDefs[t][k].color);
-          const icon = safeIcon(d.icon || '');
-          const label = strLimit(String(d.label || ''), 80);
-          const desc  = strLimit(String(d.desc  || ''), 140);
-          newDefs[t][k] = { role, color, icon, label, desc };
-        }
-      }
-      config.defs = newDefs;
-      if (bad) setStatus(`Config import: defs obsahovalo ${bad} neplatných řádků (nahrazeno defaulty).`,'warn');
-    } else if (obj.defs !== undefined){
-      setStatus('Config import: defs není 16×16 pole (ignorováno).','warn');
-    }
-
-    // instances
-    if (Array.isArray(obj.instances)){
-      cellMeta.clear();
-      let applied=0, out=0, stamped=0;
-      for (const inst of obj.instances){
-        const x = inst?.x, y = inst?.y;
-        if (!Number.isInteger(x)||!Number.isInteger(y)) continue;
-        if (x<0||y<0||x>=mapWidth||y>=mapHeight){ out++; continue; }
-
-        const val = clampByte(inst?.value ?? mapData[idx(x,y)]);
-        if (mapData[idx(x,y)] !== val){
-          mapData[idx(x,y)] = val;
-          stamped++;
-        }
-
-        const m = inst?.meta || {};
-        const name = strLimit(String(m.name ?? ''), 80);
-        const tag  = strLimit(String(m.tag ?? ''), 40);
-        const rotation = clampInt(m.rotation ?? 0, 0, 359);
-        const data = (m.data && typeof m.data === 'object') ? m.data : {};
-        cellMeta.set(keyXY(x,y), { name, tag, rotation, data });
-        applied++;
-      }
-      if (stamped) scheduleFullRender();
-      setStatus(`Config import: instance meta=${applied}, mimo mapu=${out}, upravené buňky(stamp)=${stamped}.`, (out||stamped)?'warn':'ok');
-    }
-
-    // refresh UI
-    buildTypeSelect();
-    refreshCurrentPills();
-    refreshKindGridValues();
-    refreshDefEditor();
-    rebuildLegend();
-    configureCanvas();
-    refreshMetaEditor();
-
-    scheduleMapExport();
-    scheduleConfigExport();
-    return true;
-  }
-
-  function importConfigFromText(raw){
-    const txt = String(raw||'').trim();
-    if (!txt){ setStatus('Import config: pole je prázdné.','warn'); return false; }
-    let obj;
-    try { obj = JSON.parse(txt); }
-    catch { setStatus('Import config: neplatný JSON (JSON.parse selhal).','bad'); return false; }
-    const ok = validateAndApplyConfig(obj);
-    if (ok) setStatus('Konfigurace importována.','ok');
-    return ok;
-  }
-
-  document.getElementById('btnExportCfg').addEventListener('click', () => { updateConfigExport(); setStatus('JSON config vygenerován.','ok'); });
-  document.getElementById('btnImportCfg').addEventListener('click', () => importConfigFromText(cfgText.value));
-  document.getElementById('btnAutoImport').addEventListener('click', () => {
-    const mt = mapText.value.trim();
-    const ct = cfgText.value.trim();
-    let did=false;
-    if (mt) did = importCMapFromText(mt) || did;
-    if (ct) did = importConfigFromText(ct) || did;
-    if (!did) setStatus('Auto import: obě pole jsou prázdná.','warn');
-  });
-
-  // ======= clipboard + download =======
-  async function copyText(text){
-    if (navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-    // fallback (deprecated; best-effort)
-    const t = document.createElement('textarea');
-    t.value = text;
-    t.setAttribute('readonly','');
-    t.style.position='fixed';
-    t.style.left='-9999px';
-    t.style.top='-9999px';
-    document.body.appendChild(t);
-    t.select();
-    let ok=false;
-    try { ok = document.execCommand('copy'); } catch { ok=false; }
-    document.body.removeChild(t);
-    return ok;
-  }
-  function downloadText(filename, text){
-    const blob = new Blob([text], { type:'text/plain;charset=utf-8' });
+  function downloadTextFile(filename, text, mime) {
+    const blob = new Blob([text], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
-    document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 0);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  document.getElementById('btnCopyMap').addEventListener('click', async () => {
+  function exportBitmapPNG() {
+    const w = state.width;
+    const h = state.height;
+
     try {
-      const ok = await copyText(mapText.value);
-      setStatus(ok ? 'C export zkopírován.' : 'Kopírování selhalo – zkopírujte ručně.', ok ? 'ok' : 'warn');
-    } catch { setStatus('Kopírování selhalo – zkopírujte ručně.','warn'); }
-  });
-  document.getElementById('btnDownloadMap').addEventListener('click', () => {
-    const name = (mapNameInput.value || 'worldMap').trim() || 'worldMap';
-    downloadText(`${name}.h`, mapText.value);
-    setStatus('Stažení .h spuštěno.','ok');
-  });
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
 
-  document.getElementById('btnCopyCfg').addEventListener('click', async () => {
-    try {
-      const ok = await copyText(cfgText.value);
-      setStatus(ok ? 'JSON config zkopírován.' : 'Kopírování selhalo – zkopírujte ručně.', ok ? 'ok' : 'warn');
-    } catch { setStatus('Kopírování selhalo – zkopírujte ručně.','warn'); }
-  });
-  document.getElementById('btnDownloadCfg').addEventListener('click', () => {
-    downloadText('map-config.json', cfgText.value);
-    setStatus('Stažení .json spuštěno.','ok');
-  });
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas context unavailable');
 
-  // ======= export test =======
-  function runExportTest(){
-    const W=2, H=3;
-    const sample = new Uint8Array([
-      16,17,
-      32,33,
-      48,49
-    ]); // row-major: y0,y1,y2
+      const img = ctx.createImageData(w, h);
+      const data = img.data;
 
-    const expXY =
-`#define mapWidth 2
-#define mapHeight 3
-int static const T[mapWidth][mapHeight]=
-{
-  {16,32,48},
-  {17,33,49}
-};
-`;
-    const expYX =
-`#define mapWidth 2
-#define mapHeight 3
-int static const T[mapHeight][mapWidth]=
-{
-  {16,17},
-  {32,33},
-  {48,49}
-};
-`;
+      let p = 0;
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const v = state.map[x][y] & 0xFF;
+          const type = (v >> 4) & 0x0F;
+          const kind = v & 0x0F;
+          const isWall = (type === 0 && kind > 0);
+          const c = isWall ? 0 : 255;
+          data[p++] = c;
+          data[p++] = c;
+          data[p++] = c;
+          data[p++] = 255;
+        }
+      }
 
-    const gotXY = generateC(W,H,sample,'xy','T',true);
-    const gotYX = generateC(W,H,sample,'yx','T',true);
+      ctx.putImageData(img, 0, 0);
 
-    const ok = (gotXY === expXY) && (gotYX === expYX);
-    if (ok) setStatus('Test exportu OK (XY i YX).','ok');
-    else {
-      console.error('Export self-test failed', {gotXY, gotYX, expXY, expYX});
-      setStatus('Test exportu SELHAL (viz console).','bad');
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          alert('PNG export failed.');
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `walls_${w}x${h}.png`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/png');
+    } catch (err) {
+      alert('Bitmap export failed: ' + err.message);
     }
   }
 
-  // ======= init =======
-  function init(){
-    // mode radio
-    setMode('paint');
-
-    showGridInput.checked = true;
-    tileSizeInput.value = String(tileSize);
-
-    buildTypeSelect();
-    buildKindGrid();
-    rebuildLegend();
-
-    setType(currentType);
-    setKind(currentKind);
-
-    refreshDimsUI();
-    configureCanvas();
-    updateMapExport();
-    updateConfigExport();
-
-    setStatus('Připraveno. Nastavte per‑kind barvy/ikony v paletě; malujte v režimu Malování nebo ukládejte instanci v Objekt/Spawn.','ok');
+  function fillBorders() {
+    const v = selectedValue();
+    for (let x = 0; x < state.width; x++) {
+      state.map[x][0] = v;
+      state.map[x][state.height - 1] = v;
+    }
+    for (let y = 0; y < state.height; y++) {
+      state.map[0][y] = v;
+      state.map[state.width - 1][y] = v;
+    }
+    renderMap();
+    exportCArray();
   }
 
-  init();
+  function clearMap() {
+    state.map = createEmptyMap(state.width, state.height);
+    renderMap();
+    exportCArray();
+  }
+
+  document.addEventListener('mouseup', () => {
+    state.mouseDown = false;
+    state.lastPainted = null;
+  });
+
+  els.resizeMapBtn.addEventListener('click', () => {
+    resizeMap(els.mapWidthInput.value, els.mapHeightInput.value);
+    exportCArray();
+  });
+
+  els.applyCellSizeBtn.addEventListener('click', () => {
+    const size = clampInt(els.cellSizeInput.value, 4, 48);
+    document.documentElement.style.setProperty('--cell', `${size}px`);
+  });
+
+  els.typeSelect.addEventListener('change', () => {
+    state.selectedType = clampInt(els.typeSelect.value, 0, 15);
+    renderKindButtons();
+    updateSelectionInfo();
+  });
+
+  els.editTypeSelect.addEventListener('change', syncTypeEditor);
+
+  els.saveTypeBtn.addEventListener('click', () => {
+    const t = clampInt(els.editTypeSelect.value, 0, 15);
+    state.types[t].name = els.typeNameInput.value.trim() || `Type ${t}`;
+    renderTypeSelectors();
+    els.typeSelect.value = String(state.selectedType);
+    els.editTypeSelect.value = String(t);
+    updateSelectionInfo();
+    syncTypeEditor();
+  });
+
+  els.saveKindBtn.addEventListener('click', () => {
+    const t = clampInt(els.editTypeSelect.value, 0, 15);
+    const k = state.selectedKind;
+    state.types[t].kinds[k] = {
+      id: k,
+      name: els.kindNameInput.value.trim() || `Kind ${k}`,
+      mode: els.kindModeSelect.value === 'emoji' ? 'emoji' : 'color',
+      color: normalizeColor(els.kindColorInput.value),
+      emoji: els.kindEmojiInput.value.trim(),
+      description: els.kindDescriptionInput.value,
+    };
+    renderKindButtons();
+    updateSelectionInfo();
+    renderMap();
+  });
+
+  els.resetKindBtn.addEventListener('click', () => {
+    const defaults = makeDefaultTypes();
+    const t = clampInt(els.editTypeSelect.value, 0, 15);
+    const k = state.selectedKind;
+    state.types[t].kinds[k] = defaults[t].kinds[k];
+    syncKindEditor();
+    renderKindButtons();
+    updateSelectionInfo();
+    renderMap();
+  });
+
+  els.toolPaintBtn.addEventListener('click', () => setTool('paint'));
+  els.toolEraseBtn.addEventListener('click', () => setTool('erase'));
+  els.fillBordersBtn.addEventListener('click', fillBorders);
+  els.clearMapBtn.addEventListener('click', () => {
+    if (confirm('Clear the whole map?')) clearMap();
+  });
+
+  els.exportCBtn.addEventListener('click', () => exportCArray());
+  els.importCBtn.addEventListener('click', () => {
+    const text = els.cImportText.value;
+    if (!text.trim()) {
+      alert('Paste a C array into the text box first.');
+      return;
+    }
+    importCArray(text);
+  });
+
+  els.exportJsonBtn.addEventListener('click', exportJSON);
+  els.importJsonBtn.addEventListener('click', () => els.importJsonFile.click());
+  els.importJsonFile.addEventListener('change', () => {
+    const f = els.importJsonFile.files[0];
+    if (f) importJSONFile(f, 'map');
+    els.importJsonFile.value = '';
+  });
+
+  els.exportConfigBtn.addEventListener('click', exportConfigJSON);
+  els.importConfigBtn.addEventListener('click', () => els.importConfigFile.click());
+  els.importConfigFile.addEventListener('change', () => {
+    const f = els.importConfigFile.files[0];
+    if (f) importJSONFile(f, 'config');
+    els.importConfigFile.value = '';
+  });
+
+  els.exportBitmapBtn.addEventListener('click', exportBitmapPNG);
+
+  state.types = makeDefaultTypes();
+  state.map = createEmptyMap(state.width, state.height);
+
+  renderTypeSelectors();
+  els.typeSelect.value = '0';
+  els.editTypeSelect.value = '0';
+  state.selectedType = 0;
+  state.selectedKind = 1;
+
+  renderKindButtons();
+  syncTypeEditor();
+  updateSelectionInfo();
+  renderMap();
+  exportCArray();
 })();
 </script>
 </body>
 </html>
-

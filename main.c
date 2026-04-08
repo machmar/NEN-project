@@ -122,6 +122,10 @@ void Backlight(uint16_t duty10)
 }
 
 static millis_t PMill = 0;
+player_t camera;
+buttons_t buttons = {0};
+static entity_t entities[2];
+map_t *CurrentMap = &TestMap;
 
 void main(void)
 {
@@ -132,11 +136,9 @@ void main(void)
     Backlight(1023);
     set_LEDs(0x00);
 
-    buttons_t buttons = {0};
 
-    player_t camera;
-    camera.posX = FX(22);
-    camera.posY = FX(12);
+    camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
+    camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
     camera.angle = FX_ANGLE_HALF; // facing -X
     camera.dirX = fx_cos(camera.angle);
     camera.dirY = fx_sin(camera.angle);
@@ -147,7 +149,7 @@ void main(void)
         camera.zBuffer[i] = FX(64);
     }
     
-    char buf[64];
+    char buf[10];
 
     entities[0].posX = FX(12);
     entities[0].posY = FX(12);
@@ -167,8 +169,8 @@ void main(void)
         dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, buttons);
-        RenderFrame(&camera, frame_buffer[0]);
+        MoveCamera(&camera, CurrentMap, buttons);
+        RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
         DrawEntities(&camera, entities, 2, dogm_fb);
         HUD_DrawBanner((millis / 3000) % 5);        
@@ -176,13 +178,17 @@ void main(void)
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
-        HUD_DrawMap(96, 0, 0, 0, TestMap, camera);
+        HUD_DrawMap(96, 0, CurrentMap, &camera);
         
     
         
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf);
         dogm128_text(0, 0, buf);
+        utoa(FX_I(camera.posX), buf);
+        dogm128_text(0, 6, buf);
+        utoa(FX_I(camera.posY), buf);
+        dogm128_text( 20, 6, buf);
         
         dogm128_refresh();
         static char led = 0xFF;
