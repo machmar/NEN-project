@@ -22,19 +22,17 @@ typedef uint32_t millis_t;
 
 volatile millis_t millis = 0;
 
-void init_ports(void)
-{
-    ADCON1 = 0x0F;   // all pins digital
+void init_ports(void) {
+    ADCON1 = 0x0F; // all pins digital
 
-    TRISA = 0x00;    // LEDs
-    TRISB = 0x3D;    // buttons
-    TRISC = 0x00;    // SPI + control lines
+    TRISA = 0x00; // LEDs
+    TRISB = 0x3D; // buttons
+    TRISC = 0x00; // SPI + control lines
     TRISD = 0x00;
     TRISE = 0x00;
 }
 
-buttons_t read_buttons()
-{
+buttons_t read_buttons() {
     uint8_t y = ~PORTB;
     buttons_t buttons;
     buttons.back = y & (1 << 5);
@@ -46,47 +44,42 @@ buttons_t read_buttons()
     // 5 4 2 3 0
 }
 
-
-void set_LED(uint8_t button, _Bool state)
-{
-    switch (button)
-    {
+void set_LED(uint8_t button, _Bool state) {
+    switch (button) {
         case 1:
             LATAbits.LATA0 = state;
             break;
-                    
+
         case 2:
             LATAbits.LATA1 = state;
             break;
-                    
+
         case 3:
             LATAbits.LATA2 = state;
             break;
-                    
+
         case 4:
             LATAbits.LATA3 = state;
             break;
-                    
+
         case 5:
             LATAbits.LATA4 = state;
             break;
-            
+
         default:
             break;
     }
 }
 
-void set_LEDs(uint8_t state)
-{
+void set_LEDs(uint8_t state) {
     state &= 0x1F;
     LATA = state;
 }
 
-static void pwm_ccp1_init(void)
-{
-    ADCON1 = 0x0F;              // all digital
-    CMCON  = 0x07;              // comparators off, if applicable
-    TRISCbits.TRISC2 = 0;       // RC2 = CCP1 output
+static void pwm_ccp1_init(void) {
+    ADCON1 = 0x0F; // all digital
+    CMCON = 0x07; // comparators off, if applicable
+    TRISCbits.TRISC2 = 0; // RC2 = CCP1 output
 
     // PWM period ~ 3.989 kHz
     PR2 = 187;
@@ -104,20 +97,19 @@ static void pwm_ccp1_init(void)
 
     TMR2 = 0;
     PIR1bits.TMR2IF = 0;
-    PIE1bits.TMR2IE = 1;        // enable Timer2 interrupt
+    PIE1bits.TMR2IE = 1; // enable Timer2 interrupt
 
-    T2CONbits.TMR2ON = 1;       // start Timer2
+    T2CONbits.TMR2ON = 1; // start Timer2
 
     INTCONbits.PEIE = 1;
-    INTCONbits.GIE  = 1;
+    INTCONbits.GIE = 1;
 }
 
-void Backlight(uint16_t duty10)
-{
+void Backlight(uint16_t duty10) {
     if (duty10 > 1023) duty10 = 1023;
 
-    CCPR1L = duty10 >> 2;                 // upper 8 bits
-    CCP1CONbits.DC1B = duty10 & 0x03;     // lower 2 bits
+    CCPR1L = duty10 >> 2; // upper 8 bits
+    CCP1CONbits.DC1B = duty10 & 0x03; // lower 2 bits
 }
 
 static millis_t PMill = 0;
@@ -126,8 +118,7 @@ buttons_t buttons = {0};
 static entity_t entities[2];
 map_t *CurrentMap = &TestMap;
 
-void main(void)
-{
+void main(void) {
     init_ports();
     initDisplay();
     pwm_ccp1_init();
@@ -141,9 +132,11 @@ void main(void)
     camera.angle = FX_ANGLE_HALF; // facing -X
     camera.dirX = fx_cos(camera.angle);
     camera.dirY = fx_sin(camera.angle);
-    camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
-    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
-    
+    camera.planeX = fx_mul(camera.dirY, (fx_t) 0x00a9);
+    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t) 0x00a9));
+    camera.health = 5;
+    camera.kills = 69;
+
     char buf[10];
 
     entities[0].posX = 17;
@@ -156,8 +149,7 @@ void main(void)
     entities[1].health = 100;
     entities[1].sprite = sprite;
 
-    while (1)
-    {
+    while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
         PMill = millis;
@@ -167,54 +159,33 @@ void main(void)
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
-        HUD_DrawBanner(CurrentMap->Banner);        
-        
-        
+        HUD_DrawBanner(CurrentMap->Banner);
+
+
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
         dogm128_hline(96, 47, 32, DISP_COL_BLACK);
         dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
         int tmp = (millis / 3000) % 3;
-        if (tmp == 0)
-            dogm128_blit_or(96, 32, &item_hand, 0);
-        if (tmp == 1)
-            dogm128_blit_or(96, 32, &item_knife, 0);
-        if (tmp == 2)
-            dogm128_blit_or(96, 32, &item_gun, 0);
-        HUD_DrawMap(96, 0, CurrentMap, &camera);
-        
-        /* rotating pointer placed at screen (119, 40) */
-        {
-            static const int8_t pointerPoints[3][2] = {{6,0},{-1,-2},{-1,2}};
-            uint8_t static rx[3], ry[3];
-            fx_t static prevAngle = INT16_MAX;
-            if (prevAngle != camera.angle)
-            {
-                prevAngle = camera.angle;
-                for (uint8_t i = 0; i < 3; i++)
-                {
-                    rx[i] = 120 + FX_I(fx_sub(fx_mul(FX(pointerPoints[i][0]), camera.dirX), fx_mul(FX(pointerPoints[i][1]), camera.dirY)));
-                    ry[i] = 40  + FX_I(fx_add(fx_mul(FX(pointerPoints[i][0]), camera.dirY), fx_mul(FX(pointerPoints[i][1]), camera.dirX)));
-                }
-            }
-            dogm128_line(rx[0], ry[0], rx[1], ry[1], DISP_COL_BLACK);
-            dogm128_line(rx[1], ry[1], rx[2], ry[2], DISP_COL_BLACK);
-            dogm128_line(rx[2], ry[2], rx[0], ry[0], DISP_COL_BLACK);
-            dogm128_pixel(120, 40, DISP_COL_BLACK); // anchor point
-            dogm128_pixel(120, 34, DISP_COL_BLACK); // four direction dots
-            dogm128_pixel(120, 45, DISP_COL_BLACK);
-            dogm128_pixel(127, 40, DISP_COL_BLACK);
-            dogm128_pixel(114, 40, DISP_COL_BLACK);
-        }
+        HUD_DrawItem(tmp);
+        HUD_DrawMap(CurrentMap, &camera);
+        HUD_DrawCompass(&camera);
+        //HUD_DrawStats(&camera); // why does it say utoa redefined :cry:
+
+        dogm128_blit_or(98, 50, &HUD_hpImage, 14);
+        utoa(camera.kills, buf, 3);
+        dogm128_text(114, 50, buf);
+        utoa(camera.health, buf, 1);
+        dogm128_text(108, 57, buf);
 
         frame_length = millis - PMill;
-        utoa(1000 / frame_length, buf);
+        utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
-        utoa(FX_I(camera.posX), buf);
+        utoa(FX_I(camera.posX), buf, 0);
         dogm128_text(0, 6, buf);
-        utoa(FX_I(camera.posY), buf);
-        dogm128_text( 20, 6, buf);
-        
+        utoa(FX_I(camera.posY), buf, 0);
+        dogm128_text(20, 6, buf);
+
         dogm128_refresh();
         static char led = 0xFF;
         led = ~led;
@@ -222,16 +193,13 @@ void main(void)
     }
 }
 
-void __interrupt() isr(void)
-{
-    if (PIR1bits.TMR2IF)
-    {
+void __interrupt() isr(void) {
+    if (PIR1bits.TMR2IF) {
         PIR1bits.TMR2IF = 0;
         static uint8_t local_tick = 0;
         local_tick++;
         AdvanceDither();
-        if (local_tick & 0b100)
-        {
+        if (local_tick & 0b100) {
             local_tick = 0;
             // 1 kHz task here
             millis++;

@@ -32,6 +32,8 @@ extern dogm128_bitmap_t item_hand;
 extern dogm128_bitmap_t item_knife;
 extern dogm128_bitmap_t item_gun;
 
+extern dogm128_bitmap_t HUD_hpImage;
+
 typedef struct
 {
     fx_t posX, posY; // position
@@ -39,6 +41,8 @@ typedef struct
     fx_t planeX, planeY; // camera plane
     fx_t angle; // rotation angle (fx angle units, 512 = full turn)
     fx_t zBuffer[3];
+    uint8_t health;
+    uint8_t kills;
 } player_t;
 
 typedef struct {
