@@ -74,6 +74,7 @@ typedef struct
     fx_t posX, posY; // position
     fx_t dirX, dirY; // direction vector
     fx_t planeX, planeY; // camera plane
+    fx_t angle; // rotation angle (fx angle units, 512 = full turn)
     fx_t zBuffer[3];
 } player_t;
 

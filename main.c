@@ -136,10 +136,11 @@ void main(void)
     player_t camera;
     camera.posX = FX(22);
     camera.posY = FX(12);
-    camera.dirX = FX(-1);
-    camera.dirY = FX(0);
-    camera.planeX = FX(0);
-    camera.planeY = 0x00a9; // 0.66
+    camera.angle = FX_ANGLE_HALF; // facing -X
+    camera.dirX = fx_cos(camera.angle);
+    camera.dirY = fx_sin(camera.angle);
+    camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
+    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
     
     char buf[64];
 
@@ -163,7 +164,7 @@ void main(void)
         buttons = read_buttons();
 
         MoveCamera(&camera, buttons);
-        RenderFrame(camera, frame_buffer[0]);
+        RenderFrame(&camera, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
         HUD_DrawBanner((millis / 3000) % 5);        
         
