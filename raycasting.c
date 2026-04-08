@@ -34,22 +34,29 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPRITE_H_SCALE 1  // Scale factor for sprite height (1 = no scaling)
 #define vMove FX_ZERO // Move sprite up and down
 
-int RenderFrame(player_t player, line_t *buffer)
+/* precomputed cameraX = 256 - (x*512/48) for x=0..47, negated to fix screen mirror */
+static const fx_t cameraX_lut[48] = {
+     256, 246, 235, 224, 214, 203, 192, 182, 171, 160, 150, 139,
+     128, 118, 107,  96,  86,  75,  64,  54,  43,  32,  22,  11,
+       0, -10, -21, -32, -42, -53, -64, -74, -85, -96,-106,-117,
+    -128,-138,-149,-160,-170,-181,-192,-202,-213,-224,-234,-245
+};
+
+int RenderFrame(const player_t *player, line_t *buffer)
 {
     int x;
 
     for (x = 0; x < screenWidth; x++)
     {
-        /* cameraX = 2*x/screenWidth - 1, in 8.8 fixed */
-        fx_t cameraX = (fx_t)((((int32_t)x << 9) / screenWidth) - FX_ONE);
+        fx_t cameraX = cameraX_lut[x];
 
         /* ray direction */
-        fx_t rayDirX = fx_add(player.dirX, fx_mul(player.planeX, cameraX));
-        fx_t rayDirY = fx_add(player.dirY, fx_mul(player.planeY, cameraX));
+        fx_t rayDirX = fx_add(player->dirX, fx_mul(player->planeX, cameraX));
+        fx_t rayDirY = fx_add(player->dirY, fx_mul(player->planeY, cameraX));
 
         /* map cell */
-        int mapX = FX_TO_INT(player.posX);
-        int mapY = FX_TO_INT(player.posY);
+        int mapX = FX_TO_INT(player->posX);
+        int mapY = FX_TO_INT(player->posY);
 
         /* delta distances */
         fx_t deltaDistX;
@@ -70,27 +77,27 @@ int RenderFrame(player_t player, line_t *buffer)
         if (rayDirX < 0)
         {
             stepX = -1;
-            sideDistX = fx_mul(fx_sub(player.posX, FX_FROM_INT(mapX)), deltaDistX);
+            sideDistX = fx_mul(fx_sub(player->posX, FX_FROM_INT(mapX)), deltaDistX);
         }
         else
         {
             stepX = 1;
-            sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), player.posX), deltaDistX);
+            sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), player->posX), deltaDistX);
         }
 
         if (rayDirY < 0)
         {
             stepY = -1;
-            sideDistY = fx_mul(fx_sub(player.posY, FX_FROM_INT(mapY)), deltaDistY);
+            sideDistY = fx_mul(fx_sub(player->posY, FX_FROM_INT(mapY)), deltaDistY);
         }
         else
         {
             stepY = 1;
-            sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), player.posY), deltaDistY);
+            sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), player->posY), deltaDistY);
         }
 
         /* DDA */
-        while (!hit)
+        for (uint8_t tmp_dist = 0; !hit && tmp_dist < 64; tmp_dist++)
         {
             if (sideDistX < sideDistY)
             {
@@ -120,24 +127,14 @@ int RenderFrame(player_t player, line_t *buffer)
 
         /* lineHeight = screenHeight / perpWallDist */
         {
-            int lineHeight = ((int32_t)screenHeight << 8) / perpWallDist;
-            int drawStart = (-lineHeight >> 1) + (screenHeight >> 1);
-            dogm128_color_t color;
+            int lineHeight = ((int32_t)16384) / perpWallDist;
+            int drawStart = (-lineHeight >> 1) + 32;
 
             if (drawStart < 0) drawStart = 0;
             if (lineHeight > screenHeight) lineHeight = screenHeight;
 
-            switch (worldMap[mapX][mapY])
-            {
-                case 1:  color = DISP_COL_LIGHT_GREY; break;
-                case 2:  color = DISP_COL_DARK_GREY;  break;
-                case 3:  color = DISP_COL_GREY;       break;
-                case 4:  color = DISP_COL_WHITE;      break;
-                default: color = DISP_COL_BLACK;      break;
-            }
-
-            buffer[x].start = drawStart;
-            buffer[x].length = lineHeight;
+            buffer[x].start = hit ? drawStart : 0;
+            buffer[x].length = hit ? lineHeight : 0;
         }
       //draw the pixels of the stripe as a vertical line
       player.zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
@@ -178,35 +175,18 @@ int MoveCamera(player_t *player, buttons_t buttons)
     }
     //rotate to the right
     if(buttons.right)
-    {
-      //both camera direction and camera plane must be rotated
-      fx_t oldDirX = player->dirX;
-      player->dirX = fx_sub(fx_mul(player->dirX, fx_cos(-rotSpeed)), 
-                            fx_mul(player->dirY, fx_sin(-rotSpeed)));
-      player->dirY = fx_add(fx_mul(oldDirX,      fx_sin(-rotSpeed)),
-                            fx_mul(player->dirY, fx_cos(-rotSpeed)));
-      
-      fx_t oldPlaneX = player->planeX;
-      player->planeX = fx_sub(fx_mul(player->planeX, fx_cos(-rotSpeed)), 
-                              fx_mul(player->planeY, fx_sin(-rotSpeed)));
-      player->planeY = fx_add(fx_mul(oldPlaneX,      fx_sin(-rotSpeed)),
-                              fx_mul(player->planeY, fx_cos(-rotSpeed)));
-    }
+      player->angle = fx_add(player->angle, rotSpeed);
     //rotate to the left
     if(buttons.left)
+      player->angle = fx_sub(player->angle, rotSpeed);
+    
+    //reconstruct dir and plane from angle (eliminates fixed-point drift)
+    if(buttons.right || buttons.left)
     {
-      //both camera direction and camera plane must be rotated
-      fx_t oldDirX = player->dirX;
-      player->dirX = fx_sub(fx_mul(player->dirX, fx_cos(rotSpeed)), 
-                            fx_mul(player->dirY, fx_sin(rotSpeed)));
-      player->dirY = fx_add(fx_mul(oldDirX,      fx_sin(rotSpeed)),
-                            fx_mul(player->dirY, fx_cos(rotSpeed)));
-      
-      fx_t oldPlaneX = player->planeX;
-      player->planeX = fx_sub(fx_mul(player->planeX, fx_cos(rotSpeed)), 
-                              fx_mul(player->planeY, fx_sin(rotSpeed)));
-      player->planeY = fx_add(fx_mul(oldPlaneX,      fx_sin(rotSpeed)),
-                              fx_mul(player->planeY, fx_cos(rotSpeed)));
+      player->dirX = fx_cos(player->angle);
+      player->dirY = fx_sin(player->angle);
+      player->planeX = fx_mul(player->dirY, (fx_t)0x00a9);
+      player->planeY = fx_neg(fx_mul(player->dirX, (fx_t)0x00a9));
     }
     
     if (buttons.use)

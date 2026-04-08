@@ -7,6 +7,14 @@
 
 #define MAX_ENTITIES 10
 
+typedef struct __attribute__((packed))
+{
+    bool front, back, use, left, right;
+} buttons_t;
+
+int RenderFrame(const player_t *player, line_t *buffer);
+void DrawBuffer(line_t *buffer);
+
 #define SPRITE_WIDTH 5
 #define SPRITE_HEIGHT 10
 
@@ -23,11 +31,6 @@ int const sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
   {1, 0, 0, 0, 1},
 };
 
-typedef struct __attribute__((packed))
-{
-    bool front, back, use, left, right;
-} buttons_t;
-
 typedef struct
 {
     fx_t posX, posY; // position
@@ -36,8 +39,6 @@ typedef struct
     uint8_t (*sprite)[SPRITE_WIDTH];
 }entity_t;
 
-int RenderFrame(player_t player, line_t *buffer);
-void DrawBuffer(line_t *buffer);
 int MoveCamera(player_t *player, buttons_t buttons);
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
 
