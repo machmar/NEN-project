@@ -206,6 +206,14 @@ void dogm128_fill(void)
         *p++ = 0xFF;
 }
 
+void dogm128_invert(void)
+{
+    uint8_t *p = dogm_fb;
+    uint8_t *end = dogm_fb + 1024;
+    while (p < end)
+        *p++ ^= 0xFF;
+}
+
 void dogm128_pixel(uint8_t x, uint8_t y, dogm128_color_t color)
 {
     uint16_t i;
@@ -454,9 +462,9 @@ void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
     }
 }
 
-void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
+void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp, uint8_t clip_h)
 {
-    uint8_t        shift, pages, sp, sx, x0, w, anti_shift;
+    uint8_t        shift, pages, sp, sx, x0, w, anti_shift, h;
     uint16_t       src_base;
     const uint8_t *src_ptr;
     uint8_t       *dst0_ptr;
@@ -465,8 +473,11 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
     if (!bmp || !bmp->data) return;
     if (bmp->w == 0 || bmp->h == 0) return;
 
+    h = bmp->h;
+    if (clip_h && clip_h < h) h = clip_h;
+
     if (x >= DOGM_WIDTH  || (x + (int16_t)bmp->w) <= 0) return;
-    if (y >= DOGM_HEIGHT || (y + (int16_t)bmp->h) <= 0) return;
+    if (y >= DOGM_HEIGHT || (y + (int16_t)h) <= 0) return;
 
     x0 = 0;
     w  = bmp->w;
@@ -474,7 +485,7 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
     if ((uint8_t)x + w > DOGM_WIDTH)
         w = (uint8_t)(DOGM_WIDTH - x);
 
-    pages      = (uint8_t)((bmp->h + 7) >> 3);
+    pages      = (uint8_t)((h + 7) >> 3);
     int16_t base_page = y >> 3;
     shift      = (uint8_t)(y - (base_page << 3));
     anti_shift = 8 - shift;
@@ -483,6 +494,11 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
     {
         int16_t dp0s = base_page + sp;
         int16_t dp1s = dp0s + 1;
+
+        /* on the last page, mask off bits beyond the clip height */
+        uint8_t src_mask = 0xFF;
+        if (sp == pages - 1 && (h & 7))
+            src_mask = (uint8_t)((1u << (h & 7)) - 1u);
 
         src_ptr = &bmp->data[(uint16_t)sp * bmp->w + x0];
 
@@ -493,14 +509,14 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
             if (shift == 0)
             {
                 for (sx = 0; sx < w; sx++)
-                    dst0_ptr[sx] |= src_ptr[sx];
+                    dst0_ptr[sx] |= (uint8_t)(src_ptr[sx] & src_mask);
             }
             else if (dp1s >= 0 && dp1s < 8)
             {
                 dst1_ptr = &dogm_fb[((uint16_t)dp1s << 7) + (uint16_t)x];
                 for (sx = 0; sx < w; sx++)
                 {
-                    uint8_t byte = src_ptr[sx];
+                    uint8_t byte = src_ptr[sx] & src_mask;
                     dst0_ptr[sx] |= (uint8_t)(byte << shift);
                     dst1_ptr[sx] |= (uint8_t)(byte >> anti_shift);
                 }
@@ -508,14 +524,14 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp)
             else
             {
                 for (sx = 0; sx < w; sx++)
-                    dst0_ptr[sx] |= (uint8_t)(src_ptr[sx] << shift);
+                    dst0_ptr[sx] |= (uint8_t)((src_ptr[sx] & src_mask) << shift);
             }
         }
         else if (shift && dp1s >= 0 && dp1s < 8)
         {
             dst1_ptr = &dogm_fb[((uint16_t)dp1s << 7) + (uint16_t)x];
             for (sx = 0; sx < w; sx++)
-                dst1_ptr[sx] |= (uint8_t)(src_ptr[sx] >> anti_shift);
+                dst1_ptr[sx] |= (uint8_t)((src_ptr[sx] & src_mask) >> anti_shift);
         }
     }
 }
