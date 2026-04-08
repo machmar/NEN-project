@@ -154,12 +154,12 @@ void main(void)
     entities[0].posX = FX(12);
     entities[0].posY = FX(12);
     entities[0].health = 100;
-    entities[0].sprite = &enemySpriteStruct;
+    entities[0].sprite = &enemySprite;
 
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
     entities[1].health = 100;
-    entities[1].sprite = &enemySpriteStruct;
+    entities[1].sprite = &enemySprite;
 
     while (1)
     {
