@@ -124,6 +124,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[2];
+map_t *CurrentMap = &TestMap;
 
 void main(void)
 {
@@ -135,8 +136,8 @@ void main(void)
     set_LEDs(0x00);
 
 
-    camera.posX = FX(22);
-    camera.posY = FX(12);
+    camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
+    camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
     camera.angle = FX_ANGLE_HALF; // facing -X
     camera.dirX = fx_cos(camera.angle);
     camera.dirY = fx_sin(camera.angle);
@@ -163,15 +164,15 @@ void main(void)
         dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, buttons);
-        RenderFrame(&camera, frame_buffer[0]);
+        MoveCamera(&camera, CurrentMap, buttons);
+        RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
         HUD_DrawBanner((millis / 3000) % 5);        
         
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
         dogm128_hline(96, 32, 32, DISP_COL_BLACK);
-        HUD_DrawMap(96, 0, &TestMap, &camera);
+        HUD_DrawMap(96, 0, CurrentMap, &camera);
         
         
         

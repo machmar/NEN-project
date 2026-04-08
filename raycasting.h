@@ -12,7 +12,7 @@ typedef struct __attribute__((packed))
     bool front, back, use, left, right;
 } buttons_t;
 
-int RenderFrame(const player_t *player, line_t *buffer);
+int RenderFrame(const player_t *player, map_t *map, line_t *buffer);
 void DrawBuffer(line_t *buffer);
 
 #define SPRITE_WIDTH 5
@@ -39,7 +39,7 @@ int const static sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
   {1, 0, 0, 0, 1},
 };
 
-int MoveCamera(player_t *player, buttons_t buttons);
+int MoveCamera(player_t *player, map_t *map, buttons_t buttons);
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
 
 #endif // RAYCASTING_H
