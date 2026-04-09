@@ -46,18 +46,22 @@ typedef struct
 {
     uint8_t width;
     uint8_t height;
-    const uint8_t *data;
-} sprite_t;
+    const uint8_t *data[4];
+} spriteData_t;
 
 typedef struct
 {
     fx_t posX, posY;
     fx_t distance;
     uint8_t health;
-    sprite_t *sprite;
+    uint8_t walking;
+    spriteData_t *sprite;
+    uint8_t widthScale;
+    uint8_t heightScale;
+    fx_t heightOffset;
 }entity_t;
 
-extern sprite_t enemySprite;
+extern spriteData_t enemySprite;
 
 #endif	/* ASSETS_H */
 

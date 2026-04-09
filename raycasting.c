@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 
 
-#define TEX_AT(map, x, y)  ((map)->data[(uint16_t)(y) * (map)->width + (uint8_t)(x)])
+#define TEX_AT(sprite, frame, x, y)  ((sprite)->data[frame][(uint16_t)(y) * (sprite)->width + (uint8_t)(x)])
 /* flat map access: 2D array is [width][height], so stride = height */
 #define MAP_AT(map, x, y)  ((map)->data[(uint16_t)(x) * (map)->height + (uint8_t)(y)])
 #define MAP_IN_BOUNDS(map, x, y) ((x) >= 0 && (uint8_t)(x) < (map)->width && (y) >= 0 && (uint8_t)(y) < (map)->height)
@@ -35,11 +35,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Screen and map dimensions:
 #define screenWidth 48
 #define screenHeight 64
-
-// Parameters for scaling and moving the sprites
-#define SPRITE_W_SCALE 1  // Scale factor for sprite width (1 = no scaling)
-#define SPRITE_H_SCALE 1  // Scale factor for sprite height (1 = no scaling)
-#define vMove FX(5) // Move sprite up and down
 
 /* precomputed cameraX = 256 - (x*512/48) for x=0..47, negated to fix screen mirror */
 static const fx_t cameraX_lut[48] = {
@@ -243,7 +238,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   // Render entities.
   for (int i = 0; i < amount; i++)
   {
-    if (entities[i].sprite->data == 0 || entities[i].health == 0)
+    if (entities[i].sprite->data[0] == 0)
       continue;
 
     // Translate sprite position relative to camera.
@@ -257,21 +252,21 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       continue;
 
     int spriteScreenX = halfW - FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
-    int vMoveScreen = FX_I(fx_div(vMove, transformY));
+    int heightOffsetScreen = FX_I(fx_div(entities[i].heightOffset, transformY));
 
     // Calculate projected sprite size.
-    int spriteHeight = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(SPRITE_H_SCALE))));
+    int spriteHeight = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(entities[i].heightScale))));
     if (spriteHeight <= 0)
       continue;
 
-    int drawStartY = -(spriteHeight >> 1) + halfH + vMoveScreen;
+    int drawStartY = -(spriteHeight >> 1) + halfH + heightOffsetScreen;
     if (drawStartY < 0) drawStartY = 0;
-    int drawEndY = (spriteHeight >> 1) + halfH + vMoveScreen;
+    int drawEndY = (spriteHeight >> 1) + halfH + heightOffsetScreen;
     if (drawEndY >= screenHeight) drawEndY = screenHeight - 1;
     if (drawEndY <= drawStartY)
       continue;
 
-    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(SPRITE_W_SCALE))));
+    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(entities[i].widthScale))));
     if (spriteWidth <= 0)
       continue;
 
@@ -286,15 +281,21 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     // Incremental texture mapping removes divisions from inner loops.
     int texXStep = (entities[i].sprite->width << 8) / spriteWidth;
     int texXPos = (drawStartX - spriteLeft) * texXStep;
-    int texYBase = ((drawStartY - vMoveScreen) << 8) - (screenHeight << 7) + (spriteHeight << 7);
+    int texYBase = ((drawStartY - heightOffsetScreen) << 8) - (screenHeight << 7) + (spriteHeight << 7);
     int texYStep = (entities[i].sprite->height << 8) / spriteHeight;
     int texYStart = (texYBase * entities[i].sprite->height) / spriteHeight;
     /* If problems with overflow arise, the above can be rewritten to use 32-bit intermediate values:
-    long texYBase = ((long)(drawStartY - vMoveScreen) << 8) - ((long)screenHeight << 7) + ((long)spriteHeight << 7);
+    long texYBase = ((long)(drawStartY - heightOffsetScreen) << 8) - ((long)screenHeight << 7) + ((long)spriteHeight << 7);
     int texYStep = (int)(((long)entities[i].sprite->height << 8) / spriteHeight);
     int texYStart = (int)((texYBase * entities[i].sprite->height) / spriteHeight);
     */
-    
+    static uint8_t prevFrames = 0;
+    static uint8_t walkSprite = 0;
+    if(entities[i].walking && prevFrames++ > 5){
+      walkSprite ^= 1;
+      prevFrames = 0;
+    }
+
     for (int stripe = drawStartX; stripe < drawEndX; stripe++)
     {
       if (transformY >= zBuffer[stripe])
@@ -312,29 +313,41 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       uint8_t page = (uint8_t)(drawStartY >> 3);
       int nextPageY = ((int)page + 1) << 3;
       uint8_t mask = 0;
+      uint8_t clearMask = 0;
 
       for (int y = drawStartY; y < drawEndY; y++)
       {
         if (y == nextPageY)
         {
-          if (mask)
+          if (mask || clearMask)
           {
+            display_buffer[(page * 128) + stripe * 2]     &= ~clearMask;
+            display_buffer[(page * 128) + stripe * 2 + 1] &= ~clearMask;
             display_buffer[(page * 128) + stripe * 2]     |= mask;
             display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
           }
           page++;
           nextPageY += 8;
           mask = 0;
+          clearMask = 0;
         }
 
         uint16_t texY = texYPos >> 8;
-        if (texY < entities[i].sprite->height && TEX_AT(entities[i].sprite, texX, texY))
-          mask |= (uint8_t)(1u << (y & 7));
-
+        if (texY < entities[i].sprite->height)
+        {
+          uint8_t texVal = TEX_AT(entities[i].sprite, entities[i].health ? walkSprite : 2, texX, texY);
+          uint8_t bit = (uint8_t)(1u << (y & 7));
+          if (texVal == 1)
+            mask |= bit;
+          else if (texVal == 2)
+            clearMask |= bit;
+        }
         texYPos += texYStep;
       }
 
-      if (mask) {
+      if (mask || clearMask) {
+        display_buffer[(page * 128) + stripe * 2]     &= ~clearMask;
+        display_buffer[(page * 128) + stripe * 2 + 1] &= ~clearMask;
         display_buffer[(page * 128) + stripe * 2]     |= mask;
         display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
       }

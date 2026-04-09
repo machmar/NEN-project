@@ -124,7 +124,7 @@ void Backlight(uint16_t duty10)
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[2];
+static entity_t entities[3];
 map_t *CurrentMap = &TestMap;
 
 void main(void)
@@ -151,15 +151,31 @@ void main(void)
     
     char buf[10];
 
-    entities[0].posX = FX(12);
+    entities[0].posX = FX(18);
     entities[0].posY = FX(12);
     entities[0].health = 100;
     entities[0].sprite = &enemySprite;
+    entities[0].widthScale = 3;
+    entities[0].heightScale = 1;
+    entities[0].heightOffset = FX(0);
+    entities[0].walking = 1;
 
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
     entities[1].health = 100;
     entities[1].sprite = &enemySprite;
+    entities[1].widthScale = 1;
+    entities[1].heightScale = 1;
+    entities[1].heightOffset = FX(0);
+
+    entities[2].posX = FX(12);
+    entities[2].posY = FX(12);
+    entities[2].health = 0;
+    entities[2].sprite = &enemySprite;
+    entities[2].widthScale = 1;
+    entities[2].heightScale = 5;
+    entities[2].heightOffset = FX(0); // -10 in fx
+
 
     while (1)
     {
@@ -172,7 +188,7 @@ void main(void)
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
-        DrawEntities(&camera, entities, 2, dogm_fb);
+        DrawEntities(&camera, entities, 3, dogm_fb);
         HUD_DrawBanner((millis / 3000) % 5);        
         
         
