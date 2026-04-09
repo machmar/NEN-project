@@ -188,8 +188,8 @@ void main(void)
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
-        DrawEntities(&camera, entities, 2, dogm_fb);
-        HUD_DrawBanner((millis / 3000) % 5);        
+        DrawEntities(&camera, entities, 2, dogm_fb);       
+        HUD_DrawBanner(CurrentMap->Banner);        
         
         
         dogm128_vline(96, 0, 64, DISP_COL_BLACK);
