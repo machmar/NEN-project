@@ -8,6 +8,9 @@
 #ifndef UTILS_H
 #define	UTILS_H
 
+typedef uint32_t millis_t;
+volatile millis_t millis = 0;
+
 static void utoa(uint16_t v, char *buf, uint8_t len) {
     char tmp[6];
     uint8_t i = 0;

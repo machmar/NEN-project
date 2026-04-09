@@ -18,10 +18,6 @@
 #pragma config LVP = OFF
 #pragma config PBADEN = OFF
 
-typedef uint32_t millis_t;
-
-volatile millis_t millis = 0;
-
 void init_ports(void) {
     ADCON1 = 0x0F; // all pins digital
 
@@ -159,14 +155,10 @@ void main(void) {
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
-        HUD_DrawBanner(CurrentMap->Banner);
 
-
-        dogm128_vline(96, 0, 64, DISP_COL_BLACK);
-        dogm128_hline(96, 32, 32, DISP_COL_BLACK);
-        dogm128_hline(96, 47, 32, DISP_COL_BLACK);
-        dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
         int tmp = (millis / 3000) % 3;
+        HUD_DrawBanner(CurrentMap->Banner);
+        HUD_DrawBorders();
         HUD_DrawItem(tmp);
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
@@ -181,9 +173,7 @@ void main(void) {
         dogm128_text(20, 6, buf);
 
         dogm128_refresh();
-        static char led = 0xFF;
-        led = ~led;
-        set_LEDs(led);
+        set_LEDs(HUD_GetLEDHP(&camera));
     }
 }
 

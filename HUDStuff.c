@@ -44,6 +44,13 @@ void HUD_DrawMap(map_t *map, player_t *player) {
     show++;
 }
 
+void HUD_DrawBorders() {
+    dogm128_vline(96, 0, 64, DISP_COL_BLACK);
+    dogm128_hline(96, 32, 32, DISP_COL_BLACK);
+    dogm128_hline(96, 47, 32, DISP_COL_BLACK);
+    dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
+}
+
 void HUD_DrawItem(uint8_t item) {
     if (item > 2)
         return;
@@ -93,4 +100,22 @@ void HUD_DrawStats(player_t *player) {
     dogm128_text(114, 50, buf);
     utoa(player->health, buf, 1);
     dogm128_text(108, 57, buf);
+}
+
+uint8_t inline HUD_GetLEDHP(player_t *player) {
+    static millis_t PrevMill = 0;
+    static _Bool blink_state = 0;
+    uint8_t out = 0xff >> (8 - player->health);
+
+    static const uint16_t blinkSpeed[3] = {10, 200, 500};
+    if (player->health > 2) {
+        blink_state = 1;
+    } else {
+        if (millis - PrevMill >= blinkSpeed[player->health <= 2 ? player->health : 1]) {
+            PrevMill = millis;
+            blink_state = !blink_state;
+        }
+    }
+
+    return blink_state ? out : 0x00;
 }
