@@ -51,18 +51,18 @@ void HUD_DrawBorders() {
     dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
 }
 
-void HUD_DrawItem(uint8_t item) {
-    if (item > 2)
+void HUD_DrawItem(item_t item) {
+    if (item >= ITEM_GUN)
         return;
 
     switch (item) {
-        case 0:
+        case ITEM_HAND:
             dogm128_blit_or(96, 32, &item_hand, 0);
             break;
-        case 1:
+        case ITEM_KNIFE:
             dogm128_blit_or(96, 32, &item_knife, 0);
             break;
-        case 2:
+        case ITEM_GUN:
             dogm128_blit_or(96, 32, &item_gun, 0);
             break;
     }

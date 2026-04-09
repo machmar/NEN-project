@@ -156,10 +156,9 @@ void main(void) {
         RenderFrame(&camera, CurrentMap, frame_buffer[0]);
         DrawBuffer(frame_buffer[0]);
 
-        int tmp = (millis / 3000) % 3;
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
-        HUD_DrawItem(tmp);
+        HUD_DrawItem(camera.currentItem);
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);

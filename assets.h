@@ -35,6 +35,13 @@ extern dogm128_bitmap_t item_gun;
 
 extern dogm128_bitmap_t HUD_hpImage;
 
+typedef enum {
+    ITEM_HAND = 0,
+    ITEM_KNIFE,
+    ITEM_GUN,
+    ITEM_COUNT
+} item_t;
+
 typedef struct
 {
     fx_t posX, posY; // position
@@ -44,6 +51,7 @@ typedef struct
     fx_t zBuffer[3];
     uint8_t health;
     uint8_t kills;
+    item_t currentItem;
 } player_t;
 
 typedef struct {
