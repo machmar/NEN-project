@@ -1,4 +1,5 @@
 #include "HUDStuff.h"
+#include "utils.h"
 
 void HUD_DrawBanner(dogm128_bitmap_t *text) {
     dogm128_hline(10, 0, 75, DISP_COL_WHITE);
@@ -85,11 +86,11 @@ void HUD_DrawCompass(player_t *player) {
     dogm128_pixel(114, 40, DISP_COL_BLACK);
 }
 
-/*void HUD_DrawStats(player_t *player) {
+void HUD_DrawStats(player_t *player) {
     char buf[5];
     dogm128_blit_or(98, 50, &HUD_hpImage, 14);
     utoa(player->kills, buf, 3);
     dogm128_text(114, 50, buf);
     utoa(player->health, buf, 1);
     dogm128_text(108, 57, buf);
-}*/
+}

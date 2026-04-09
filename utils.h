@@ -8,7 +8,7 @@
 #ifndef UTILS_H
 #define	UTILS_H
 
-void utoa(uint16_t v, char *buf, uint8_t len) {
+static void utoa(uint16_t v, char *buf, uint8_t len) {
     char tmp[6];
     uint8_t i = 0;
 
@@ -36,7 +36,7 @@ void utoa(uint16_t v, char *buf, uint8_t len) {
     *buf = 0;
 }
 
-void utoa32(uint32_t v, char *buf) {
+static void utoa32(uint32_t v, char *buf) {
     char tmp[11];
     uint8_t i = 0;
 

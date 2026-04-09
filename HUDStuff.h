@@ -16,7 +16,7 @@ void HUD_DrawBanner(dogm128_bitmap_t *text);
 void HUD_DrawMap(map_t *map, player_t *player);
 void HUD_DrawItem(uint8_t item);
 void HUD_DrawCompass(player_t *player);
-//void HUD_DrawStats(player_t *player);
+void HUD_DrawStats(player_t *player);
 
 #endif	/* HUDSTUFF_H */
 

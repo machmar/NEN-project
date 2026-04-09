@@ -116,7 +116,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[2];
-map_t *CurrentMap = &TestMap;
+map_t *CurrentMap = &AgentOrangeMap;
 
 void main(void) {
     init_ports();
@@ -170,13 +170,7 @@ void main(void) {
         HUD_DrawItem(tmp);
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
-        //HUD_DrawStats(&camera); // why does it say utoa redefined :cry:
-
-        dogm128_blit_or(98, 50, &HUD_hpImage, 14);
-        utoa(camera.kills, buf, 3);
-        dogm128_text(114, 50, buf);
-        utoa(camera.health, buf, 1);
-        dogm128_text(108, 57, buf);
+        HUD_DrawStats(&camera);
 
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);
