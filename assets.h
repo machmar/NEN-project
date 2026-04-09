@@ -26,6 +26,7 @@ extern map_t SmallMap;
 extern map_t BigMap;
 extern map_t TestMap;
 extern map_t AgentOrangeMap;
+extern map_t WallDemoMap;
 
 extern dogm128_bitmap_t wiggleLineBitmap;
 
@@ -57,9 +58,10 @@ typedef struct
 typedef struct {
     uint8_t start;
     uint8_t length;
+    uint8_t type;
 } line_t;
 
-line_t frame_buffer[1][48];
+line_t frame_buffer[48];
 
 #endif	/* ASSETS_H */
 

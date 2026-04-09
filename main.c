@@ -112,7 +112,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[2];
-map_t *CurrentMap = &AgentOrangeMap;
+map_t *CurrentMap = &WallDemoMap;
 
 void main(void) {
     init_ports();
@@ -153,8 +153,8 @@ void main(void) {
         buttons = read_buttons();
 
         MoveCamera(&camera, CurrentMap, buttons);
-        RenderFrame(&camera, CurrentMap, frame_buffer[0]);
-        DrawBuffer(frame_buffer[0]);
+        RenderFrame(&camera, CurrentMap, frame_buffer);
+        DrawBuffer(frame_buffer);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
