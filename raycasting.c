@@ -296,16 +296,19 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       prevFrames = 0;
     }
 
-    for (int stripe = drawStartX; stripe < drawEndX; stripe++)
+    uint8_t pixelStride = (entities[i].distance < FX(15)) ? ((entities[i].distance < FX(3)) ? 8 : 4) : 2;
+    int loopStride = (pixelStride >> 1);
+
+    for (int stripe = drawStartX; stripe < drawEndX; stripe += loopStride)
     {
       if (transformY >= zBuffer[stripe])
       {
-        texXPos += texXStep;
+        texXPos += texXStep * loopStride;
         continue;
       }
 
       uint16_t texX = texXPos >> 8;
-      texXPos += texXStep;
+      texXPos += texXStep * loopStride;
       if (texX >= entities[i].sprite->width)
         continue;
 
@@ -321,10 +324,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         {
           if (mask || clearMask)
           {
-            display_buffer[(page * 128) + stripe * 2]     &= ~clearMask;
-            display_buffer[(page * 128) + stripe * 2 + 1] &= ~clearMask;
-            display_buffer[(page * 128) + stripe * 2]     |= mask;
-            display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
+            for (uint8_t p = 0; p < pixelStride; p++)
+              display_buffer[(page * 128) + stripe * 2 + p] &= ~clearMask;
+            for (uint8_t p = 0; p < pixelStride; p++)
+              display_buffer[(page * 128) + stripe * 2 + p] |= mask;
           }
           page++;
           nextPageY += 8;
@@ -346,10 +349,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       }
 
       if (mask || clearMask) {
-        display_buffer[(page * 128) + stripe * 2]     &= ~clearMask;
-        display_buffer[(page * 128) + stripe * 2 + 1] &= ~clearMask;
-        display_buffer[(page * 128) + stripe * 2]     |= mask;
-        display_buffer[(page * 128) + stripe * 2 + 1] |= mask;
+        for (uint8_t p = 0; p < pixelStride; p++)
+          display_buffer[(page * 128) + stripe * 2 + p] &= ~clearMask;
+        for (uint8_t p = 0; p < pixelStride; p++)
+          display_buffer[(page * 128) + stripe * 2 + p] |= mask;
       }
     }
   }
