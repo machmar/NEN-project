@@ -10,9 +10,6 @@
 
 // private functions
 void sendCommandToDisplay(unsigned char comm);
-void sendDataToDisplay(unsigned char dat);
-void setColumnAddress(unsigned char column);
-void setPageAddress(unsigned char page);
 
 //*****************************************************************************
 // initialization of display DOGM128
@@ -38,49 +35,6 @@ void initDisplay(void)
     sendCommandToDisplay(0xAC); // No indicator
     sendCommandToDisplay(0x00);
     sendCommandToDisplay(0xAF); // Display on
-    
-    clearAllDisplay();
-}
-
-//*****************************************************************************
-// clear all 8 pages
-void clearAllDisplay(void)
-{
-    unsigned char pg; // page(8)
-    for(pg=0; pg<8; pg++)
-    {
-        clearPageDisplay(pg);
-    }
-}
-
-//*****************************************************************************
-// clear one of 8 pages (0 - 7)
-void clearPageDisplay(unsigned char page)
-{
-    int cl; // collumn (128)
-    setColumnAddress(0);
-    setPageAddress(page);
-    for(cl=0; cl<128;cl++)
-    {
-        sendDataToDisplay(0x00);
-    }
-}
-
-//*****************************************************************************
-// fill display as a  chess board
-void fillChessBoardDisplay(void)
-{
-    unsigned char cl, pg; // collumn (128), page(8))
-    for(pg=0; pg<8; pg++)
-    {
-        setColumnAddress(0);
-        setPageAddress(pg);
-        for(cl=0; cl<128;cl++)
-        {
-            sendDataToDisplay(0xAA);
-            sendDataToDisplay(0x55);
-        }
-    }
 }
 
 //*****************************************************************************
@@ -95,42 +49,4 @@ void sendCommandToDisplay(unsigned char comm)
     sendByteSpi(comm);  // send command
     __nop();            // delay 1 step
     CS_DISP_H;          // CS inactive in H
-}
-
-//*****************************************************************************
-// send data (A0 = H)
-void sendDataToDisplay(unsigned char dat)
-{
-    A0_DISP_H;          // data
-    CS_DISP_L;          // CS active in low
-    __nop();            // delay 1 step
-    sendByteSpi(dat);   // send data
-    __nop();            // delay 1 step
-    CS_DISP_H;          // CS inactive in H
-}
-
-//*****************************************************************************
-// set addres of collumn on a page (0 - 127)
-void setColumnAddress(unsigned char column)
-{
-    unsigned char col;
-    if(column > 127)
-    {
-        column = 127;
-    }
-    col = (column & 0x0F) | 0x00;
-    sendCommandToDisplay(col);
-    col = (column >> 4) | 0x10;
-    sendCommandToDisplay(col);
-}
-
-//*****************************************************************************
-// set page (0-7)
-void setPageAddress(unsigned char page)
-{
-    if(page > 7)
-    {
-        page = 7;
-    }
-    sendCommandToDisplay(0xB0 | page);
 }
