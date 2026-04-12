@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mask + Color PNG Interlacer</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111318;
+      --panel: #1b1f27;
+      --panel-2: #222836;
+      --text: #e8ecf3;
+      --muted: #9aa4b2;
+      --accent: #7aa2ff;
+      --danger: #ff7a7a;
+      --ok: #7bda9b;
+      --border: #323a4a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 12px;
+      line-height: 1.2;
+    }
+
+    .lead {
+      color: var(--muted);
+      margin: 8px 0 24px;
+      max-width: 900px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+
+    .panel.subtle {
+      background: var(--panel-2);
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 600;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+      width: 100%;
+      background: #0f131a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    button {
+      background: var(--accent);
+      color: #08111f;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #2a3242;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #121722;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+
+    .status.ok {
+      border-color: rgba(123, 218, 155, 0.35);
+      color: var(--ok);
+    }
+
+    .status.error {
+      border-color: rgba(255, 122, 122, 0.4);
+      color: var(--danger);
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .preview-card {
+      background: #121722;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .preview-title {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      background:
+        linear-gradient(45deg, #161b23 25%, #10151d 25%, #10151d 50%, #161b23 50%, #161b23 75%, #10151d 75%, #10151d 100%);
+      background-size: 16px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      image-rendering: pixelated;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 360px;
+      resize: vertical;
+      background: #0f131a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      tab-size: 4;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin: 12px 0 10px;
+    }
+
+    .stat {
+      background: #121722;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .stat .k {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin-bottom: 4px;
+    }
+
+    .stat .v {
+      font-weight: 700;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Mask + Color PNG Interlacer</h1>
+    <p class="lead">
+      Local-only browser tool. Load two PNG files of the same size, threshold each pixel to 1-bit using its RGB average, then pack each image as a continuous row-major 1-bit stream with <strong>LSB-first bits</strong>, and interleave the resulting bytes as <code>mask0, color0, mask1, color1, ...</code>. Pixels with average RGB value <code>&gt; 127</code> become white, otherwise black. No row padding is added; only the final byte of each stream may contain trailing zero padding.
+    </p>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>1. Select PNG files</h2>
+
+        <label for="maskFile">Mask PNG</label>
+        <input id="maskFile" type="file" accept=".png,image/png" />
+
+        <label for="colorFile">Color PNG</label>
+        <input id="colorFile" type="file" accept=".png,image/png" />
+
+        <label for="arrayName">C identifier / prefix</label>
+        <input id="arrayName" type="text" value="image_interlaced" spellcheck="false" />
+
+        <div class="row" style="margin-top: 14px;">
+          <button id="generateBtn">Generate output</button>
+          <button id="copyBtn" class="secondary" disabled>Copy output</button>
+        </div>
+
+        <div id="status" class="status">Waiting for input.</div>
+
+        <p class="small" style="margin-top: 12px;">
+          Validation rules:
+          exact PNG only, same width and height for both files, per-pixel thresholding by average RGB,
+          average RGB <code>&gt; 127</code> = white, otherwise black, black = 1, white = 0.
+        </p>
+      </section>
+
+      <section class="panel subtle">
+        <h2>2. Packing rules</h2>
+        <div class="small">
+          <p><strong>Pixel order:</strong> left to right, top to bottom, continuous across rows.</p>
+          <p><strong>Bit order inside each byte:</strong> first pixel goes to bit 0 (LSB), second to bit 1, etc.</p>
+          <p><strong>Width 9 example:</strong> pixel <code>x=8</code> of the first row becomes bit 0 of the second byte.</p>
+          <p><strong>Thresholding:</strong> each pixel uses average RGB; <code>&gt; 127</code> becomes white, otherwise black.</p>
+          <p><strong>Output:</strong> one C array plus width/height variables and comments containing the source filenames.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel" style="margin-top: 16px;">
+      <h2>3. Preview</h2>
+      <div class="preview-grid">
+        <div class="preview-card">
+          <div class="preview-title">Mask</div>
+          <div id="maskMeta" class="meta">No file loaded.</div>
+          <canvas id="maskCanvas" width="1" height="1"></canvas>
+        </div>
+        <div class="preview-card">
+          <div class="preview-title">Color</div>
+          <div id="colorMeta" class="meta">No file loaded.</div>
+          <canvas id="colorCanvas" width="1" height="1"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top: 16px;">
+      <h2>4. Output</h2>
+      <div class="stats">
+        <div class="stat">
+          <div class="k">Image size</div>
+          <div class="v" id="sizeStat">—</div>
+        </div>
+        <div class="stat">
+          <div class="k">Pixels per image</div>
+          <div class="v" id="pixelStat">—</div>
+        </div>
+        <div class="stat">
+          <div class="k">Bytes per stream</div>
+          <div class="v" id="streamBytesStat">—</div>
+        </div>
+        <div class="stat">
+          <div class="k">Bytes in combined array</div>
+          <div class="v" id="combinedBytesStat">—</div>
+        </div>
+      </div>
+
+      <textarea id="output" spellcheck="false" placeholder="Generated C output will appear here..."></textarea>
+    </section>
+  </div>
+
+  <script>
+    const maskFileInput = document.getElementById('maskFile');
+    const colorFileInput = document.getElementById('colorFile');
+    const arrayNameInput = document.getElementById('arrayName');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const outputEl = document.getElementById('output');
+    const statusEl = document.getElementById('status');
+
+    const maskCanvas = document.getElementById('maskCanvas');
+    const colorCanvas = document.getElementById('colorCanvas');
+    const maskMeta = document.getElementById('maskMeta');
+    const colorMeta = document.getElementById('colorMeta');
+
+    const sizeStat = document.getElementById('sizeStat');
+    const pixelStat = document.getElementById('pixelStat');
+    const streamBytesStat = document.getElementById('streamBytesStat');
+    const combinedBytesStat = document.getElementById('combinedBytesStat');
+
+    function setStatus(message, mode = '') {
+      statusEl.textContent = message;
+      statusEl.className = 'status' + (mode ? ' ' + mode : '');
+    }
+
+    function sanitizeIdentifier(name) {
+      const trimmed = (name || '').trim();
+      let safe = trimmed.replace(/[^A-Za-z0-9_]+/g, '_');
+      safe = safe.replace(/^_+/, '');
+      if (!safe) safe = 'image_interlaced';
+      if (/^[0-9]/.test(safe)) safe = '_' + safe;
+      return safe;
+    }
+
+    function toHex(byte) {
+      return '0x' + byte.toString(16).padStart(2, '0');
+    }
+
+    function wrapHex(bytes, perLine = 12, indent = '    ') {
+      const lines = [];
+      for (let i = 0; i < bytes.length; i += perLine) {
+        lines.push(indent + bytes.slice(i, i + perLine).map(toHex).join(', '));
+      }
+      return lines.join(',\n');
+    }
+
+    function updateStats(width = null, height = null, streamByteCount = null, combinedByteCount = null) {
+      if (width == null || height == null) {
+        sizeStat.textContent = '—';
+        pixelStat.textContent = '—';
+        streamBytesStat.textContent = '—';
+        combinedBytesStat.textContent = '—';
+        return;
+      }
+
+      const pixels = width * height;
+      sizeStat.textContent = `${width} × ${height}`;
+      pixelStat.textContent = String(pixels);
+      streamBytesStat.textContent = String(streamByteCount);
+      combinedBytesStat.textContent = String(combinedByteCount);
+      return;
+    }
+
+    function drawPreview(canvas, imageData) {
+      const ctx = canvas.getContext('2d');
+      canvas.width = imageData.width;
+      canvas.height = imageData.height;
+      ctx.putImageData(imageData, 0, 0);
+    }
+
+    async function readPng(file) {
+      if (!file) {
+        throw new Error('Both PNG files must be selected.');
+      }
+
+      if (!/\.png$/i.test(file.name) && file.type !== 'image/png') {
+        throw new Error(`"${file.name}" is not a PNG file.`);
+      }
+
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(bitmap, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const bits = new Uint8Array(canvas.width * canvas.height);
+      const previewData = new ImageData(canvas.width, canvas.height);
+
+      let blackCount = 0;
+      let whiteCount = 0;
+
+      for (let i = 0, px = 0; i < data.length; i += 4, px++) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        const avg = (r + g + b) / 3;
+        const isWhite = avg > 127;
+        const out = isWhite ? 255 : 0;
+
+        bits[px] = isWhite ? 0 : 1;
+
+        previewData.data[i] = out;
+        previewData.data[i + 1] = out;
+        previewData.data[i + 2] = out;
+        previewData.data[i + 3] = a;
+
+        if (isWhite) {
+          whiteCount++;
+        } else {
+          blackCount++;
+        }
+      }
+
+      return {
+        file,
+        width: canvas.width,
+        height: canvas.height,
+        bits,
+        imageData: previewData,
+        blackCount,
+        whiteCount
+      };
+    }
+
+    function packBitsLsbFirst(bits) {
+      const byteCount = Math.ceil(bits.length / 8);
+      const bytes = new Uint8Array(byteCount);
+
+      for (let i = 0; i < bits.length; i++) {
+        if (bits[i]) {
+          bytes[i >> 3] |= (1 << (i & 7));
+        }
+      }
+
+      return bytes;
+    }
+
+    function interleaveBytes(maskBytes, colorBytes) {
+      if (maskBytes.length !== colorBytes.length) {
+        throw new Error('Internal error: byte streams have different lengths.');
+      }
+
+      const combined = new Uint8Array(maskBytes.length * 2);
+
+      for (let i = 0; i < maskBytes.length; i++) {
+        combined[i * 2] = maskBytes[i];
+        combined[i * 2 + 1] = colorBytes[i];
+      }
+
+      return combined;
+    }
+
+    function buildOutput(maskInfo, colorInfo) {
+      if (maskInfo.width !== colorInfo.width || maskInfo.height !== colorInfo.height) {
+        throw new Error(
+          `Image size mismatch. Mask is ${maskInfo.width}x${maskInfo.height}, ` +
+          `color is ${colorInfo.width}x${colorInfo.height}.`
+        );
+      }
+
+      const width = maskInfo.width;
+      const height = maskInfo.height;
+      const identifier = sanitizeIdentifier(arrayNameInput.value);
+
+      const maskBytes = packBitsLsbFirst(maskInfo.bits);
+      const colorBytes = packBitsLsbFirst(colorInfo.bits);
+      const combined = interleaveBytes(maskBytes, colorBytes);
+
+      const body = wrapHex(Array.from(combined));
+
+      const sourceComment =
+`// Generated by Mask + Color PNG Interlacer
+// Mask source: ${maskInfo.file.name}
+// Color source: ${colorInfo.file.name}
+// Dimensions: ${width} x ${height}
+// Packing: row-major, continuous across rows, LSB-first bits
+// Interleaving: mask byte, color byte, mask byte, color byte, ...
+// Thresholding: average RGB > 127 = white, otherwise black
+// Black = 1, White = 0`;
+
+      const code =
+`${sourceComment}
+
+const unsigned int ${identifier}_width = ${width};
+const unsigned int ${identifier}_height = ${height};
+
+const unsigned char ${identifier}[] = {
+${body}
+};
+`;
+
+      return {
+        width,
+        height,
+        maskBytes,
+        colorBytes,
+        combined,
+        code,
+        identifier,
+        maskInfo,
+        colorInfo
+      };
+    }
+
+    let lastGenerated = null;
+
+    async function tryPreviewOnly() {
+      updateStats();
+
+      const maskFile = maskFileInput.files[0];
+      const colorFile = colorFileInput.files[0];
+
+      if (!maskFile && !colorFile) {
+        maskMeta.textContent = 'No file loaded.';
+        colorMeta.textContent = 'No file loaded.';
+        copyBtn.disabled = true;
+        return;
+      }
+
+      try {
+        if (maskFile) {
+          const maskInfo = await readPng(maskFile);
+          drawPreview(maskCanvas, maskInfo.imageData);
+          maskMeta.textContent =
+            `${maskInfo.file.name} — ${maskInfo.width} × ${maskInfo.height}, ` +
+            `black: ${maskInfo.blackCount}, white: ${maskInfo.whiteCount}`;
+        }
+
+        if (colorFile) {
+          const colorInfo = await readPng(colorFile);
+          drawPreview(colorCanvas, colorInfo.imageData);
+          colorMeta.textContent =
+            `${colorInfo.file.name} — ${colorInfo.width} × ${colorInfo.height}, ` +
+            `black: ${colorInfo.blackCount}, white: ${colorInfo.whiteCount}`;
+        }
+
+        if (maskFile && colorFile) {
+          setStatus('Preview loaded. Click "Generate output" to validate both files together and create the C array.', 'ok');
+        } else {
+          setStatus('One file loaded. Select the second PNG to complete the pair.', '');
+        }
+      } catch (err) {
+        setStatus(err.message, 'error');
+        copyBtn.disabled = true;
+      }
+    }
+
+    async function generate() {
+      const maskFile = maskFileInput.files[0];
+      const colorFile = colorFileInput.files[0];
+
+      outputEl.value = '';
+      copyBtn.disabled = true;
+      lastGenerated = null;
+      updateStats();
+
+      try {
+        const [maskInfo, colorInfo] = await Promise.all([readPng(maskFile), readPng(colorFile)]);
+
+        drawPreview(maskCanvas, maskInfo.imageData);
+        drawPreview(colorCanvas, colorInfo.imageData);
+
+        maskMeta.textContent =
+          `${maskInfo.file.name} — ${maskInfo.width} × ${maskInfo.height}, ` +
+          `black: ${maskInfo.blackCount}, white: ${maskInfo.whiteCount}`;
+        colorMeta.textContent =
+          `${colorInfo.file.name} — ${colorInfo.width} × ${colorInfo.height}, ` +
+          `black: ${colorInfo.blackCount}, white: ${colorInfo.whiteCount}`;
+
+        const result = buildOutput(maskInfo, colorInfo);
+
+        outputEl.value = result.code;
+        copyBtn.disabled = false;
+        lastGenerated = result;
+
+        updateStats(
+          result.width,
+          result.height,
+          result.maskBytes.length,
+          result.combined.length
+        );
+
+        setStatus(
+          `Done. Generated ${result.combined.length} combined bytes ` +
+          `(${result.maskBytes.length} mask bytes + ${result.colorBytes.length} color bytes) ` +
+          `for ${result.width} × ${result.height}.`,
+          'ok'
+        );
+      } catch (err) {
+        setStatus(err.message, 'error');
+      }
+    }
+
+    function refreshOutputNameOnly() {
+      if (!lastGenerated) return;
+      const rebuilt = buildOutput(lastGenerated.maskInfo, lastGenerated.colorInfo);
+      lastGenerated = rebuilt;
+      outputEl.value = rebuilt.code;
+    }
+
+    maskFileInput.addEventListener('change', tryPreviewOnly);
+    colorFileInput.addEventListener('change', tryPreviewOnly);
+    generateBtn.addEventListener('click', generate);
+    arrayNameInput.addEventListener('input', refreshOutputNameOnly);
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(outputEl.value);
+        setStatus('Output copied to clipboard.', 'ok');
+      } catch (err) {
+        setStatus('Copy failed. Your browser may not allow clipboard access here.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>
