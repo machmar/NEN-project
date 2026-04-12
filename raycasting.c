@@ -396,3 +396,38 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   }
 }
 
+void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
+  for(int i = 0; i < amount; i++){
+    if(entities[i].health <= 0)
+      continue;
+
+    // Check line of sight
+    fx_t dx = fx_sub(fx_add(player->posX, player->dirX), entities[i].posX);
+    fx_t dy = fx_sub(fx_add(player->posY, player->dirY), entities[i].posY);
+    if (entities[i].distance < FX(10)) {
+      entities[i].lineOfSight = 1;
+    }
+
+    // Move towards player if in line of sight
+    if (entities[i].lineOfSight) {
+      fx_t moveSpeed = FX(1) / 8; //Speed multiplier for enemies
+      fx_t dirX = fx_div(dx, entities[i].distance);
+      fx_t dirY = fx_div(dy, entities[i].distance);
+
+      // Check for wall collisions before moving
+      uint8_t tileX = MAP_AT(map, FX_I(fx_add(entities[i].posX, fx_mul(dirX, moveSpeed))), FX_I(entities[i].posY));
+      uint8_t tileY = MAP_AT(map, FX_I(entities[i].posX), FX_I(fx_add(entities[i].posY, fx_mul(dirY, moveSpeed))));
+
+      if (tileX <= 0x00 || tileX >= 0x0f)
+        entities[i].posX = fx_add(entities[i].posX, fx_mul(dirX, moveSpeed));
+
+      if (tileY <= 0x00 || tileY >= 0x0f)
+        entities[i].posY = fx_add(entities[i].posY, fx_mul(dirY, moveSpeed));
+      
+      entities[i].walking = 1;
+    } else {
+      entities[i].walking = 0;
+    }
+  }
+}
+

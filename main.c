@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[3];
+static entity_t entities[10];
 map_t *CurrentMap = &TestMap;
 
 void main(void) {
@@ -157,14 +157,61 @@ void main(void) {
     entities[1].widthScale = 1;
     entities[1].heightScale = 1;
     entities[1].heightOffset = FX(0);
+    entities[1].walking = 0;
 
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
-    entities[2].health = 0;
+    entities[2].health = 100;
     entities[2].sprite = &enemySprite;
     entities[2].widthScale = 1;
-    entities[2].heightScale = 5;
+    entities[2].heightScale = 1;
     entities[2].heightOffset = FX(0); // -10 in fx
+    entities[2].walking = 0;
+
+    entities[3].posX = FX(18);
+    entities[3].posY = FX(17);
+    entities[3].health = 100;
+    entities[3].sprite = &enemySprite;
+    entities[3].widthScale = 1;
+    entities[3].heightScale = 1;
+    entities[3].heightOffset = FX(0); // -10 in fx
+    entities[3].walking = 0;
+
+        entities[4].posX = FX(20);
+    entities[4].posY = FX(20);
+    entities[4].health = 100;
+    entities[4].sprite = &enemySprite;
+    entities[4].widthScale = 1;
+    entities[4].heightScale = 1;
+    entities[4].heightOffset = FX(0); // -10 in fx
+    entities[4].walking = 0;
+
+        entities[5].posX = FX(18);
+    entities[5].posY = FX(1);
+    entities[5].health = 100;
+    entities[5].sprite = &enemySprite;
+    entities[5].widthScale = 1;
+    entities[5].heightScale = 1;
+    entities[5].heightOffset = FX(0); // -10 in fx
+    entities[5].walking = 0;
+
+        entities[6].posX = FX(1);
+    entities[6].posY = FX(14);
+    entities[6].health = 100;
+    entities[6].sprite = &enemySprite;
+    entities[6].widthScale = 1;
+    entities[6].heightScale = 1;
+    entities[6].heightOffset = FX(0); // -10 in fx
+    entities[6].walking = 0;
+
+        entities[7].posX = FX(8);
+    entities[7].posY = FX(16);
+    entities[7].health = 100;
+    entities[7].sprite = &enemySprite;
+    entities[7].widthScale = 1;
+    entities[7].heightScale = 1;
+    entities[7].heightOffset = FX(0); // -10 in fx
+    entities[7].walking = 0;
 
 
     while (1) {
@@ -176,7 +223,8 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawEntities(&camera, entities, 2, dogm_fb);
+        DrawEntities(&camera, entities, 7, dogm_fb);
+        EnemyAi(&camera, entities, 7, CurrentMap);
         DrawBuffer(frame_buffer);
 
         HUD_DrawBanner(CurrentMap->Banner);

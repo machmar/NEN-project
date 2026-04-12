@@ -585,7 +585,7 @@ static const uint8_t chapadlo_step2_combined[] = {
 // Combined from 'ctyrrucka_step1-color' and 'ctyrrucka_step1-mask'
 // Dimensions: 30x36 px
 // Source bytes per array: 150
-// Output bytes: 300
+// Output bytes: 300X
 
 static const uint8_t ctyrrucka_step1_combined[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0x9f, 0x60, 0x0f, 0xf0, 0x1f, 0xe0, 0x3f, 0xc0, 0x7f, 0x80,
@@ -610,7 +610,7 @@ static const uint8_t ctyrrucka_step1_combined[] = {
 };
 
 // Combined from 'ctyrrucka_step2-color' and 'ctyrrucka_step2-mask'
-// Dimensions: 30x36 px
+// Dimensions: 30x36 px (X:Y)
 // Source bytes per array: 150
 // Output bytes: 300
 
@@ -662,7 +662,7 @@ static const uint8_t ctyrrucka_death_combined[] = {
     0x0e, 0x01, 0x0e, 0x01, 0x0c, 0x03, 0x0c, 0x03, 0x09, 0x06, 0x01, 0x0e, 0x03, 0x0c, 0x0f, 0x00,
     0x0f, 0x00, 0x0f, 0x00, 0x0f, 0x00, 0x0f, 0x00, 0x0f, 0x00, 0x0f, 0x00
 };
-/*
+
 static const uint8_t enemySpriteWalk1Data[10][9] = {
   {0, 0, 1, 1, 1, 1, 1, 0, 0},
   {0, 0, 1, 0, 0, 0, 1, 0, 0},
@@ -702,14 +702,14 @@ static const uint8_t enemySpriteDeadData[10][9] = {
   {2, 0, 1, 1, 2, 1, 0, 0, 0},
 
 };
-*/
+
 
 spriteData_t enemySprite = {
-    .width = 36,
-    .height = 30,
+    .width = 9,
+    .height = 10,
     .data = {
-        (const uint8_t*)ctyrrucka_step1_combined,
-        (const uint8_t*)ctyrrucka_step2_combined,
-        (const uint8_t*)ctyrrucka_death_combined,
+        (const uint8_t*)enemySpriteWalk1Data,
+        (const uint8_t*)enemySpriteWalk2Data,
+        (const uint8_t*)enemySpriteDeadData,
     },
 };

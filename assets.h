@@ -76,6 +76,7 @@ typedef struct
     fx_t posX, posY;
     fx_t distance;
     uint8_t health;
+    uint8_t lineOfSight;
     uint8_t walking;
     spriteData_t *sprite;
     uint8_t widthScale;
