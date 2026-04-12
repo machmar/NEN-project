@@ -26,6 +26,23 @@ typedef struct {
 extern map_t SmallMap;
 extern map_t BigMap;
 extern map_t TestMap;
+extern map_t AgentOrangeMap;
+extern map_t WallDemoMap;
+
+extern dogm128_bitmap_t wiggleLineBitmap;
+
+extern dogm128_bitmap_t item_hand;
+extern dogm128_bitmap_t item_knife;
+extern dogm128_bitmap_t item_gun;
+
+extern dogm128_bitmap_t HUD_hpImage;
+
+typedef enum {
+    ITEM_HAND = 0,
+    ITEM_KNIFE,
+    ITEM_GUN,
+    ITEM_COUNT
+} item_t;
 
 typedef struct
 {
@@ -34,14 +51,18 @@ typedef struct
     fx_t planeX, planeY; // camera plane
     fx_t angle; // rotation angle (fx angle units, 512 = full turn)
     fx_t zBuffer[48];
+    uint8_t health;
+    uint8_t kills;
+    item_t currentItem;
 } player_t;
 
 typedef struct {
     uint8_t start;
     uint8_t length;
+    uint8_t type;
 } line_t;
 
-line_t frame_buffer[2][48];
+line_t frame_buffer[48];
 
 typedef struct
 {

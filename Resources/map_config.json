@@ -14,7 +14,7 @@
         },
         {
           "id": 1,
-          "name": "Black",
+          "name": "Wall",
           "mode": "color",
           "color": "#000000",
           "emoji": "",
@@ -22,51 +22,51 @@
         },
         {
           "id": 2,
-          "name": "Gray 1",
+          "name": "weird floating wall",
           "mode": "color",
           "color": "#999999",
           "emoji": "",
-          "description": ""
+          "description": "it has a bit missing from the top and bottom"
         },
         {
           "id": 3,
-          "name": "Gray 2",
+          "name": "shorter",
           "mode": "color",
           "color": "#666666",
           "emoji": "",
-          "description": ""
+          "description": "it has a bit missing from the top"
         },
         {
           "id": 4,
-          "name": "Wall 4",
+          "name": "A bit lifted",
           "mode": "color",
           "color": "#c73cdd",
           "emoji": "",
-          "description": ""
+          "description": "It has a small bit missing from the bottom"
         },
         {
           "id": 5,
-          "name": "Wall 5",
+          "name": "Small window",
           "mode": "color",
           "color": "#9a3cdd",
           "emoji": "",
-          "description": ""
+          "description": "top half is missing"
         },
         {
           "id": 6,
-          "name": "Wall 6",
+          "name": "Door",
           "mode": "color",
           "color": "#6c3cdd",
           "emoji": "",
-          "description": ""
+          "description": "A door, can't walk through it, just looks like it."
         },
         {
           "id": 7,
-          "name": "Wall 7",
+          "name": "big Window",
           "mode": "color",
           "color": "#3f3cdd",
           "emoji": "",
-          "description": ""
+          "description": "Like the door, but it has pixels at the bottom, not at the top"
         },
         {
           "id": 8,
@@ -126,11 +126,11 @@
         },
         {
           "id": 15,
-          "name": "Wall 15",
+          "name": "Walkable door",
           "mode": "color",
           "color": "#64dd3c",
           "emoji": "",
-          "description": ""
+          "description": "Looks the same as normal door, but collision detection ignores it."
         }
       ]
     },
@@ -274,11 +274,11 @@
       "kinds": [
         {
           "id": 0,
-          "name": "Unused",
+          "name": "playerSpawn",
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "📍",
-          "description": "Spawn/marker slot"
+          "description": "tady se objevis"
         },
         {
           "id": 1,
@@ -394,11 +394,11 @@
         },
         {
           "id": 15,
-          "name": "Spawn 15",
+          "name": "nextMap",
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⏺️",
-          "description": "Spawn/marker slot"
+          "description": "posle na dalsi mapu"
         }
       ]
     },
@@ -408,11 +408,11 @@
       "kinds": [
         {
           "id": 0,
-          "name": "Unused",
+          "name": "knife",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "📦",
-          "description": "Item slot"
+          "emoji": "🔪",
+          "description": "tady lezi nuz"
         },
         {
           "id": 1,

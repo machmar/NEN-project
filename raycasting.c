@@ -5,8 +5,8 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 
-    * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-    * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -19,7 +19,7 @@ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ */
 
 #include "raycasting.h"
 #include "dogm128_fast.h"
@@ -38,18 +38,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* precomputed cameraX = 256 - (x*512/48) for x=0..47, negated to fix screen mirror */
 static const fx_t cameraX_lut[48] = {
-     256, 246, 235, 224, 214, 203, 192, 182, 171, 160, 150, 139,
-     128, 118, 107,  96,  86,  75,  64,  54,  43,  32,  22,  11,
-       0, -10, -21, -32, -42, -53, -64, -74, -85, -96,-106,-117,
-    -128,-138,-149,-160,-170,-181,-192,-202,-213,-224,-234,-245
+    256, 246, 235, 224, 214, 203, 192, 182, 171, 160, 150, 139,
+    128, 118, 107, 96, 86, 75, 64, 54, 43, 32, 22, 11,
+    0, -10, -21, -32, -42, -53, -64, -74, -85, -96, -106, -117,
+    -128, -138, -149, -160, -170, -181, -192, -202, -213, -224, -234, -245
 };
 
 int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 {
     int x;
 
-    for (x = 0; x < screenWidth; x++)
-    {
+    for (x = 0; x < screenWidth; x++) {
         fx_t cameraX = cameraX_lut[x];
 
         /* ray direction */
@@ -76,50 +75,41 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
         deltaDistY = fx_inv_clamped(rayDirY);
 
         /* initial step and sidedist */
-        if (rayDirX < 0)
-        {
+        if (rayDirX < 0) {
             stepX = -1;
             sideDistX = fx_mul(fx_sub(player->posX, FX_FROM_INT(mapX)), deltaDistX);
-        }
-        else
-        {
+        } else {
             stepX = 1;
             sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), player->posX), deltaDistX);
         }
 
-        if (rayDirY < 0)
-        {
+        if (rayDirY < 0) {
             stepY = -1;
             sideDistY = fx_mul(fx_sub(player->posY, FX_FROM_INT(mapY)), deltaDistY);
-        }
-        else
-        {
+        } else {
             stepY = 1;
             sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), player->posY), deltaDistY);
         }
 
         /* DDA */
-        for (uint8_t tmp_dist = 0; !hit && tmp_dist < 64; tmp_dist++)
-        {
-            if (sideDistX < sideDistY)
-            {
+        uint8_t tileType = 0;
+        for (uint8_t tmp_dist = 0; !hit && tmp_dist < 64; tmp_dist++) {
+            if (sideDistX < sideDistY) {
                 sideDistX = fx_add(sideDistX, deltaDistX);
                 mapX += stepX;
                 side = 0;
-            }
-            else
-            {
+            } else {
                 sideDistY = fx_add(sideDistY, deltaDistY);
                 mapY += stepY;
                 side = 1;
             }
 
-            if (!MAP_IN_BOUNDS(map, mapX, mapY))
-            {
+            if (!MAP_IN_BOUNDS(map, mapX, mapY)) {
                 hit = 1;
                 break;
             }
-            if (MAP_AT(map, mapX, mapY) > 0)
+            tileType = MAP_AT(map, mapX, mapY);
+            if (tileType > 0 && tileType < 0x10) // hard coded the wall type range, don't care, cry
                 hit = 1;
         }
 
@@ -134,7 +124,7 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 
         /* lineHeight = screenHeight / perpWallDist */
         {
-            int lineHeight = ((int32_t)16384) / perpWallDist;
+            int lineHeight = ((int32_t) 16384) / perpWallDist;
             int drawStart = (-lineHeight >> 1) + 32;
 
             if (drawStart < 0) drawStart = 0;
@@ -142,6 +132,7 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 
             buffer[x].start = hit ? drawStart : 0;
             buffer[x].length = hit ? lineHeight : 0;
+            buffer[x].type = tileType;
         }
       //draw the pixels of the stripe as a vertical line
       player->zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
@@ -150,54 +141,101 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
     return 0;
 }
 
-void DrawBuffer(line_t *buffer)
-{
-    for (uint8_t i = 0; i < 48; i++)
-    {
-        dogm128_vlineBLACK2px(i * 2, buffer[i].start, buffer[i].length);
+void DrawBuffer(line_t *buffer) {
+    for (uint8_t i = 0; i < 48; i++) {
+        uint8_t start = buffer[i].start;
+        uint8_t length = buffer[i].length;
+
+        switch (buffer[i].type) {
+            case 2: // strange floating wall
+            {
+                uint8_t offset = length / 5;
+                start += offset / 2;
+                length -= offset;
+            }
+                break;
+            case 3: // shorter wall
+            {
+                uint8_t offset = length / 5;
+                start += offset;
+                length -= offset;
+            }
+                break;
+            case 4: // a bit lifted wall
+            {
+                uint8_t offset = length / 5;
+                length -= offset;
+            }
+                break;
+            case 5: // small window
+            {
+                uint8_t offset = length / 2;
+                start += offset;
+                length -= offset;
+            }
+                break;
+            case 0x0F:
+            case 6: // door
+            {
+                uint8_t offset = length / 3 + length / 2;
+                length -= offset;
+            }
+                break;
+            case 7: // big window
+            {
+                uint8_t offset = length / 3 + length / 2;
+                start += offset;
+                length -= offset;
+            }
+                break;
+            default:
+                break;
+        }
+
+        dogm128_vlineBLACK2px(i * 2, start, length);
     }
 }
 
-int MoveCamera(player_t *player, map_t *map, buttons_t buttons)
-{
+int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
     fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
-    if(buttons.front)
-    {
-      if(MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY)) == false)
-        player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
-      
-      if(MAP_AT(map, FX_I(player->posX), FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed)))) == false)
-        player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
+    uint8_t tile = 0; // the tile that's being walked into
+    if (buttons.front) {
+        tile = MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
+        if (tile <= 0x00 || tile >= 0x0f)
+            player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
+
+        tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed))));
+        if (tile <= 0x00 || tile >= 0x0f)
+            player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //move backwards if no wall behind you
-    if(buttons.back)
-    {
-      if(MAP_AT(map, FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY)) == false)
-        player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
-      
-      if(MAP_AT(map, FX_I(player->posX), FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed)))) == false)
-        player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
+    if (buttons.back) {
+        tile = MAP_AT(map, FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
+        if (tile <= 0x00 || tile >= 0x0f)
+            player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
+
+        tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed))));
+        if (tile <= 0x00 || tile >= 0x0f)
+            player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //rotate to the right
-    if(buttons.right)
-      player->angle = fx_add(player->angle, rotSpeed);
+    if (buttons.right)
+        player->angle = fx_add(player->angle, rotSpeed);
     //rotate to the left
-    if(buttons.left)
-      player->angle = fx_sub(player->angle, rotSpeed);
-    
+    if (buttons.left)
+        player->angle = fx_sub(player->angle, rotSpeed);
+
     //reconstruct dir and plane from angle (eliminates fixed-point drift)
-    if(buttons.right || buttons.left)
-    {
-      player->dirX = fx_cos(player->angle);
-      player->dirY = fx_sin(player->angle);
-      player->planeX = fx_mul(player->dirY, (fx_t)0x00a9);
-      player->planeY = fx_neg(fx_mul(player->dirX, (fx_t)0x00a9));
+    if (buttons.right || buttons.left) {
+        player->dirX = fx_cos(player->angle);
+        player->dirY = fx_sin(player->angle);
+        player->planeX = fx_mul(player->dirY, (fx_t) 0x00a9);
+        player->planeY = fx_neg(fx_mul(player->dirX, (fx_t) 0x00a9));
     }
-    
-    if (buttons.use)
-    {
+
+    if (buttons.use) {
         player->posX = FX(map->DefaultSpwanPoint[0]);
         player->posY = FX(map->DefaultSpwanPoint[1]);
     }

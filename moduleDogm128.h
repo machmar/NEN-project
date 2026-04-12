@@ -21,10 +21,6 @@
 
 
 void initDisplay(void);
-void clearAllDisplay(void);
-void clearPageDisplay(unsigned char page);
-void fillChessBoardDisplay(void);
-void writeTextToDisplay(unsigned char page, unsigned char column, char* txt);
 
 #endif	/* MODULEDOGM128_H */
 
