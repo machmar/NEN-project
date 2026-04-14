@@ -480,14 +480,19 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
       continue;
 
     // Check line of sight
-    fx_t dx = fx_sub(fx_add(player->posX, player->dirX), entities[i].posX);
-    fx_t dy = fx_sub(fx_add(player->posY, player->dirY), entities[i].posY);
-    if (entities[i].distance < FX(10)) {
+    fx_t dx = fx_sub(player->posX, entities[i].posX);
+    fx_t dy = fx_sub(player->posY, entities[i].posY);
+
+    if (entities[i].distance < FX(100)) {
       entities[i].lineOfSight = 1;
+    } else {
+      entities[i].lineOfSight = 0;
     }
-    else if (entities[i].distance < FX(1)) {
-      entities[i].lineOfSight = 1;
-      return;
+
+    // Keep a small body radius around the player to prevent overlap/pushing.
+    if (entities[i].distance < FX_RAW(64) && entities[i].lineOfSight) {
+      entities[i].walking = 0;
+      continue;
     }
 
     // Move towards player if in line of sight
