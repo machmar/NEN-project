@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[10];
+static entity_t entities[4];
 map_t *CurrentMap = &TestMap;
 
 void main(void) {
@@ -147,7 +147,7 @@ void main(void) {
     entities[0].sprite = &enemySprite;
     entities[0].widthScale = 1;
     entities[0].heightScale = 1;
-    entities[0].heightOffset = FX(6);
+    entities[0].heightOffset = FX(0);
     entities[0].walking = 1;
 
     entities[1].posX = FX(2);

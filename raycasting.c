@@ -244,8 +244,11 @@ int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
 
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer)
 {
-  static uint8_t prevFrames = 0;
+  static int prevFrames = 0;
   prevFrames++;
+  int screenXStart, screenXEnd = 0;
+  int screenYStart, screenYEnd = 0;
+  uint8_t rendered = 0;
   if (amount <= 0)
       return;
 
@@ -318,6 +321,18 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (drawEndX >= screenWidthPixels) drawEndX = screenWidthPixels - 1;
     if (drawEndX <= drawStartX)
       continue;
+
+    // Skipping rendering if previous sprite is within +-2 pixels of current sprite
+    if (rendered &&
+        (drawStartX - screenXStart) >= -4 && (drawStartX - screenXStart) <= 4 &&
+        (drawStartY - screenYStart) >= -4 && (drawStartY - screenYStart) <= 4){
+          continue;
+        }
+    rendered = 1;
+    screenYStart = drawStartY;
+    screenYEnd = drawEndY;
+    screenXStart = drawStartX;
+    screenXEnd = drawEndX;
 
     // Incremental texture mapping removes divisions from inner loops.
     uint16_t texXStep = (uint16_t)(entities[i].sprite->width << 8) / (uint16_t)spriteWidth;
