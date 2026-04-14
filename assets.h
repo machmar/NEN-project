@@ -10,6 +10,7 @@
 
 #include "dogm128_fast.h"
 #include "fx8.h"
+#include "utils.h"
 
 typedef struct {
     uint8_t width;
@@ -27,6 +28,23 @@ extern map_t BigMap;
 extern map_t TestMap;
 extern map_t AgentOrangeMap;
 extern map_t WallDemoMap;
+
+typedef struct dialogue_t dialogue_t;
+
+struct dialogue_t{
+    char* text;
+    millis_t timeLength;
+    dialogue_t *nextDialogue;
+    uint8_t lineBreaks[5];
+    uint8_t textOrigins[5][2];
+    uint8_t rectangleOrigin[2];
+    uint8_t rectangleSize[2];
+};
+
+void DialoguePrecalculate(dialogue_t *object);
+
+extern dialogue_t dialogue_Room1;
+extern dialogue_t dialogue_Room2;
 
 extern dogm128_bitmap_t wiggleLineBitmap;
 

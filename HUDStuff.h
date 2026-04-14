@@ -18,6 +18,7 @@ void HUD_DrawBorders();
 void HUD_DrawItem(item_t item);
 void HUD_DrawCompass(player_t *player);
 void HUD_DrawStats(player_t *player);
+_Bool HUD_DrawDialogue(dialogue_t **dialogue, _Bool advance);
 uint8_t inline HUD_GetLEDHP(player_t *player);
 
 #endif	/* HUDSTUFF_H */

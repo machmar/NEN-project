@@ -102,6 +102,58 @@ void HUD_DrawStats(player_t *player) {
     dogm128_text(108, 57, buf);
 }
 
+_Bool HUD_DrawDialogue(dialogue_t **dialogue, _Bool advance) {
+    if (*dialogue == NULL)
+        return 0;
+
+    static dialogue_t *prevDialogue = NULL;
+    static millis_t startTime = 0;
+
+    dialogue_t *d = *dialogue;
+
+    if (d != prevDialogue) {
+        startTime = millis;
+        prevDialogue = d;
+    }
+
+    if (advance || millis - startTime >= d->timeLength) {
+        startTime = millis;
+        *dialogue = d->nextDialogue;
+        prevDialogue = *dialogue;
+        if (*dialogue == NULL)
+            return 0;
+        d = *dialogue;
+    }
+
+    uint8_t rx = d->rectangleOrigin[0];
+    uint8_t ry = d->rectangleOrigin[1];
+    uint8_t rw = d->rectangleSize[0];
+    uint8_t rh = d->rectangleSize[1];
+
+    dogm128_fill_rect(rx, ry, rw, rh, DISP_COL_WHITE);
+
+    uint8_t lineCount = 0;
+    for (uint8_t i = 0; i < 5; i++) {
+        if (i > 0 && d->lineBreaks[i] == 0) break;
+        if (d->text[d->lineBreaks[i]] == '\0') break;
+        lineCount++;
+    }
+
+    for (uint8_t i = 0; i < lineCount; i++) {
+        uint8_t tx = d->textOrigins[i][0];
+        uint8_t ty = d->textOrigins[i][1];
+        uint8_t start = d->lineBreaks[i];
+        uint8_t end = (i + 1 < lineCount) ? d->lineBreaks[i + 1] - 1 : 255;
+
+        for (uint8_t j = start; j != end && d->text[j] != '\0'; j++) {
+            dogm128_char(tx, ty, d->text[j]);
+            tx += 4;
+        }
+    }
+
+    return 1;
+}
+
 uint8_t inline HUD_GetLEDHP(player_t *player) {
     static millis_t PrevMill = 0;
     static _Bool blink_state = 0;

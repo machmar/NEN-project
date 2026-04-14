@@ -325,6 +325,71 @@ map_t WallDemoMap = {
     &WallDemo_banner,
 };
 
+dialogue_t dialogue_Room2 = {
+  "like I ever expected anything different",
+  2000,
+  NULL,
+};
+
+dialogue_t dialogue_Room1 = {
+  "Yeah,",
+  800,
+  &dialogue_Room2,
+};
+
+void DialoguePrecalculate(dialogue_t *object) {
+    uint8_t lineCount = 0;
+    uint8_t pos = 0;
+    uint8_t maxLineWidth = 0;
+
+    while (object->text[pos] != '\0' && lineCount < 5) {
+        uint8_t lineStart = pos;
+        object->lineBreaks[lineCount] = pos;
+
+        uint8_t lastSpace = pos;
+        uint8_t hasSpace = 0;
+        uint8_t charCount = 0;
+
+        while (object->text[pos] != '\0' && charCount < 21) {
+            if (object->text[pos] == ' ') {
+                lastSpace = pos;
+                hasSpace = 1;
+            }
+            pos++;
+            charCount++;
+        }
+
+        uint8_t lineLen;
+        if (object->text[pos] == '\0') {
+            lineLen = pos - lineStart;
+        } else if (hasSpace) {
+            lineLen = lastSpace - lineStart;
+            pos = lastSpace + 1;
+        } else {
+            lineLen = 21;
+        }
+
+        if (lineLen > 0) {
+            uint8_t lineWidth = 4 * lineLen - 1;
+            if (lineWidth > maxLineWidth)
+                maxLineWidth = lineWidth;
+        }
+
+        lineCount++;
+    }
+
+    object->rectangleSize[0] = maxLineWidth + 4;
+    object->rectangleSize[1] = lineCount > 0 ? lineCount * 6 - 1 + 4 : 4;
+
+    object->rectangleOrigin[0] = (96 - object->rectangleSize[0]) / 2;
+    object->rectangleOrigin[1] = 64 - 2 - object->rectangleSize[1];
+
+    for (uint8_t i = 0; i < lineCount; i++) {
+        object->textOrigins[i][0] = object->rectangleOrigin[0] + 2;
+        object->textOrigins[i][1] = object->rectangleOrigin[1] + 2 + i * 6;
+    }
+}
+
 static const uint8_t Level1_banner_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x18, 0x07, 0x03, 0x1e, 0x18, 0x06, 0x03, 0x1c, 0x33, 0x11, 0x1f, 0x06, 0x00, 0x00, 0x00, 0x1f,
