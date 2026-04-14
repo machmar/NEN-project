@@ -79,9 +79,8 @@ typedef struct
     uint8_t lineOfSight;
     uint8_t walking;
     spriteData_t *sprite;
-    uint8_t widthScale;
-    uint8_t heightScale;
-    fx_t heightOffset;
+    fx_t ratio; // Ratio of width to height (<1 means wider than taller, >1 means taller than wider)
+    fx_t heightOffset;  // Vertical offset by the number of pixels (<0 means lower, >0 means higher)
 }entity_t;
 
 extern spriteData_t enemySprite;

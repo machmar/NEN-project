@@ -299,7 +299,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     int heightOffsetScreen = FX_I(fx_div(entities[i].heightOffset, transformY));
 
     // Calculate projected sprite size.
-    int spriteHeight = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(entities[i].heightScale))));
+    int spriteHeight = FX_I(fx_abs_fast(fx_div(FX(screenHeight), transformY)));
     if (spriteHeight <= 0)
       continue;
 
@@ -310,7 +310,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (drawEndY <= drawStartY)
       continue;
 
-    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), FX(entities[i].widthScale))));
+    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), entities[i].ratio)));
     if (spriteWidth <= 0)
       continue;
 
