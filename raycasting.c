@@ -45,6 +45,9 @@ static const fx_t cameraX_lut[48] = {
     -128, -138, -149, -160, -170, -181, -192, -202, -213, -224, -234, -245
 };
 
+
+void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
+
 int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 {
     int x;
@@ -66,11 +69,17 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
         fx_t sideDistX;
         fx_t sideDistY;
         fx_t perpWallDist;
+        fx_t deltaDistYTransparent;
+        fx_t deltaDistXTransparen;
+        fx_t sideDistXTransparent;
+        fx_t sideDistYTransparent;
+        fx_t perpWallDistTransparent;
 
         int stepX;
         int stepY;
-        int hit = 0;
-        int side = 0;
+        bool hit = 0;
+        bool side = 0;
+        bool sideTransparent = 0;
 
         deltaDistX = fx_inv_clamped(rayDirX);
         deltaDistY = fx_inv_clamped(rayDirY);
@@ -94,6 +103,7 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 
         /* DDA */
         uint8_t tileType = 0;
+        uint8_t tileTypeTransparent = 0;
         for (uint8_t tmp_dist = 0; !hit && tmp_dist < 64; tmp_dist++) {
             if (sideDistX < sideDistY) {
                 sideDistX = fx_add(sideDistX, deltaDistX);
@@ -110,8 +120,16 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
                 break;
             }
             tileType = MAP_AT(map, mapX, mapY);
-            if (tileType > 0 && tileType < 0x10) // hard coded the wall type range, don't care, cry
+            if (tileType > 0 && tileType <= 0x0F) // hard coded the wall type range, don't care, cry
                 hit = 1;
+            else if (tileType >= 0x10 && tileType <= 0x1F && tileTypeTransparent == 0) { // transparent wall
+                tileTypeTransparent = tileType;
+                sideDistXTransparent = sideDistX;
+                sideDistYTransparent = sideDistY;
+                deltaDistXTransparen = deltaDistX;
+                deltaDistYTransparent = deltaDistY;
+                sideTransparent = side;
+            }
         }
 
         /* perpendicular wall distance */
@@ -123,17 +141,42 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
         if (perpWallDist < FX_RAW(1))
             perpWallDist = FX_RAW(1);
 
+        if (tileTypeTransparent) {
+            if (sideTransparent == 0)
+                perpWallDistTransparent = fx_sub(sideDistXTransparent, deltaDistXTransparen);
+            else
+                perpWallDistTransparent = fx_sub(sideDistYTransparent, deltaDistYTransparent);
+
+            if (perpWallDistTransparent < FX_RAW(1))
+                perpWallDistTransparent = FX_RAW(1);
+        }
+
         /* lineHeight = screenHeight / perpWallDist */
         {
-            int lineHeight = ((int32_t) 16384) / perpWallDist;
-            int drawStart = (-lineHeight >> 1) + 32;
+            if (tileTypeTransparent) {
+                int lineHeight = ((int32_t) 16384) / perpWallDist;
+                int drawStart = (-lineHeight >> 1) + 32;
 
-            if (drawStart < 0) drawStart = 0;
-            if (lineHeight > screenHeight) lineHeight = screenHeight;
+                if (drawStart < 0) drawStart = 0;
+                if (lineHeight > screenHeight) lineHeight = screenHeight;
+                Line(x, drawStart, lineHeight, tileType);
 
-            buffer[x].start = hit ? drawStart : 0;
-            buffer[x].length = hit ? lineHeight : 0;
-            buffer[x].type = tileType;
+                lineHeight = ((int32_t) 16384) / perpWallDistTransparent;
+                drawStart = (-lineHeight >> 1) + 32;
+
+                if (drawStart < 0) drawStart = 0;
+                if (lineHeight > screenHeight) lineHeight = screenHeight;
+                Line(x, drawStart, lineHeight, tileTypeTransparent);
+            } else {
+                int lineHeight = ((int32_t) 16384) / perpWallDist;
+                int drawStart = (-lineHeight >> 1) + 32;
+
+                if (drawStart < 0) drawStart = 0;
+                if (lineHeight > screenHeight) lineHeight = screenHeight;
+                
+                Line(x, drawStart, lineHeight, tileType);
+            }
+
         }
       //draw the pixels of the stripe as a vertical line
       player->zBuffer[x] = perpWallDist; //store distance in ZBuffer for sprite casting
@@ -142,59 +185,68 @@ int RenderFrame(player_t *player, map_t *map, line_t *buffer)
     return 0;
 }
 
-void DrawBuffer(line_t *buffer) {
-    for (uint8_t i = 0; i < 48; i++) {
-        uint8_t start = buffer[i].start;
-        uint8_t length = buffer[i].length;
-
-        switch (buffer[i].type) {
-            case 2: // strange floating wall
-            {
-                uint8_t offset = length / 5;
-                start += offset / 2;
-                length -= offset;
-            }
-                break;
-            case 3: // shorter wall
-            {
-                uint8_t offset = length / 5;
-                start += offset;
-                length -= offset;
-            }
-                break;
-            case 4: // a bit lifted wall
-            {
-                uint8_t offset = length / 5;
-                length -= offset;
-            }
-                break;
-            case 5: // small window
-            {
-                uint8_t offset = length / 2;
-                start += offset;
-                length -= offset;
-            }
-                break;
-            case 0x0F:
-            case 6: // door
-            {
-                uint8_t offset = length / 3 + length / 2;
-                length -= offset;
-            }
-                break;
-            case 7: // big window
-            {
-                uint8_t offset = length / 3 + length / 2;
-                start += offset;
-                length -= offset;
-            }
-                break;
-            default:
-                break;
+void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type) {
+    switch (type) {
+        case 0x02: // strange floating wall
+        case 0x11:
+        {
+            uint8_t offset = length / 5;
+            start += offset / 2;
+            length -= offset;
         }
-
-        dogm128_vlineBLACK2px(i * 2, start, length);
+            break;
+        case 0x03: // shorter wall
+        case 0x12:
+        {
+            uint8_t offset = length / 5;
+            start += offset;
+            length -= offset;
+        }
+            break;
+        case 0x04: // a bit lifted wall
+        case 0x13:
+        {
+            uint8_t offset = length / 5;
+            length -= offset;
+        }
+            break;
+        case 0x05: // small window
+        case 0x14:
+        {
+            uint8_t offset = length / 2;
+            start += offset;
+            length -= offset;
+        }
+            break;
+        case 0x06: // door
+        case 0x10:
+        case 0x15:
+        {
+            uint8_t offset = length / 3 + length / 2;
+            length -= offset;
+        }
+            break;
+        case 0x07: // big window
+        case 0x16:
+        {
+            uint8_t offset = length / 3 + length / 2;
+            start += offset;
+            length -= offset;
+        }
+            break;
+        default:
+            break;
     }
+
+    dogm128_vlineBLACK2px(location * 2, start, length);
+}
+
+_Bool inline TileWalkable(uint8_t type) {
+    if (type == 0x00 ||
+        type == 0x10 ||
+        type > 0x1F)
+        return 1;
+    return 0;
 }
 
 int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
@@ -204,21 +256,21 @@ int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
     uint8_t tile = 0; // the tile that's being walked into
     if (buttons.front) {
         tile = MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
-        if (tile <= 0x00 || tile >= 0x0f)
+        if (TileWalkable(tile))
             player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
 
         tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed))));
-        if (tile <= 0x00 || tile >= 0x0f)
+        if (TileWalkable(tile))
             player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //move backwards if no wall behind you
     if (buttons.back) {
         tile = MAP_AT(map, FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
-        if (tile <= 0x00 || tile >= 0x0f)
+        if (TileWalkable(tile))
             player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
 
         tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed))));
-        if (tile <= 0x00 || tile >= 0x0f)
+        if (TileWalkable(tile))
             player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
     }
     //rotate to the right

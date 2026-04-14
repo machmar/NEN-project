@@ -7,14 +7,13 @@
 
 #define MAX_ENTITIES 10
 
-typedef struct __attribute__((packed))
-{
+typedef struct __attribute__((packed)) {
     bool front, back, use, left, right;
-} buttons_t;
+}
+buttons_t;
 
 void DrawBuffer(line_t *buffer);
 int MoveCamera(player_t *player, map_t *map, buttons_t buttons);
-int RenderFrame(player_t *player, map_t *map, line_t *buffer);
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
 void EnemyAi(player_t *player, entity_t* entities, int amount, map_t *map);
 

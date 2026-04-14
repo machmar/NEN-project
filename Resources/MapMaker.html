@@ -203,8 +203,8 @@
       <button id="exportBitmapBtn">Export wall bitmap PNG</button>
     </div>
     <div class="small">
-      Bitmap export rule: only <b>Type 0</b> counts as wall type. For Type 0, <b>Kind 0 = empty/white</b>, and any <b>Kind &gt; 0 = black</b>.
-      All other types are ignored and exported as white. If the map is smaller than <b>32×32</b>, the exported PNG is <b>32×32</b> and the map is centered using integer-division offset rules like C.
+      Bitmap export rule: each <b>type+kind</b> has its own <b>PNG wall</b> checkbox in the kind editor. Checked entries export as black; unchecked entries export as white.
+      If the map is smaller than <b>32×32</b>, the exported PNG is <b>32×32</b> and the map is centered using integer-division offset rules like C.
     </div>
   </div>
 
@@ -255,6 +255,11 @@
     </div>
     <textarea id="kindDescriptionInput" placeholder="Describe what this kind means"></textarea>
     <div class="row">
+      <label>PNG wall</label>
+      <input id="kindWallExportInput" type="checkbox" />
+      <span class="small">Export this specific type+kind as black in PNG</span>
+    </div>
+    <div class="row">
       <button id="saveKindBtn">Save kind</button>
       <button id="resetKindBtn">Reset selected kind</button>
     </div>
@@ -297,6 +302,7 @@
     kindColorInput: document.getElementById('kindColorInput'),
     kindEmojiInput: document.getElementById('kindEmojiInput'),
     kindDescriptionInput: document.getElementById('kindDescriptionInput'),
+    kindWallExportInput: document.getElementById('kindWallExportInput'),
     saveKindBtn: document.getElementById('saveKindBtn'),
     resetKindBtn: document.getElementById('resetKindBtn'),
 
@@ -397,7 +403,7 @@
           }
         }
 
-        type.kinds.push({ id: k, name, mode, color, emoji, description });
+        type.kinds.push({ id: k, name, mode, color, emoji, description, wallExport: (t === 0 && k > 0) });
       }
       types.push(type);
     }
@@ -529,6 +535,7 @@
     els.kindColorInput.value = normalizeColor(def.color || '#ffffff');
     els.kindEmojiInput.value = def.emoji || '';
     els.kindDescriptionInput.value = def.description || '';
+    els.kindWallExportInput.checked = !!def.wallExport;
   }
 
   function normalizeColor(c) {
@@ -910,7 +917,9 @@
           const v = state.map[x][y] & 0xFF;
           const type = (v >> 4) & 0x0F;
           const kind = v & 0x0F;
-          const isWall = (type === 0 && kind > 0);
+          const typeDef = state.types[type];
+          const kindDef = typeDef && typeDef.kinds ? typeDef.kinds[kind] : null;
+          const isWall = !!(kindDef && kindDef.wallExport);
 
           const dstX = x + offsetX;
           const dstY = y + offsetY;
@@ -1017,6 +1026,7 @@
       color: normalizeColor(els.kindColorInput.value),
       emoji: els.kindEmojiInput.value.trim(),
       description: els.kindDescriptionInput.value,
+      wallExport: !!els.kindWallExportInput.checked,
     };
     renderKindButtons();
     updateSelectionInfo();
