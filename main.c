@@ -215,7 +215,7 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawEntities(&camera, entities, 8, dogm_fb);
+        DrawEntities(&camera, entities, 7, dogm_fb);
         //EnemyAi(&camera, entities, 8, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);

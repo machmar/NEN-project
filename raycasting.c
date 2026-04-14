@@ -344,7 +344,11 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     // Transform sprite with inverse camera matrix.
     fx_t transformX = fx_mul(invDet, fx_sub(fx_mul(player->dirY, spriteX), fx_mul(player->dirX, spriteY)));
     fx_t transformY = fx_mul(invDet, fx_add(fx_mul(fx_neg(player->planeY), spriteX), fx_mul(player->planeX, spriteY)));
-    if (transformY <= 0X0001)
+    if (transformY <= FX_RAW(32))
+      continue;
+
+    // Skip sprite if it's clearly outside horizontal FOV — prevents int16 overflow in fx_div
+    if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
       continue;
 
     int spriteScreenX = halfW - FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
