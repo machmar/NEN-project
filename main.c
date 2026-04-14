@@ -113,6 +113,7 @@ player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[2];
 map_t *CurrentMap = &WallDemoMap;
+dialogue_t *CurrentDialogue = NULL;
 
 void main(void) {
     init_ports();
@@ -121,6 +122,7 @@ void main(void) {
     dogm128_init();
     Backlight(1023);
     set_LEDs(0x00);
+    PrecomputeAssets();
 
 
     camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
@@ -161,6 +163,7 @@ void main(void) {
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);
+        HUD_DrawDialogue(&CurrentDialogue, 0);
 
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);

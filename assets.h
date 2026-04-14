@@ -41,7 +41,7 @@ struct dialogue_t{
     uint8_t rectangleSize[2];
 };
 
-void DialoguePrecalculate(dialogue_t *object);
+void PrecomputeAssets();
 
 extern dialogue_t dialogue_Room1;
 extern dialogue_t dialogue_Room2;
