@@ -148,7 +148,7 @@ void main(void) {
     entities[0].widthScale = 1;
     entities[0].heightScale = 1;
     entities[0].heightOffset = FX(6);
-    entities[0].walking = 0;
+    entities[0].walking = 1;
 
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
@@ -166,7 +166,7 @@ void main(void) {
     entities[2].widthScale = 1;
     entities[2].heightScale = 1;
     entities[2].heightOffset = FX(0); // -10 in fx
-    entities[2].walking = 0;
+    entities[2].walking = 1;
 
     entities[3].posX = FX(18);
     entities[3].posY = FX(17);
@@ -175,8 +175,9 @@ void main(void) {
     entities[3].widthScale = 1;
     entities[3].heightScale = 1;
     entities[3].heightOffset = FX(0); // -10 in fx
-    entities[3].walking = 0;
+    entities[3].walking = 1;
 
+    /*
         entities[4].posX = FX(20);
     entities[4].posY = FX(20);
     entities[4].health = 100;
@@ -212,7 +213,7 @@ void main(void) {
     entities[7].heightScale = 1;
     entities[7].heightOffset = FX(0); // -10 in fx
     entities[7].walking = 0;
-
+    */
 
     while (1) {
         static millis_t PMill = 0;
@@ -223,8 +224,8 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawEntities(&camera, entities, 2, dogm_fb);
-        EnemyAi(&camera, entities, 2, CurrentMap);
+        DrawEntities(&camera, entities, 4, dogm_fb);
+        EnemyAi(&camera, entities, 4, CurrentMap);
         DrawBuffer(frame_buffer);
 
         HUD_DrawBanner(CurrentMap->Banner);
