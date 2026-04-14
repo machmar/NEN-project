@@ -27,6 +27,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdint.h>
 
 
+static inline uint8_t tex_at(const spriteData_t *sprite, uint8_t frame, uint8_t x, uint8_t y)
+{
+	uint16_t idx = (uint16_t)y * sprite->width + x;
+	uint8_t shift = (uint8_t)(idx & 7);
+	//printf("idx: %d\tshift: %d\n", idx, shift);
+	const uint8_t *pair = &sprite->data[frame][(idx >> 3) * 2];
+	//printf("pair num start: %d\n", (idx >> 3) * 2);
+	//printf("%d ", pair[0]);
+	//printf("%d", pair[1]);
+	if (((pair[0] >> shift) & 1)) return 0;   
+	return ((pair[1] >> shift) & 1) ? 1 : 2;   
+	return 0;
+}
 #define TEX_AT(sprite, frame, x, y)  ((sprite)->data[frame][(uint16_t)(y) * (sprite)->width + (uint8_t)(x)])
 /* flat map access: 2D array is [width][height], so stride = height */
 #define MAP_AT(map, x, y)  ((map)->data[(uint16_t)(x) * (map)->height + (uint8_t)(y)])
@@ -329,8 +342,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     */
     static uint8_t prevFrames = 0;
     static uint8_t walkSprite = 0;
+    uint8_t usedSprite = 0;
+    if(entities[i].health <= 0)
+      usedSprite = 2;
     if(entities[i].walking && prevFrames++ > 5){
       walkSprite ^= 1;
+      usedSprite = walkSprite;
       prevFrames = 0;
     }
 
@@ -376,7 +393,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         uint16_t texY = texYPos >> 8;
         if (texY < entities[i].sprite->height)
         {
-          uint8_t texVal = TEX_AT(entities[i].sprite, entities[i].health ? walkSprite : 2, texX, texY);
+          uint8_t texVal = tex_at(entities[i].sprite, usedSprite, texX, texY);
           uint8_t bit = (uint8_t)(1u << (y & 7));
           if (texVal == 1)
             mask |= bit;
@@ -388,7 +405,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
       if (mask || clearMask) {
         for (uint8_t p = 0; p < pixelStride; p++)
-          display_buffer[(page * 128) + stripe * 2 + p] &= ~clearMask;
+          display_buffer[(page * 128) + stripe * 2 + p] &= clearMask;
         for (uint8_t p = 0; p < pixelStride; p++)
           display_buffer[(page * 128) + stripe * 2 + p] |= mask;
       }
