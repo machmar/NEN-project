@@ -18,55 +18,62 @@
           "mode": "color",
           "color": "#000000",
           "emoji": "",
-          "description": "Wall variant"
+          "description": "Wall variant",
+          "wallExport": true
         },
         {
           "id": 2,
           "name": "weird floating wall",
           "mode": "color",
-          "color": "#999999",
+          "color": "#686868",
           "emoji": "",
-          "description": "it has a bit missing from the top and bottom"
+          "description": "it has a bit missing from the top and bottom",
+          "wallExport": true
         },
         {
           "id": 3,
           "name": "shorter",
           "mode": "color",
-          "color": "#666666",
+          "color": "#3f3f3f",
           "emoji": "",
-          "description": "it has a bit missing from the top"
+          "description": "it has a bit missing from the top",
+          "wallExport": true
         },
         {
           "id": 4,
           "name": "A bit lifted",
           "mode": "color",
-          "color": "#c73cdd",
+          "color": "#921da3",
           "emoji": "",
-          "description": "It has a small bit missing from the bottom"
+          "description": "It has a small bit missing from the bottom",
+          "wallExport": true
         },
         {
           "id": 5,
           "name": "Small window",
           "mode": "color",
-          "color": "#9a3cdd",
+          "color": "#52167e",
           "emoji": "",
-          "description": "top half is missing"
+          "description": "top half is missing",
+          "wallExport": true
         },
         {
           "id": 6,
           "name": "Door",
           "mode": "color",
-          "color": "#6c3cdd",
+          "color": "#491eae",
           "emoji": "",
-          "description": "A door, can't walk through it, just looks like it."
+          "description": "A door, can't walk through it, just looks like it.",
+          "wallExport": true
         },
         {
           "id": 7,
           "name": "big Window",
           "mode": "color",
-          "color": "#3f3cdd",
+          "color": "#1e1b98",
           "emoji": "",
-          "description": "Like the door, but it has pixels at the bottom, not at the top"
+          "description": "Like the door, but it has pixels at the bottom, not at the top",
+          "wallExport": true
         },
         {
           "id": 8,
@@ -74,7 +81,8 @@
           "mode": "color",
           "color": "#3c67dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 9,
@@ -82,7 +90,8 @@
           "mode": "color",
           "color": "#3c94dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 10,
@@ -90,7 +99,8 @@
           "mode": "color",
           "color": "#3cc2dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 11,
@@ -98,7 +108,8 @@
           "mode": "color",
           "color": "#3cddca",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 12,
@@ -106,7 +117,8 @@
           "mode": "color",
           "color": "#3cdd9c",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 13,
@@ -114,10 +126,139 @@
           "mode": "color",
           "color": "#3cdd6f",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 14,
+          "name": "Wall 14",
+          "mode": "color",
+          "color": "#1c9d1f",
+          "emoji": "",
+          "description": "",
+          "wallExport": true
+        },
+        {
+          "id": 15,
+          "name": "Wall15",
+          "mode": "color",
+          "color": "#2d7614",
+          "emoji": "",
+          "description": "no wall for now",
+          "wallExport": true
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Transparent walls",
+      "kinds": [
+        {
+          "id": 0,
+          "name": "Walkable door",
+          "mode": "color",
+          "color": "#64dd3c",
+          "emoji": "",
+          "description": "Looks the same as normal door, but collision detection ignores it."
+        },
+        {
+          "id": 1,
+          "name": "weird floating wall",
+          "mode": "color",
+          "color": "#999999",
+          "emoji": "",
+          "description": "it has a bit missing from the top and bottom"
+        },
+        {
+          "id": 2,
+          "name": "shorter",
+          "mode": "color",
+          "color": "#666666",
+          "emoji": "",
+          "description": "it has a bit missing from the top"
+        },
+        {
+          "id": 3,
+          "name": "A bit lifted",
+          "mode": "color",
+          "color": "#c73cdd",
+          "emoji": "",
+          "description": "It has a small bit missing from the bottom"
+        },
+        {
+          "id": 4,
+          "name": "Small window",
+          "mode": "color",
+          "color": "#9a3cdd",
+          "emoji": "",
+          "description": "top half is missing"
+        },
+        {
+          "id": 5,
+          "name": "Door",
+          "mode": "color",
+          "color": "#6c3cdd",
+          "emoji": "",
+          "description": "A door, can't walk through it, just looks like it."
+        },
+        {
+          "id": 6,
+          "name": "big Window",
+          "mode": "color",
+          "color": "#3f3cdd",
+          "emoji": "",
+          "description": "Like the door, but it has pixels at the bottom, not at the top"
+        },
+        {
+          "id": 7,
+          "name": "Wall 8",
+          "mode": "color",
+          "color": "#3c67dd",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 8,
+          "name": "Wall 9",
+          "mode": "color",
+          "color": "#3c94dd",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 9,
+          "name": "Wall 10",
+          "mode": "color",
+          "color": "#3cc2dd",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 10,
+          "name": "Wall 11",
+          "mode": "color",
+          "color": "#3cddca",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 11,
+          "name": "Wall 12",
+          "mode": "color",
+          "color": "#3cdd9c",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 12,
+          "name": "Wall 13",
+          "mode": "color",
+          "color": "#3cdd6f",
+          "emoji": "",
+          "description": ""
+        },
+        {
+          "id": 13,
           "name": "Wall 14",
           "mode": "color",
           "color": "#3cdd41",
@@ -125,146 +266,20 @@
           "description": ""
         },
         {
-          "id": 15,
-          "name": "Walkable door",
-          "mode": "color",
-          "color": "#64dd3c",
-          "emoji": "",
-          "description": "Looks the same as normal door, but collision detection ignores it."
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "name": "Enemy",
-      "kinds": [
-        {
-          "id": 0,
-          "name": "Unused",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "👾",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 1,
-          "name": "Enemy 1",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "👾",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 2,
-          "name": "Enemy 2",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "💀",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 3,
-          "name": "Enemy 3",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🤖",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 4,
-          "name": "Enemy 4",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "👹",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 5,
-          "name": "Enemy 5",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🕷️",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 6,
-          "name": "Enemy 6",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🧟",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 7,
-          "name": "Enemy 7",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🐍",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 8,
-          "name": "Enemy 8",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🦂",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 9,
-          "name": "Enemy 9",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🦇",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 10,
-          "name": "Enemy 10",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "👻",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 11,
-          "name": "Enemy 11",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🔥",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 12,
-          "name": "Enemy 12",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "☠️",
-          "description": "Enemy/object slot"
-        },
-        {
-          "id": 13,
-          "name": "Enemy 13",
-          "mode": "emoji",
-          "color": "#ffffff",
-          "emoji": "🧨",
-          "description": "Enemy/object slot"
-        },
-        {
           "id": 14,
-          "name": "Enemy 14",
-          "mode": "emoji",
+          "name": "Kind 14",
+          "mode": "color",
           "color": "#ffffff",
-          "emoji": "🛡️",
-          "description": "Enemy/object slot"
+          "emoji": "",
+          "description": ""
         },
         {
           "id": 15,
-          "name": "Enemy 15",
-          "mode": "emoji",
+          "name": "Kind 15",
+          "mode": "color",
           "color": "#ffffff",
-          "emoji": "⚔️",
-          "description": "Enemy/object slot"
+          "emoji": "",
+          "description": ""
         }
       ]
     },

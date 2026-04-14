@@ -55,13 +55,5 @@ typedef struct
     item_t currentItem;
 } player_t;
 
-typedef struct {
-    uint8_t start;
-    uint8_t length;
-    uint8_t type;
-} line_t;
-
-line_t frame_buffer[48];
-
 #endif	/* ASSETS_H */
 

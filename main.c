@@ -153,8 +153,7 @@ void main(void) {
         buttons = read_buttons();
 
         MoveCamera(&camera, CurrentMap, buttons);
-        RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawBuffer(frame_buffer);
+        RenderFrame(&camera, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
