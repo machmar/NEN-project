@@ -154,7 +154,7 @@ void main(void) {
         dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, CurrentMap, buttons);
+        MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
@@ -163,7 +163,15 @@ void main(void) {
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);
-        HUD_DrawDialogue(&CurrentDialogue, 0);
+        static _Bool prevUse = 0;
+        _Bool usePressed = buttons.use && !prevUse;
+        prevUse = buttons.use;
+
+        _Bool dialogueActive = (CurrentDialogue != NULL);
+        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+        if (usePressed && !dialogueActive) {
+            // use button available for future interactions
+        }
 
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);

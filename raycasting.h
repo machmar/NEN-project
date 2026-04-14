@@ -37,7 +37,7 @@ int const static sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
     {1, 0, 0, 0, 1},
 };
 
-int MoveCamera(player_t *player, map_t *map, buttons_t buttons);
+int MoveCamera(player_t *player, map_t *map, buttons_t buttons, dialogue_t **pDialogue);
 void DrawEntities(player_t *player, entity_t* entities, int amount, uint8_t *display_buffer);
 
 #endif // RAYCASTING_H

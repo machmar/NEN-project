@@ -1,5 +1,65 @@
 #include "assets.h"
 
+dialogue_t dialogue_GunFound6 = {
+  "got like 500 bullets in there",
+  2000,
+  NULL,
+};
+
+dialogue_t dialogue_GunFound5 = {
+  "and whats up with this mag",
+  2200,
+  &dialogue_GunFound6,
+};
+
+dialogue_t dialogue_GunFound4 = {
+  "--",
+  2000,
+  &dialogue_GunFound5,
+};
+
+dialogue_t dialogue_GunFound3 = {
+  "Who even left this here?",
+  2500,
+  &dialogue_GunFound4,
+};
+
+dialogue_t dialogue_GunFound2 = {
+  "Ill definitely use this",
+  2200,
+  &dialogue_GunFound3,
+};
+
+dialogue_t dialogue_GunFound1 = {
+  "Oh damn",
+  1200,
+  &dialogue_GunFound2,
+};
+
+dialogue_t dialogue_KnifeFound1 = {
+  "Better then nothing I guess",
+  2300,
+  NULL,
+};
+
+dialogue_t dialogue_Healed2 = {
+  "I guess",
+  1200,
+  NULL,
+};
+
+dialogue_t dialogue_Healed1 = {
+  "think it healed me",
+  1900,
+  &dialogue_Healed2,
+};
+
+dialogue_t dialogue_Injured = {
+  "fuck",
+  1200,
+  NULL,
+};
+
 
 uint8_t static const SmallMap_data[20][15] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -274,15 +334,15 @@ map_t AgentOrangeMap = {
 };
 
 static const uint8_t WallDemo_data[15][25] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4},
+    {1, 1, 1, 1, 7, 1, 7, 1, 7, 1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {4, 0, 0, 0, 0x33, 0, 0x32, 0, 0x31, 0, 0x30, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 5},
     {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0x40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 1},
     {2, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0x30, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 7},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
@@ -314,6 +374,36 @@ static const uint8_t WallDemo_banner_data[] = {
 
 const dogm128_bitmap_t WallDemo_banner = {76, 8, WallDemo_banner_data};
 
+static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0: //knife
+                player->currentItem = ITEM_KNIFE;
+                *pDialogue = &dialogue_KnifeFound1;
+                break;
+            case 1: // gun
+                player->currentItem = ITEM_GUN;
+                *pDialogue = &dialogue_GunFound1;
+                break;
+            case 2: // healed
+                player->health = 5;
+                *pDialogue = &dialogue_Healed1;
+                break;
+            case 3: // injured
+                player->health = 1;
+                *pDialogue = &dialogue_Injured;
+                break;
+        }   
+    }
+}
+
+static void WallDemoMap_OnDialogueTile(uint8_t tileVal, dialogue_t **pDialogue) {
+    if (tileVal == 0x40)
+        *pDialogue = &dialogue_Room1;
+}
+
 map_t WallDemoMap = {
     15,
     25,
@@ -323,6 +413,8 @@ map_t WallDemoMap = {
     {1, 30},
     {8, 3},
     &WallDemo_banner,
+    WallDemoMap_OnEventTile,
+    WallDemoMap_OnDialogueTile,
 };
 
 dialogue_t dialogue_Room2 = {
@@ -337,10 +429,20 @@ dialogue_t dialogue_Room1 = {
   &dialogue_Room2,
 };
 
-#define DIALOGUES_COUNT 2 // keep this updated
+#define DIALOGUES_COUNT 12 // keep this updated
 static const dialogue_t *dialogues[DIALOGUES_COUNT] = {
     &dialogue_Room1,
     &dialogue_Room2,
+    &dialogue_KnifeFound1,
+    &dialogue_GunFound1,
+    &dialogue_GunFound2,
+    &dialogue_GunFound3,
+    &dialogue_GunFound4,
+    &dialogue_GunFound5,
+    &dialogue_GunFound6,
+    &dialogue_Healed1,
+    &dialogue_Healed2,
+    &dialogue_Injured,
 };
 
 #define MAP_COUNT 5 // keep this updated
