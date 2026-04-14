@@ -417,8 +417,8 @@ dogm128_bitmap_t HUD_hpImage = {15, 16, HUD_hpImage_data};
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int blob_step1_width = 38;
-const unsigned int blob_step1_height = 31;
+#define BLOB_WIDTH 38
+#define BLOB_HEIGHT 31
 
 const unsigned char blob_step1[] = {
     0xff, 0x00, 0xff, 0x00, 0xf8, 0x07, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -457,9 +457,6 @@ const unsigned char blob_step1[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int blob_step2_width = 38;
-const unsigned int blob_step2_height = 31;
-
 const unsigned char blob_step2[] = {
     0xff, 0x00, 0xff, 0x00, 0xf8, 0x07, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
     0x0f, 0xf0, 0xfc, 0x03, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0x03, 0xfc,
@@ -496,9 +493,6 @@ const unsigned char blob_step2[] = {
 // Interleaving: mask byte, color byte, mask byte, color byte, ...
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
-
-const unsigned int blob_death_width = 38;
-const unsigned int blob_death_height = 31;
 
 const unsigned char blob_death[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -537,8 +531,8 @@ const unsigned char blob_death[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int chapadlo_step1_width = 36;
-const unsigned int chapadlo_step1_height = 39;
+#define CHAPADLO_WIDTH 36
+#define CHAPADLO_HEIGHT 39
 
 const unsigned char chapadlo_step1[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0x03, 0xfc, 0xfe, 0x01, 0xff, 0x00,
@@ -581,9 +575,6 @@ const unsigned char chapadlo_step1[] = {
 // Interleaving: mask byte, color byte, mask byte, color byte, ...
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
-
-const unsigned int chapadlo_step2_width = 36;
-const unsigned int chapadlo_step2_height = 39;
 
 const unsigned char chapadlo_step2[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -628,9 +619,6 @@ const unsigned char chapadlo_step2[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int chapadlo_death_width = 36;
-const unsigned int chapadlo_death_height = 39;
-
 const unsigned char chapadlo_death[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -673,8 +661,8 @@ const unsigned char chapadlo_death[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int ctyrrucka_step1_width = 30;
-const unsigned int ctyrrucka_step1_height = 36;
+#define CTYRRUCKA_WIDTH 30
+#define CTYRRUCKA_HEIGHT 36
 
 const unsigned char ctyrrucka_step1[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -710,9 +698,6 @@ const unsigned char ctyrrucka_step1[] = {
 // Interleaving: mask byte, color byte, mask byte, color byte, ...
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
-
-const unsigned int ctyrrucka_step2_width = 30;
-const unsigned int ctyrrucka_step2_height = 36;
 
 const unsigned char ctyrrucka_step2[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xf9, 0x06, 0xff, 0x00, 0xff, 0x00,
@@ -750,9 +735,6 @@ const unsigned char ctyrrucka_step2[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int ctyrrucka_death_width = 30;
-const unsigned int ctyrrucka_death_height = 36;
-
 const unsigned char ctyrrucka_death[] = {
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
     0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
@@ -788,8 +770,8 @@ const unsigned char ctyrrucka_death[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int soilder_aim_width = 23;
-const unsigned int soilder_aim_height = 40;
+#define SOILDER_WIDTH 23
+#define SOILDER_HEIGHT 40
 
 const unsigned char soilder_aim[] = {
     0x0f, 0xf0, 0xc0, 0x3f, 0xff, 0x00, 0x03, 0xfc, 0xc0, 0x3f, 0xff, 0x00,
@@ -823,9 +805,6 @@ const unsigned char soilder_aim[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int soilder_shoot_width = 23;
-const unsigned int soilder_shoot_height = 40;
-
 const unsigned char soilder_shoot[] = {
     0x0f, 0xf0, 0xc0, 0x3f, 0xff, 0x00, 0x03, 0xfc, 0xc0, 0x3f, 0xff, 0x00,
     0x01, 0xfe, 0xc0, 0x3f, 0x7f, 0x80, 0x00, 0xff, 0xc0, 0x3f, 0x3f, 0xc0,
@@ -857,9 +836,6 @@ const unsigned char soilder_shoot[] = {
 // Interleaving: mask byte, color byte, mask byte, color byte, ...
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
-
-const unsigned int soilder_step1_width = 23;
-const unsigned int soilder_step1_height = 40;
 
 const unsigned char soilder_step1[] = {
     0x0f, 0xf0, 0xc0, 0x3f, 0xff, 0x00, 0x03, 0xfc, 0xc0, 0x3f, 0xff, 0x00,
@@ -893,9 +869,6 @@ const unsigned char soilder_step1[] = {
 // Thresholding: average RGB > 127 = white, otherwise black
 // Black = 1, White = 0
 
-const unsigned int soilder_step2_width = 23;
-const unsigned int soilder_step2_height = 40;
-
 const unsigned char soilder_step2[] = {
     0x0f, 0xf0, 0xc0, 0x3f, 0xff, 0x00, 0x03, 0xfc, 0xc0, 0x3f, 0xff, 0x00,
     0x01, 0xfe, 0xc0, 0x3f, 0x7f, 0x80, 0x00, 0xff, 0xc0, 0x3f, 0x3f, 0xc0,
@@ -917,5 +890,35 @@ const unsigned char soilder_step2[] = {
     0xc3, 0x30, 0x7f, 0x80, 0xf0, 0x08, 0xe1, 0x12, 0x3f, 0xc0, 0xf8, 0x07,
     0xf0, 0x07, 0x1f, 0xe0, 0x7e, 0x81, 0xf8, 0x07, 0x0f, 0xf0, 0xff, 0x00,
     0xff, 0x00
+};
+
+spriteData_t blobSprite = {BLOB_WIDTH, BLOB_HEIGHT, 
+    {(const uint8_t*)blob_step1,
+        (const uint8_t*)blob_step2,
+        (const uint8_t*)blob_death
+    },  
+};
+
+spriteData_t chapadloSprite = {CHAPADLO_WIDTH, CHAPADLO_HEIGHT, 
+    {(const uint8_t*)chapadlo_step1,
+        (const uint8_t*)chapadlo_step2,
+        (const uint8_t*)chapadlo_death
+    },  
+};
+
+spriteData_t ctyrruckaSprite = {CTYRRUCKA_WIDTH, CTYRRUCKA_HEIGHT, 
+    {(const uint8_t*)ctyrrucka_step1,
+        (const uint8_t*)ctyrrucka_step2,
+        (const uint8_t*)ctyrrucka_death
+    },  
+};
+
+spriteData_t soilderSprite = {SOILDER_WIDTH, SOILDER_HEIGHT, 
+    {(const uint8_t*)soilder_step1,
+     (const uint8_t*)soilder_step2,
+     //(const uint8_t*)soilder_dath,
+        (const uint8_t*)soilder_aim,
+        (const uint8_t*)soilder_shoot
+    },  
 };
 

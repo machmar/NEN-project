@@ -68,7 +68,7 @@ typedef struct
 {
     uint8_t width;
     uint8_t height;
-    const uint8_t *data[4];
+    const uint8_t *data[5];
 } spriteData_t;
 
 typedef struct
@@ -83,7 +83,10 @@ typedef struct
     fx_t heightOffset;  // Vertical offset by the number of pixels (<0 means lower, >0 means higher)
 }entity_t;
 
-extern spriteData_t enemySprite;
+extern spriteData_t blobSprite;
+extern spriteData_t chapadloSprite;
+extern spriteData_t ctyrruckaSprite;
+extern spriteData_t soilderSprite;
 
 #endif	/* ASSETS_H */
 

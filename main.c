@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[4];
+static entity_t entities[10];
 map_t *CurrentMap = &TestMap;
 
 void main(void) {
@@ -144,15 +144,15 @@ void main(void) {
     entities[0].posX = FX(12);
     entities[0].posY = FX(12);
     entities[0].health = 100;
-    entities[0].sprite = &enemySprite;
+    entities[0].sprite = &blobSprite;
     entities[0].ratio = FX(1);
-    entities[0].heightOffset = (fx_t)0xd11f;
+    entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
 
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
     entities[1].health = 100;
-    entities[1].sprite = &enemySprite;
+    entities[1].sprite = &chapadloSprite;
     entities[1].ratio = FX(1);
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
@@ -160,7 +160,7 @@ void main(void) {
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
     entities[2].health = 100;
-    entities[2].sprite = &enemySprite;
+    entities[2].sprite = &ctyrruckaSprite;
     entities[2].ratio = FX(1);
     entities[2].heightOffset = FX(0); // -10 in fx
     entities[2].walking = 1;
@@ -168,44 +168,43 @@ void main(void) {
     entities[3].posX = FX(18);
     entities[3].posY = FX(17);
     entities[3].health = 100;
-    entities[3].sprite = &enemySprite;
+    entities[3].sprite = &soilderSprite;
     entities[3].ratio = FX(1);
     entities[3].heightOffset = FX(0); // -10 in fx
     entities[3].walking = 1;
 
-    /*
-        entities[4].posX = FX(20);
+    entities[4].posX = FX(20);
     entities[4].posY = FX(20);
     entities[4].health = 100;
-    entities[4].sprite = &enemySprite;
+    entities[4].sprite = &ctyrruckaSprite;
     entities[4].ratio = FX(1);
     entities[4].heightOffset = FX(0); // -10 in fx
     entities[4].walking = 0;
 
-        entities[5].posX = FX(18);
+    entities[5].posX = FX(18);
     entities[5].posY = FX(1);
     entities[5].health = 100;
-    entities[5].sprite = &enemySprite;
+    entities[5].sprite = &soilderSprite;
     entities[5].ratio = FX(1);
     entities[5].heightOffset = FX(0); // -10 in fx
     entities[5].walking = 0;
 
-        entities[6].posX = FX(1);
+    entities[6].posX = FX(1);
     entities[6].posY = FX(14);
     entities[6].health = 100;
-    entities[6].sprite = &enemySprite;
+    entities[6].sprite = &blobSprite;
     entities[6].ratio = FX(1);
     entities[6].heightOffset = FX(0); // -10 in fx
     entities[6].walking = 0;
 
-        entities[7].posX = FX(8);
+    entities[7].posX = FX(8);
     entities[7].posY = FX(16);
     entities[7].health = 100;
-    entities[7].sprite = &enemySprite;
+    entities[7].sprite = &chapadloSprite;
     entities[7].ratio = FX(1);
     entities[7].heightOffset = FX(0); // -10 in fx
     entities[7].walking = 0;
-    */
+    
 
     while (1) {
         static millis_t PMill = 0;
@@ -216,9 +215,8 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawEntities(&camera, entities, 2, dogm_fb);
-        EnemyAi(&camera, entities, 2, CurrentMap);
-        DrawBuffer(frame_buffer);
+        DrawEntities(&camera, entities, 8, dogm_fb);
+        //EnemyAi(&camera, entities, 8, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
