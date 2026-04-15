@@ -81,6 +81,8 @@ typedef struct
     spriteData_t *sprite;
     fx_t ratio; // Ratio of width to height (<1 means wider than taller, >1 means taller than wider)
     fx_t heightOffset;  // Vertical offset by the number of pixels (<0 means lower, >0 means higher)
+    fx_t movementModifier; // Forward offset from player along view direction.
+    fx_t lateralModifier; // Side offset from player; +right, -left relative to player facing.
 }entity_t;
 
 extern spriteData_t blobSprite;

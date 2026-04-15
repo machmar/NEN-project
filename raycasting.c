@@ -480,8 +480,17 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
       continue;
 
     // Check line of sight
-    fx_t dx = fx_sub(player->posX, entities[i].posX);
-    fx_t dy = fx_sub(player->posY, entities[i].posY);
+    fx_t targetX = fx_add(
+        fx_add(player->posX, fx_mul(player->dirX, entities[i].movementModifier)),
+        fx_mul(fx_neg(player->dirY), entities[i].lateralModifier)
+    );
+    fx_t targetY = fx_add(
+        fx_add(player->posY, fx_mul(player->dirY, entities[i].movementModifier)),
+        fx_mul(player->dirX, entities[i].lateralModifier)
+    );
+
+    fx_t dx = fx_sub(targetX, entities[i].posX);
+    fx_t dy = fx_sub(targetY, entities[i].posY);
 
     if (entities[i].distance < FX(100)) {
       entities[i].lineOfSight = 1;

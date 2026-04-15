@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[10];
+static entity_t entities[4];
 map_t *CurrentMap = &TestMap;
 
 void main(void) {
@@ -148,6 +148,8 @@ void main(void) {
     entities[0].ratio = FX(1);
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
+    entities[0].movementModifier = FX(1);
+    entities[0].lateralModifier = 0x0090;
 
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
@@ -156,6 +158,8 @@ void main(void) {
     entities[1].ratio = FX(1);
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
+    entities[1].movementModifier = FX(1);
+    entities[1].lateralModifier = FX(0);
 
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
@@ -164,6 +168,8 @@ void main(void) {
     entities[2].ratio = FX(1);
     entities[2].heightOffset = FX(0); // -10 in fx
     entities[2].walking = 1;
+    entities[2].movementModifier = FX(2);
+    entities[2].lateralModifier = fx_neg(0x00a0);
 
     entities[3].posX = FX(18);
     entities[3].posY = FX(17);
@@ -172,7 +178,10 @@ void main(void) {
     entities[3].ratio = FX(1);
     entities[3].heightOffset = FX(0); // -10 in fx
     entities[3].walking = 1;
+    entities[3].movementModifier = FX(4);
+    entities[3].lateralModifier = FX(8);
 
+    /*
     entities[4].posX = FX(20);
     entities[4].posY = FX(20);
     entities[4].health = 100;
@@ -204,7 +213,7 @@ void main(void) {
     entities[7].ratio = FX(1);
     entities[7].heightOffset = FX(0); // -10 in fx
     entities[7].walking = 0;
-    
+    */
 
     while (1) {
         static millis_t PMill = 0;
@@ -215,8 +224,8 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons);
         RenderFrame(&camera, CurrentMap, frame_buffer);
-        DrawEntities(&camera, entities, 7, dogm_fb);
-        //EnemyAi(&camera, entities, 8, CurrentMap);
+        DrawEntities(&camera, entities, 4, dogm_fb);
+        EnemyAi(&camera, entities, 4, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
