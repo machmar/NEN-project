@@ -410,11 +410,14 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
     uint8_t pixelStride = (entities[i].distance < FX(6)) ? ((entities[i].distance < FX(3)) ? 4 : 2) : 1;
     uint8_t loopStride = pixelStride;
+    uint8_t leftVisibleRows[8] = {0};
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += loopStride)
     {
       if (transformY >= zBuffer[stripe >> 1])
       {
+        for (uint8_t r = 0; r < 8; r++)
+          leftVisibleRows[r] = 0;
         texXPos += texXStep * loopStride;
         continue;
       }
@@ -422,56 +425,106 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       uint16_t texX = texXPos >> 8;
       texXPos += texXStep * loopStride;
       if (texX >= entities[i].sprite->width)
+      {
+        for (uint8_t r = 0; r < 8; r++)
+          leftVisibleRows[r] = 0;
         continue;
+      }
 
       uint16_t texYPos = texYStart;
       uint8_t page = (uint8_t)(drawStartY >> 3);
       uint8_t nextPageY = (page + 1) << 3;
-      uint8_t mask = 0;
-      uint8_t clearMask = 0;
+      uint8_t fillMask = 0;
+      uint8_t fillClearMask = 0;
+      uint8_t edgeHClearMask = 0;
+      uint8_t edgeVClearMask = 0;
       uint16_t bufferIndex = (page * SCREEN_WIDTH) + stripe;
+      uint8_t prevVisibleInStripe = 0;
+      uint8_t currentVisibleRows[8] = {0};
 
       for (uint8_t y = (uint8_t)drawStartY; y < drawEndY; y++)
       {
         if (y == nextPageY)
         {
-          if (mask || clearMask)
+          if (fillMask || fillClearMask || edgeHClearMask || edgeVClearMask)
           {
+            uint8_t mergedClear = fillClearMask | edgeHClearMask;
             for (uint8_t p = 0; p < pixelStride; p++)
-              display_buffer[bufferIndex + p] &= ~clearMask;
+              display_buffer[bufferIndex + p] &= ~mergedClear;
             for (uint8_t p = 0; p < pixelStride; p++)
-              display_buffer[bufferIndex + p] |= mask;
+              display_buffer[bufferIndex + p] |= fillMask;
+
+            // Keep vertical outline 1px wide even when coarse x stride is enabled.
+            if (edgeVClearMask)
+              display_buffer[bufferIndex] &= ~edgeVClearMask;
           }
           page++;
           nextPageY += 8;
           bufferIndex = (page * SCREEN_WIDTH) + stripe;
-          mask = 0;
-          clearMask = 0;
+          fillMask = 0;
+          fillClearMask = 0;
+          edgeHClearMask = 0;
+          edgeVClearMask = 0;
         }
 
         uint16_t texY = texYPos >> 8;
+        uint8_t screenBit = (uint8_t)(1U << (y & 7));
+        uint8_t rowBit = screenBit;
+        uint8_t rowIndex = (uint8_t)(y >> 3);
+        uint8_t leftVisible = (leftVisibleRows[rowIndex] & rowBit) ? 1 : 0;
+        uint8_t visible = 0;
+        uint8_t texColor = 0;
+
         if (texY < entities[i].sprite->height)
         {
           uint16_t idx = (uint16_t)(texY * entities[i].sprite->width + texX);
           uint8_t shift = (uint8_t)(idx & 7);
           const uint8_t *pair = &entities[i].sprite->data[usedSprite][(idx >> 3) * 2];
-          uint8_t texBit = (1 << shift);
-          uint8_t screenBit  = (1 << (y & 7));
+          uint8_t texBit = (uint8_t)(1U << shift);
 
-          uint8_t visible = ~(pair[0]) & texBit;
-
-          mask      |= ((pair[1] & texBit) & visible) ? screenBit : 0;
-          clearMask |= ((~pair[1] & texBit) & visible) ? screenBit : 0; 
+          visible = ((uint8_t)(~pair[0]) & texBit) ? 1 : 0;
+          texColor = (pair[1] & texBit) ? 1 : 0;
         }
+
+        if (visible)
+          currentVisibleRows[rowIndex] |= rowBit;
+
+        uint8_t edgeFromLeft = (uint8_t)(visible ^ leftVisible);
+        uint8_t edgeFromUp = (uint8_t)(visible ^ prevVisibleInStripe);
+
+        if (edgeFromLeft)
+        {
+          edgeVClearMask |= screenBit;
+        }
+        else if (edgeFromUp)
+        {
+          edgeHClearMask |= screenBit;
+        }
+        else if (visible)
+        {
+          if (texColor)
+            fillMask |= screenBit;
+          else
+            fillClearMask |= screenBit;
+        }
+
         texYPos += texYStep;
+        prevVisibleInStripe = visible;
       }
 
-      if (mask || clearMask) {
+      if (fillMask || fillClearMask || edgeHClearMask || edgeVClearMask) {
+        uint8_t mergedClear = fillClearMask | edgeHClearMask;
         for (uint8_t p = 0; p < pixelStride; p++)
-          display_buffer[bufferIndex + p] &= ~clearMask;
+          display_buffer[bufferIndex + p] &= ~mergedClear;
         for (uint8_t p = 0; p < pixelStride; p++)
-          display_buffer[bufferIndex + p] |= mask;
+          display_buffer[bufferIndex + p] |= fillMask;
+
+        if (edgeVClearMask)
+          display_buffer[bufferIndex] &= ~edgeVClearMask;
       }
+
+      for (uint8_t r = 0; r < 8; r++)
+        leftVisibleRows[r] = currentVisibleRows[r];
     }
   }
 }

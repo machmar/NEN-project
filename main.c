@@ -145,17 +145,16 @@ void main(void) {
     entities[0].posY = FX(12);
     entities[0].health = 100;
     entities[0].sprite = &blobSprite;
-    entities[0].ratio = FX(1);
+    entities[0].ratio = 0x00c0;
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
-    entities[0].movementModifier = FX(1);
+    entities[0].movementModifier = 0x0190;
     entities[0].lateralModifier = FX(0);
-
-    
+   
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
     entities[1].health = 100;
-    entities[1].sprite = &chapadloSprite;
+    entities[1].sprite = &ctyrruckaSprite;
     entities[1].ratio = FX(1);
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
@@ -165,7 +164,7 @@ void main(void) {
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
     entities[2].health = 100;
-    entities[2].sprite = &ctyrruckaSprite;
+    entities[2].sprite = &chapadloSprite;
     entities[2].ratio = FX(1);
     entities[2].heightOffset = FX(0);
     entities[2].walking = 1;
@@ -181,7 +180,7 @@ void main(void) {
     entities[3].walking = 1;
     entities[3].movementModifier = FX(4);
     entities[3].lateralModifier = FX(0);
-    /*
+/*
     
     entities[4].posX = FX(20);
     entities[4].posY = FX(20);
@@ -227,7 +226,7 @@ void main(void) {
         RenderFrame(&camera, CurrentMap, frame_buffer);
         DrawEntities(&camera, entities, 4, dogm_fb);
         EnemyRandomMovement(entities, 4);
-        EnemyAi(&camera, entities, 4, CurrentMap);
+        //EnemyAi(&camera, entities, 4, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
