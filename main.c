@@ -170,6 +170,7 @@ void main(void) {
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);
         HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+
         static _Bool prevUse = 0;
         _Bool usePressed = buttons.use && !prevUse;
         prevUse = buttons.use;
@@ -182,14 +183,10 @@ void main(void) {
         }
 
         
-
+        // display FPS in the corner for testing
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
-        utoa(FX_I(camera.posX), buf, 0);
-        dogm128_text(0, 6, buf);
-        utoa(FX_I(camera.posY), buf, 0);
-        dogm128_text(20, 6, buf);
 
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));
