@@ -149,7 +149,7 @@ void main(void) {
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
     entities[0].movementModifier = 0x0190;
-    entities[0].lateralModifier = FX(0);
+    entities[0].lateralModifier = FX(1);
    
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
@@ -159,7 +159,7 @@ void main(void) {
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
     entities[1].movementModifier = 0x0190;  // 1.5625
-    entities[1].lateralModifier = FX(0);
+    entities[1].lateralModifier = FX(1);
 
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
@@ -169,7 +169,7 @@ void main(void) {
     entities[2].heightOffset = FX(0);
     entities[2].walking = 1;
     entities[2].movementModifier = FX(2);
-    entities[2].lateralModifier = FX(0);
+    entities[2].lateralModifier = FX(1);
 
     entities[3].posX = FX(18);
     entities[3].posY = FX(17);
@@ -179,7 +179,7 @@ void main(void) {
     entities[3].heightOffset = FX(0);
     entities[3].walking = 1;
     entities[3].movementModifier = FX(4);
-    entities[3].lateralModifier = FX(0);
+    entities[3].lateralModifier = FX(1);
 /*
     
     entities[4].posX = FX(20);
@@ -226,7 +226,7 @@ void main(void) {
         RenderFrame(&camera, CurrentMap, frame_buffer);
         DrawEntities(&camera, entities, 4, dogm_fb);
         EnemyRandomMovement(entities, 4);
-        //EnemyAi(&camera, entities, 4, CurrentMap);
+        EnemyAi(&camera, entities, 4, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
@@ -242,6 +242,8 @@ void main(void) {
         dogm128_text(0, 6, buf);
         utoa(FX_I(camera.posY), buf, 0);
         dogm128_text(20, 6, buf);
+        utoa(FX_I(entities[0].lateralModifier), buf, 0);
+        dogm128_text(0, 12, buf);
 
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));

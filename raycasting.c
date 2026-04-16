@@ -30,6 +30,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define FRAMES_PER_WALK 4
 #define SCREEN_WIDTH 128
+#define VIEWPORT_WIDTH_PIXELS (screenWidth << 1)
+#define VIEWPORT_HALF_W (VIEWPORT_WIDTH_PIXELS >> 1)
+#define VIEWPORT_HALF_H (screenHeight >> 1)
 
 /* flat map access: 2D array is [width][height], so stride = height */
 #define MAP_AT(map, x, y)  ((map)->data[(uint16_t)(x) * (map)->height + (uint8_t)(y)])
@@ -49,6 +52,11 @@ static const fx_t cameraX_lut[48] = {
 
 
 void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
+
+/* Keep these scratch buffers static to reduce DrawEntities auto-stack pressure. */
+static uint8_t g_draw_leftVisibleRows[8];
+static uint8_t g_draw_currentVisibleRows[8];
+static const fx_t ENEMY_MOVE_SPEED = FX(1) / 8;
 
 int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 {
@@ -300,8 +308,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 {
   static int prevFrames = 0;
   prevFrames++;
-  int screenXStart, screenXEnd = 0;
-  int screenYStart, screenYEnd = 0;
+  int screenXStart = 0;
+  int screenYStart = 0;
   uint8_t rendered = 0;
   if (amount <= 0)
       return;
@@ -326,11 +334,6 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       entities[j + 1] = key;
   }
 
-  fx_t *zBuffer = player->zBuffer;
-  int screenWidthPixels = screenWidth << 1; // 96 px wide 3D viewport
-  int halfW = screenWidthPixels >> 1;
-  int halfH = screenHeight >> 1;
-  
   fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(player->planeX, player->dirY), fx_mul(player->dirX, player->planeY)));
 
   // Render entities.
@@ -353,7 +356,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
       continue;
 
-    int spriteScreenX = halfW - FX_I(fx_mul(FX(halfW), fx_div(transformX, transformY)));
+    int spriteScreenX = VIEWPORT_HALF_W - FX_I(fx_mul(FX(VIEWPORT_HALF_W), fx_div(transformX, transformY)));
     int heightOffsetScreen = FX_I(fx_div(entities[i].heightOffset, transformY));
 
     // Calculate projected sprite size.
@@ -361,9 +364,9 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (spriteHeight <= 0)
       continue;
 
-    int drawStartY = -(spriteHeight >> 1) + halfH + heightOffsetScreen;
+    int drawStartY = -(spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
     if (drawStartY < 0) drawStartY = 0;
-    int drawEndY = (spriteHeight >> 1) + halfH + heightOffsetScreen;
+    int drawEndY = (spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
     if (drawEndY >= screenHeight) drawEndY = screenHeight - 1;
     if (drawEndY <= drawStartY)
       continue;
@@ -376,7 +379,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     int drawStartX = spriteLeft;
     if (drawStartX < 0) drawStartX = 0;
     int drawEndX = (spriteWidth >> 1) + spriteScreenX;
-    if (drawEndX >= screenWidthPixels) drawEndX = screenWidthPixels - 1;
+    if (drawEndX >= VIEWPORT_WIDTH_PIXELS) drawEndX = VIEWPORT_WIDTH_PIXELS - 1;
     if (drawEndX <= drawStartX)
       continue;
 
@@ -387,10 +390,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
           continue;
         }
     rendered = 1;
-    screenYStart = drawStartY;
-    screenYEnd = drawEndY;
     screenXStart = drawStartX;
-    screenXEnd = drawEndX;
+    screenYStart = drawStartY;
 
     // Incremental texture mapping removes divisions from inner loops.
     uint16_t texXStep = (uint16_t)(entities[i].sprite->width << 8) / (uint16_t)spriteWidth;
@@ -409,25 +410,25 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       usedSprite = 2;
 
     uint8_t pixelStride = (entities[i].distance < FX(6)) ? ((entities[i].distance < FX(3)) ? 4 : 2) : 1;
-    uint8_t loopStride = pixelStride;
-    uint8_t leftVisibleRows[8] = {0};
+    for (uint8_t r = 0; r < 8; r++)
+      g_draw_leftVisibleRows[r] = 0;
 
-    for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += loopStride)
+    for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
     {
-      if (transformY >= zBuffer[stripe >> 1])
+      if (transformY >= player->zBuffer[stripe >> 1])
       {
         for (uint8_t r = 0; r < 8; r++)
-          leftVisibleRows[r] = 0;
-        texXPos += texXStep * loopStride;
+          g_draw_leftVisibleRows[r] = 0;
+        texXPos += texXStep * pixelStride;
         continue;
       }
 
       uint16_t texX = texXPos >> 8;
-      texXPos += texXStep * loopStride;
+      texXPos += texXStep * pixelStride;
       if (texX >= entities[i].sprite->width)
       {
         for (uint8_t r = 0; r < 8; r++)
-          leftVisibleRows[r] = 0;
+          g_draw_leftVisibleRows[r] = 0;
         continue;
       }
 
@@ -440,7 +441,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       uint8_t edgeVClearMask = 0;
       uint16_t bufferIndex = (page * SCREEN_WIDTH) + stripe;
       uint8_t prevVisibleInStripe = 0;
-      uint8_t currentVisibleRows[8] = {0};
+      for (uint8_t r = 0; r < 8; r++)
+        g_draw_currentVisibleRows[r] = 0;
 
       for (uint8_t y = (uint8_t)drawStartY; y < drawEndY; y++)
       {
@@ -469,9 +471,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
         uint16_t texY = texYPos >> 8;
         uint8_t screenBit = (uint8_t)(1U << (y & 7));
-        uint8_t rowBit = screenBit;
         uint8_t rowIndex = (uint8_t)(y >> 3);
-        uint8_t leftVisible = (leftVisibleRows[rowIndex] & rowBit) ? 1 : 0;
+        uint8_t leftVisible = (g_draw_leftVisibleRows[rowIndex] & screenBit) ? 1 : 0;
         uint8_t visible = 0;
         uint8_t texColor = 0;
 
@@ -487,16 +488,13 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
         }
 
         if (visible)
-          currentVisibleRows[rowIndex] |= rowBit;
+          g_draw_currentVisibleRows[rowIndex] |= screenBit;
 
-        uint8_t edgeFromLeft = (uint8_t)(visible ^ leftVisible);
-        uint8_t edgeFromUp = (uint8_t)(visible ^ prevVisibleInStripe);
-
-        if (edgeFromLeft)
+        if ((uint8_t)(visible ^ leftVisible))
         {
           edgeVClearMask |= screenBit;
         }
-        else if (edgeFromUp)
+        else if ((uint8_t)(visible ^ prevVisibleInStripe))
         {
           edgeHClearMask |= screenBit;
         }
@@ -524,60 +522,61 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       }
 
       for (uint8_t r = 0; r < 8; r++)
-        leftVisibleRows[r] = currentVisibleRows[r];
+        g_draw_leftVisibleRows[r] = g_draw_currentVisibleRows[r];
     }
   }
 }
 
 void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
   for(int i = 0; i < amount; i++){
-    if(entities[i].health <= 0)
+    entity_t *e = &entities[i];
+    if(e->health <= 0)
       continue;
 
-    // Check line of sight
-    fx_t targetX = fx_add(
-        fx_add(player->posX, fx_mul(player->dirX, entities[i].movementModifier)),
-        fx_mul(fx_neg(player->dirY), entities[i].lateralModifier)
+    fx_t dx = fx_sub(
+        fx_add(
+            fx_add(player->posX, fx_mul(player->dirX, e->movementModifier)),
+            fx_mul(fx_neg(player->dirY), e->lateralModifier)
+        ),
+        e->posX
     );
-    fx_t targetY = fx_add(
-        fx_add(player->posY, fx_mul(player->dirY, entities[i].movementModifier)),
-        fx_mul(player->dirX, entities[i].lateralModifier)
+    fx_t dy = fx_sub(
+        fx_add(
+            fx_add(player->posY, fx_mul(player->dirY, e->movementModifier)),
+            fx_mul(player->dirX, e->lateralModifier)
+        ),
+        e->posY
     );
 
-    fx_t dx = fx_sub(targetX, entities[i].posX);
-    fx_t dy = fx_sub(targetY, entities[i].posY);
-
-    if (entities[i].distance < FX(100)) {
-      entities[i].lineOfSight = 1;
-    } else {
-      entities[i].lineOfSight = 0;
-    }
+    e->lineOfSight = (e->distance < FX(100)) ? 1 : 0;
 
     // Keep a small body radius around the player to prevent overlap/pushing.
-    if (entities[i].distance < FX_RAW(64) && entities[i].lineOfSight) {
-      entities[i].walking = 0;
+    if (e->distance < FX_RAW(64) && e->lineOfSight) {
+      e->walking = 0;
       continue;
     }
 
     // Move towards player if in line of sight
-    if (entities[i].lineOfSight) {
-      fx_t moveSpeed = FX(1) / 8; //Speed multiplier for enemies
-      fx_t dirX = fx_div(dx, entities[i].distance);
-      fx_t dirY = fx_div(dy, entities[i].distance);
+    if (e->lineOfSight) {
+      fx_t invDistance = fx_div(FX(1), e->distance);
+      fx_t dirX = fx_mul(dx, invDistance);
+      fx_t dirY = fx_mul(dy, invDistance);
+      uint8_t tile;
 
       // Check for wall collisions before moving
-      uint8_t tileX = MAP_AT(map, FX_I(fx_add(entities[i].posX, fx_mul(dirX, moveSpeed))), FX_I(entities[i].posY));
-      uint8_t tileY = MAP_AT(map, FX_I(entities[i].posX), FX_I(fx_add(entities[i].posY, fx_mul(dirY, moveSpeed))));
+      tile = MAP_AT(map, FX_I(fx_add(e->posX, fx_mul(dirX, ENEMY_MOVE_SPEED))), FX_I(e->posY));
 
-      if (tileX <= 0x00 || tileX >= 0x0f)
-        entities[i].posX = fx_add(entities[i].posX, fx_mul(dirX, moveSpeed));
+      if (tile <= 0x00 || tile >= 0x0f)
+        e->posX = fx_add(e->posX, fx_mul(dirX, ENEMY_MOVE_SPEED));
 
-      if (tileY <= 0x00 || tileY >= 0x0f)
-        entities[i].posY = fx_add(entities[i].posY, fx_mul(dirY, moveSpeed));
+      tile = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, fx_mul(dirY, ENEMY_MOVE_SPEED))));
+
+      if (tile <= 0x00 || tile >= 0x0f)
+        e->posY = fx_add(e->posY, fx_mul(dirY, ENEMY_MOVE_SPEED));
       
-      entities[i].walking = 1;
+      e->walking = 1;
     } else {
-      entities[i].walking = 0;
+      e->walking = 0;
     }
   }
 }
@@ -588,15 +587,21 @@ void EnemyRandomMovement(entity_t *entities, int amount){
     if (prevFrames > 20) {
         prevFrames = 0;
         for(int i = 0; i < amount; i++){
-            if(entities[i].health <= 0 || entities[i].lineOfSight == 0) // don't change movement if dead or if player is in sight, prevents jittering
+            if(entities[i].health <= 0 || entities[i].lineOfSight == 0)
               continue;
 
-            int32_t amplitude = FX_I(entities[i].movementModifier);
-            int32_t span;
+            int16_t amplitude = entities[i].movementModifier;
+            uint16_t span;
             int32_t value;
+
             if (amplitude < 0) amplitude = -amplitude;
-            span = (amplitude << 1);
-            value = ((int32_t)rand16() % span) - amplitude;
+            if (amplitude == 0) {
+              entities[i].lateralModifier = 0;
+              continue;
+            }
+
+            span = amplitude << 1;
+            value = ((int32_t)((uint16_t)rand16() % span)) - amplitude;
             entities[i].lateralModifier = (fx_t)value;
         }
     }
