@@ -16,6 +16,7 @@
       --danger: #ff7a7a;
       --ok: #7bda9b;
       --border: #323a4a;
+      --grid-line: rgba(122, 162, 255, 0.85);
     }
 
     * { box-sizing: border-box; }
@@ -42,7 +43,7 @@
     .lead {
       color: var(--muted);
       margin: 8px 0 24px;
-      max-width: 900px;
+      max-width: 980px;
     }
 
     .grid {
@@ -70,7 +71,8 @@
     }
 
     input[type="file"],
-    input[type="text"] {
+    input[type="text"],
+    select {
       width: 100%;
       background: #0f131a;
       color: var(--text);
@@ -216,7 +218,12 @@
   <div class="wrap">
     <h1>Mask + Color PNG Interlacer</h1>
     <p class="lead">
-      Local-only browser tool. Load two PNG files of the same size, threshold each pixel to 1-bit using its RGB average, then pack each image as a continuous row-major 1-bit stream with <strong>LSB-first bits</strong>, and interleave the resulting bytes as <code>mask0, color0, mask1, color1, ...</code>. Pixels with average RGB value <code>&gt; 127</code> become white, otherwise black. No row padding is added; only the final byte of each stream may contain trailing zero padding.
+      Local-only browser tool. Load two PNG files of the same size, threshold each pixel to 1-bit using its RGB average,
+      then generate one interlaced C array in one of two modes:
+      <strong>continuous line</strong> or <strong>vertical byte</strong>.
+      Threshold rule: pixels with average RGB value <code>&gt; 127</code> become white, otherwise black.
+      Black = 1, white = 0. In both modes the final output interleaves bytes as
+      <code>mask0, color0, mask1, color1, ...</code>.
     </p>
 
     <div class="grid">
@@ -228,6 +235,12 @@
 
         <label for="colorFile">Color PNG</label>
         <input id="colorFile" type="file" accept=".png,image/png" />
+
+        <label for="modeSelect">Generation mode</label>
+        <select id="modeSelect">
+          <option value="continuous">continuous line</option>
+          <option value="vertical">vertical byte</option>
+        </select>
 
         <label for="arrayName">C identifier / prefix</label>
         <input id="arrayName" type="text" value="image_interlaced" spellcheck="false" />
@@ -249,11 +262,10 @@
       <section class="panel subtle">
         <h2>2. Packing rules</h2>
         <div class="small">
-          <p><strong>Pixel order:</strong> left to right, top to bottom, continuous across rows.</p>
-          <p><strong>Bit order inside each byte:</strong> first pixel goes to bit 0 (LSB), second to bit 1, etc.</p>
-          <p><strong>Width 9 example:</strong> pixel <code>x=8</code> of the first row becomes bit 0 of the second byte.</p>
-          <p><strong>Thresholding:</strong> each pixel uses average RGB; <code>&gt; 127</code> becomes white, otherwise black.</p>
-          <p><strong>Output:</strong> one C array plus width/height variables and comments containing the source filenames.</p>
+          <p><strong>continuous line:</strong> row-major, continuous across rows, first pixel in byte = bit 0, only the final byte of each stream is padded.</p>
+          <p><strong>vertical byte:</strong> image is split into 8-pixel-high bands. Within each band, bytes are made column by column, top pixel = bit 0. Missing pixels below the image are padded as mask = 1 and color = 0.</p>
+          <p><strong>Interleaving:</strong> output bytes are always <code>mask, color, mask, color, ...</code>.</p>
+          <p><strong>Preview overlay:</strong> in vertical byte mode, the preview shows horizontal outlines every 8 pixels.</p>
         </div>
       </section>
     </div>
@@ -302,6 +314,7 @@
   <script>
     const maskFileInput = document.getElementById('maskFile');
     const colorFileInput = document.getElementById('colorFile');
+    const modeSelect = document.getElementById('modeSelect');
     const arrayNameInput = document.getElementById('arrayName');
     const generateBtn = document.getElementById('generateBtn');
     const copyBtn = document.getElementById('copyBtn');
@@ -358,14 +371,29 @@
       pixelStat.textContent = String(pixels);
       streamBytesStat.textContent = String(streamByteCount);
       combinedBytesStat.textContent = String(combinedByteCount);
-      return;
     }
 
-    function drawPreview(canvas, imageData) {
+    function drawPreview(canvas, imageData, showVerticalOverlay) {
       const ctx = canvas.getContext('2d');
       canvas.width = imageData.width;
       canvas.height = imageData.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.putImageData(imageData, 0, 0);
+
+      if (showVerticalOverlay) {
+        ctx.save();
+        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-line').trim() || 'rgba(122, 162, 255, 0.85)';
+        ctx.lineWidth = 1;
+
+        for (let y = 8; y < canvas.height; y += 8) {
+          ctx.beginPath();
+          ctx.moveTo(0, y + 0.5);
+          ctx.lineTo(canvas.width, y + 0.5);
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
     }
 
     async function readPng(file) {
@@ -428,7 +456,7 @@
       };
     }
 
-    function packBitsLsbFirst(bits) {
+    function packContinuous(bits) {
       const byteCount = Math.ceil(bits.length / 8);
       const bytes = new Uint8Array(byteCount);
 
@@ -439,6 +467,56 @@
       }
 
       return bytes;
+    }
+
+    function packVertical(info, paddingBit) {
+      const bytes = [];
+      const width = info.width;
+      const height = info.height;
+      const bits = info.bits;
+
+      for (let bandY = 0; bandY < height; bandY += 8) {
+        for (let x = 0; x < width; x++) {
+          let value = 0;
+
+          for (let bit = 0; bit < 8; bit++) {
+            const y = bandY + bit;
+            let pixelBit = paddingBit;
+
+            if (y < height) {
+              pixelBit = bits[y * width + x];
+            }
+
+            if (pixelBit) {
+              value |= (1 << bit);
+            }
+          }
+
+          bytes.push(value);
+        }
+      }
+
+      return new Uint8Array(bytes);
+    }
+
+    function packByMode(maskInfo, colorInfo, mode) {
+      if (mode === 'continuous') {
+        return {
+          maskBytes: packContinuous(maskInfo.bits),
+          colorBytes: packContinuous(colorInfo.bits),
+          modeLabel: 'continuous line'
+        };
+      }
+
+      if (mode === 'vertical') {
+        return {
+          maskBytes: packVertical(maskInfo, 1),
+          colorBytes: packVertical(colorInfo, 0),
+          modeLabel: 'vertical byte'
+        };
+      }
+
+      throw new Error(`Unknown mode "${mode}".`);
     }
 
     function interleaveBytes(maskBytes, colorBytes) {
@@ -467,11 +545,10 @@
       const width = maskInfo.width;
       const height = maskInfo.height;
       const identifier = sanitizeIdentifier(arrayNameInput.value);
+      const mode = modeSelect.value;
 
-      const maskBytes = packBitsLsbFirst(maskInfo.bits);
-      const colorBytes = packBitsLsbFirst(colorInfo.bits);
-      const combined = interleaveBytes(maskBytes, colorBytes);
-
+      const packed = packByMode(maskInfo, colorInfo, mode);
+      const combined = interleaveBytes(packed.maskBytes, packed.colorBytes);
       const body = wrapHex(Array.from(combined));
 
       const sourceComment =
@@ -479,10 +556,10 @@
 // Mask source: ${maskInfo.file.name}
 // Color source: ${colorInfo.file.name}
 // Dimensions: ${width} x ${height}
-// Packing: row-major, continuous across rows, LSB-first bits
-// Interleaving: mask byte, color byte, mask byte, color byte, ...
+// Mode: ${packed.modeLabel}
 // Thresholding: average RGB > 127 = white, otherwise black
-// Black = 1, White = 0`;
+// Black = 1, White = 0
+// Interleaving: mask byte, color byte, mask byte, color byte, ...`;
 
       const code =
 `${sourceComment}
@@ -498,14 +575,49 @@ ${body}
       return {
         width,
         height,
-        maskBytes,
-        colorBytes,
+        maskBytes: packed.maskBytes,
+        colorBytes: packed.colorBytes,
         combined,
         code,
         identifier,
         maskInfo,
-        colorInfo
+        colorInfo,
+        mode
       };
+    }
+
+    function assertTest(condition, message) {
+      if (!condition) {
+        throw new Error(`Self-test failed: ${message}`);
+      }
+    }
+
+    function equalArray(actual, expected, message) {
+      assertTest(actual.length === expected.length, `${message} (length ${actual.length} !== ${expected.length})`);
+      for (let i = 0; i < actual.length; i++) {
+        assertTest(actual[i] === expected[i], `${message} (index ${i}: ${actual[i]} !== ${expected[i]})`);
+      }
+    }
+
+    function runSelfTests() {
+      equalArray(packContinuous(Uint8Array.from([1, 0, 1, 0, 1, 0, 1, 0])), [0x55], 'continuous packing basic LSB order');
+      equalArray(packContinuous(Uint8Array.from([1, 0, 0, 0, 0, 0, 0, 0, 1])), [0x01, 0x01], 'continuous packing carries into next byte without row padding');
+
+      const verticalInfo = {
+        width: 2,
+        height: 3,
+        bits: Uint8Array.from([
+          1, 0,
+          0, 1,
+          1, 1
+        ])
+      };
+      equalArray(packVertical(verticalInfo, 1), [0xFD, 0xFE], 'vertical packing uses top pixel as LSB and mask padding = 1');
+      equalArray(packVertical(verticalInfo, 0), [0x05, 0x06], 'vertical packing uses color padding = 0');
+
+      equalArray(interleaveBytes(Uint8Array.from([0x12, 0x34]), Uint8Array.from([0xAB, 0xCD])), [0x12, 0xAB, 0x34, 0xCD], 'byte interleaving alternates mask/color');
+
+      assertTest(sanitizeIdentifier(' 9 bad-name ') === '_9_bad_name', 'identifier sanitization normalizes invalid names');
     }
 
     let lastGenerated = null;
@@ -515,6 +627,7 @@ ${body}
 
       const maskFile = maskFileInput.files[0];
       const colorFile = colorFileInput.files[0];
+      const showVerticalOverlay = modeSelect.value === 'vertical';
 
       if (!maskFile && !colorFile) {
         maskMeta.textContent = 'No file loaded.';
@@ -526,7 +639,7 @@ ${body}
       try {
         if (maskFile) {
           const maskInfo = await readPng(maskFile);
-          drawPreview(maskCanvas, maskInfo.imageData);
+          drawPreview(maskCanvas, maskInfo.imageData, showVerticalOverlay);
           maskMeta.textContent =
             `${maskInfo.file.name} — ${maskInfo.width} × ${maskInfo.height}, ` +
             `black: ${maskInfo.blackCount}, white: ${maskInfo.whiteCount}`;
@@ -534,7 +647,7 @@ ${body}
 
         if (colorFile) {
           const colorInfo = await readPng(colorFile);
-          drawPreview(colorCanvas, colorInfo.imageData);
+          drawPreview(colorCanvas, colorInfo.imageData, showVerticalOverlay);
           colorMeta.textContent =
             `${colorInfo.file.name} — ${colorInfo.width} × ${colorInfo.height}, ` +
             `black: ${colorInfo.blackCount}, white: ${colorInfo.whiteCount}`;
@@ -562,9 +675,10 @@ ${body}
 
       try {
         const [maskInfo, colorInfo] = await Promise.all([readPng(maskFile), readPng(colorFile)]);
+        const showVerticalOverlay = modeSelect.value === 'vertical';
 
-        drawPreview(maskCanvas, maskInfo.imageData);
-        drawPreview(colorCanvas, colorInfo.imageData);
+        drawPreview(maskCanvas, maskInfo.imageData, showVerticalOverlay);
+        drawPreview(colorCanvas, colorInfo.imageData, showVerticalOverlay);
 
         maskMeta.textContent =
           `${maskInfo.file.name} — ${maskInfo.width} × ${maskInfo.height}, ` +
@@ -589,7 +703,7 @@ ${body}
         setStatus(
           `Done. Generated ${result.combined.length} combined bytes ` +
           `(${result.maskBytes.length} mask bytes + ${result.colorBytes.length} color bytes) ` +
-          `for ${result.width} × ${result.height}.`,
+          `for ${result.width} × ${result.height} in ${result.mode === 'vertical' ? 'vertical byte' : 'continuous line'} mode.`,
           'ok'
         );
       } catch (err) {
@@ -597,17 +711,28 @@ ${body}
       }
     }
 
-    function refreshOutputNameOnly() {
+    function refreshGeneratedOutput() {
+      void tryPreviewOnly();
+
       if (!lastGenerated) return;
+
       const rebuilt = buildOutput(lastGenerated.maskInfo, lastGenerated.colorInfo);
       lastGenerated = rebuilt;
       outputEl.value = rebuilt.code;
+
+      updateStats(
+        rebuilt.width,
+        rebuilt.height,
+        rebuilt.maskBytes.length,
+        rebuilt.combined.length
+      );
     }
 
-    maskFileInput.addEventListener('change', tryPreviewOnly);
-    colorFileInput.addEventListener('change', tryPreviewOnly);
-    generateBtn.addEventListener('click', generate);
-    arrayNameInput.addEventListener('input', refreshOutputNameOnly);
+    maskFileInput.addEventListener('change', () => { void tryPreviewOnly(); });
+    colorFileInput.addEventListener('change', () => { void tryPreviewOnly(); });
+    modeSelect.addEventListener('change', refreshGeneratedOutput);
+    generateBtn.addEventListener('click', () => { void generate(); });
+    arrayNameInput.addEventListener('input', refreshGeneratedOutput);
 
     copyBtn.addEventListener('click', async () => {
       try {
@@ -617,6 +742,13 @@ ${body}
         setStatus('Copy failed. Your browser may not allow clipboard access here.', 'error');
       }
     });
+
+    try {
+      runSelfTests();
+    } catch (err) {
+      setStatus(err.message, 'error');
+      console.error(err);
+    }
   </script>
 </body>
 </html>
