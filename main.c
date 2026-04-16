@@ -114,6 +114,7 @@ buttons_t buttons = {0};
 static entity_t entities[2];
 map_t *CurrentMap = &WallDemoMap;
 dialogue_t *CurrentDialogue = NULL;
+millis_t usePMill = 0;
 
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
     // param1 = eventNum (tile & 0x0F), param2 = stepOn
@@ -168,6 +169,7 @@ void main(void) {
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);
+        HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
         static _Bool prevUse = 0;
         _Bool usePressed = buttons.use && !prevUse;
         prevUse = buttons.use;
@@ -176,7 +178,10 @@ void main(void) {
         HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
         if (usePressed && !dialogueActive) {
             // use button available for future interactions
+            usePMill = millis;
         }
+
+        
 
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);

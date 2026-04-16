@@ -571,6 +571,41 @@ void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
     }
 }
 
+void dogm128_blit_aligned_masked(uint8_t x, uint8_t y, const dogm128_bitmap_masked_t *bmp)
+{
+    uint8_t        page_y, pages, sp, sx;
+    uint8_t       *dst;
+    const uint8_t *src;
+
+    if (!bmp || !bmp->data) return;
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if (bmp->w == 0 || bmp->h == 0) return;
+    if (y & 7) return;
+
+    page_y = y >> 3;
+    pages  = (bmp->h + 7) >> 3;
+
+    if ((uint16_t)x + bmp->w > DOGM_WIDTH)  return;
+    if ((uint16_t)page_y + pages > 8)        return;
+
+    dst = &dogm_fb[((uint16_t)page_y << 7) + x];
+    src = bmp->data;
+
+    for (sp = 0; sp < pages; sp++)
+    {
+        uint8_t *d = dst;
+        for (sx = 0; sx < bmp->w; sx++)
+        {
+            uint8_t mask  = *src++;
+            uint8_t color = *src++;
+            *d = (uint8_t)((*d & mask) | (color & (uint8_t)~mask));
+            d++;
+        }
+
+        dst += 128;
+    }
+}
+
 void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp, uint8_t clip_h)
 {
     uint8_t        shift, pages, sp, sx, x0, w, anti_shift, h;

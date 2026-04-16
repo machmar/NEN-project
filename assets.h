@@ -65,6 +65,11 @@ extern const dogm128_bitmap_t item_gun;
 
 extern const dogm128_bitmap_t HUD_hpImage;
 
+extern const dogm128_bitmap_masked_t pov_knife_hold;
+extern const dogm128_bitmap_masked_t pov_knife_use;
+extern const dogm128_bitmap_masked_t pov_gun_hold;
+extern const dogm128_bitmap_masked_t pov_gun_use;
+
 typedef enum {
     ITEM_HAND = 0,
     ITEM_KNIFE,
