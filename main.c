@@ -122,8 +122,6 @@ void main(void) {
     dogm128_init();
     Backlight(1023);
     set_LEDs(0x00);
-    PrecomputeAssets();
-
 
     camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
     camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);

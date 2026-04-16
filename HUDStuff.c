@@ -1,7 +1,7 @@
 #include "HUDStuff.h"
 #include "utils.h"
 
-void HUD_DrawBanner(dogm128_bitmap_t *text) {
+void HUD_DrawBanner(const dogm128_bitmap_t *text) {
     dogm128_hline(10, 0, 75, DISP_COL_WHITE);
     dogm128_hline(10, 1, 75, DISP_COL_WHITE);
     dogm128_hline(11, 2, 73, DISP_COL_WHITE);
@@ -16,7 +16,7 @@ void HUD_DrawBanner(dogm128_bitmap_t *text) {
     dogm128_blit_or(10, 0, text, 0);
 }
 
-void HUD_DrawMap(map_t *map, player_t *player) {
+void HUD_DrawMap(const map_t *map, const player_t *player) {
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;
     if (map->height > 32)
@@ -68,7 +68,7 @@ void HUD_DrawItem(item_t item) {
     }
 }
 
-void HUD_DrawCompass(player_t *player) {
+void HUD_DrawCompass(const player_t *player) {
     static const int8_t pointerPoints[3][2] = {
         {6, 0},
         {-1, -2},
@@ -93,7 +93,7 @@ void HUD_DrawCompass(player_t *player) {
     dogm128_pixel(114, 40, DISP_COL_BLACK);
 }
 
-void HUD_DrawStats(player_t *player) {
+void HUD_DrawStats(const player_t *player) {
     char buf[5];
     dogm128_blit_or(98, 50, &HUD_hpImage, 14);
     utoa(player->kills, buf, 3);
@@ -102,14 +102,14 @@ void HUD_DrawStats(player_t *player) {
     dogm128_text(108, 57, buf);
 }
 
-_Bool HUD_DrawDialogue(dialogue_t **dialogue, _Bool advance) {
+_Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance) {
     if (*dialogue == NULL)
         return 0;
 
-    static dialogue_t *prevDialogue = NULL;
+    static const dialogue_t *prevDialogue = NULL;
     static millis_t startTime = 0;
 
-    dialogue_t *d = *dialogue;
+    const dialogue_t *d = *dialogue;
 
     if (d != prevDialogue) {
         startTime = millis;
@@ -154,7 +154,7 @@ _Bool HUD_DrawDialogue(dialogue_t **dialogue, _Bool advance) {
     return 1;
 }
 
-uint8_t inline HUD_GetLEDHP(player_t *player) {
+uint8_t inline HUD_GetLEDHP(const player_t *player) {
     static millis_t PrevMill = 0;
     static _Bool blink_state = 0;
     uint8_t out = 0xff >> (8 - player->health);

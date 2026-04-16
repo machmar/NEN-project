@@ -16,7 +16,6 @@ dist/default/production/picDoom.X.production.o
 dist/default/production/picDoom.X.production.rlf
 dist/default/production/picDoom.X.production.sdb
 dist/default/production/picDoom.X.production.sym
-Makefile
 nbproject/configurations.xml
 nbproject/Makefile-default.mk
 nbproject/Makefile-genesis.properties

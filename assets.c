@@ -1,65 +1,90 @@
 #include "assets.h"
+#include "assets_precomputed.h"
 
-dialogue_t dialogue_GunFound6 = {
-  "got like 500 bullets in there",
-  2000,
-  NULL,
+// When defining the dialogue, add the macro like it is in others, python generates the data for it into assets_precomputed.h before compilation
+const dialogue_t dialogue_GunFound6 = {
+    "got like 500 bullets in there",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_GunFound6
 };
 
-dialogue_t dialogue_GunFound5 = {
-  "and whats up with this mag",
-  2200,
-  &dialogue_GunFound6,
+const dialogue_t dialogue_GunFound5 = {
+    "and whats up with this mag",
+    2200,
+    &dialogue_GunFound6,
+    DIALOGUE_LAYOUT_dialogue_GunFound5
 };
 
-dialogue_t dialogue_GunFound4 = {
-  "--",
-  2000,
-  &dialogue_GunFound5,
+const dialogue_t dialogue_GunFound4 = {
+    "--",
+    2000,
+    &dialogue_GunFound5,
+    DIALOGUE_LAYOUT_dialogue_GunFound4
 };
 
-dialogue_t dialogue_GunFound3 = {
-  "Who even left this here?",
-  2500,
-  &dialogue_GunFound4,
+const dialogue_t dialogue_GunFound3 = {
+    "Who even left this here?",
+    2500,
+    &dialogue_GunFound4,
+    DIALOGUE_LAYOUT_dialogue_GunFound3
 };
 
-dialogue_t dialogue_GunFound2 = {
-  "Ill definitely use this",
-  2200,
-  &dialogue_GunFound3,
+const dialogue_t dialogue_GunFound2 = {
+    "Ill definitely use this",
+    2200,
+    &dialogue_GunFound3,
+    DIALOGUE_LAYOUT_dialogue_GunFound2
 };
 
-dialogue_t dialogue_GunFound1 = {
-  "Oh damn",
-  1200,
-  &dialogue_GunFound2,
+const dialogue_t dialogue_GunFound1 = {
+    "Oh damn",
+    1200,
+    &dialogue_GunFound2,
+    DIALOGUE_LAYOUT_dialogue_GunFound1
 };
 
-dialogue_t dialogue_KnifeFound1 = {
-  "Better then nothing I guess",
-  2300,
-  NULL,
+const dialogue_t dialogue_KnifeFound1 = {
+    "Better then nothing I guess",
+    2300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_KnifeFound1
 };
 
-dialogue_t dialogue_Healed2 = {
-  "I guess",
-  1200,
-  NULL,
+const dialogue_t dialogue_KnifeFoundAgain1 = {
+    "Ill rather keep the gun",
+    2300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_KnifeFoundAgain1
 };
 
-dialogue_t dialogue_Healed1 = {
-  "think it healed me",
-  1900,
-  &dialogue_Healed2,
+const dialogue_t dialogue_Healed2 = {
+    "I guess",
+    1200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Healed2
 };
 
-dialogue_t dialogue_Injured = {
-  "fuck",
-  1200,
-  NULL,
+const dialogue_t dialogue_Healed1 = {
+    "think it healed me",
+    1900,
+    &dialogue_Healed2,
+    DIALOGUE_LAYOUT_dialogue_Healed1
 };
 
+const dialogue_t dialogue_Injured2 = {
+    "hurts",
+    1200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Injured2
+};
+
+const dialogue_t dialogue_Injured = {
+    "fuck",
+    1200,
+    &dialogue_Injured2,
+    DIALOGUE_LAYOUT_dialogue_Injured
+};
 
 uint8_t static const SmallMap_data[20][15] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -107,11 +132,11 @@ static const uint8_t SmallMap_banner_data[] = {
 
 const dogm128_bitmap_t SmallMap_banner = {76, 8, SmallMap_banner_data};
 
-map_t SmallMap = {
+const map_t SmallMap = {
     20,
     15,
     SmallMap_data,
-    {0, 0},
+    MAP_SPAWN_SmallMap,
     &SmallMap_minimap,
     {5, 10},
     {6, 8},
@@ -184,11 +209,11 @@ static const uint8_t BigMap_banner_data[] = {
 
 const dogm128_bitmap_t BigMap_banner = {76, 8, BigMap_banner_data};
 
-map_t BigMap = {
+const map_t BigMap = {
     32,
     64,
     BigMap_data,
-    {0, 0},
+    MAP_SPAWN_BigMap,
     &BigMap_bitmap,
     {5, 26},
     {0, 0},
@@ -245,11 +270,11 @@ static const uint8_t TestMap_banner_data[] = {
 
 const dogm128_bitmap_t TestMap_banner = {76, 8, TestMap_banner_data};
 
-map_t TestMap = {
+const map_t TestMap = {
     24,
     24,
     TestMap_data,
-    {0, 0},
+    MAP_SPAWN_TestMap,
     &TestMap_bitmap,
     {5, 26},
     {4, 4},
@@ -322,11 +347,11 @@ static const uint8_t AgentOrange_banner_data[] = {
 
 const dogm128_bitmap_t AgentOrange_banner = {76, 8, AgentOrange_banner_data};
 
-map_t AgentOrangeMap = {
+const map_t AgentOrangeMap = {
     32,
     64,
     AgentOrange_data,
-    {0, 0},
+    MAP_SPAWN_AgentOrangeMap,
     &AgentOrange_bitmap,
     {5, 26},
     {0, 0},
@@ -374,14 +399,18 @@ static const uint8_t WallDemo_banner_data[] = {
 
 const dogm128_bitmap_t WallDemo_banner = {76, 8, WallDemo_banner_data};
 
-static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, dialogue_t **pDialogue) {
+static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
     if (stepOn) {
         switch (eventNum) {
             case 0: //knife
-                player->currentItem = ITEM_KNIFE;
-                *pDialogue = &dialogue_KnifeFound1;
+                if (player->currentItem == ITEM_GUN)
+                    *pDialogue = &dialogue_KnifeFoundAgain1;
+                else {
+                    player->currentItem = ITEM_KNIFE;
+                    *pDialogue = &dialogue_KnifeFound1;
+                }
                 break;
             case 1: // gun
                 player->currentItem = ITEM_GUN;
@@ -395,20 +424,20 @@ static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *pl
                 player->health = 1;
                 *pDialogue = &dialogue_Injured;
                 break;
-        }   
+        }
     }
 }
 
-static void WallDemoMap_OnDialogueTile(uint8_t tileVal, dialogue_t **pDialogue) {
+static void WallDemoMap_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
     if (tileVal == 0x40)
         *pDialogue = &dialogue_Room1;
 }
 
-map_t WallDemoMap = {
+const map_t WallDemoMap = {
     15,
     25,
     WallDemo_data,
-    {0, 0},
+    MAP_SPAWN_WallDemoMap,
     &WallDemo_bitmap,
     {1, 30},
     {8, 3},
@@ -417,116 +446,19 @@ map_t WallDemoMap = {
     WallDemoMap_OnDialogueTile,
 };
 
-dialogue_t dialogue_Room2 = {
-  "like I ever expected anything different",
-  2000,
-  NULL,
+const dialogue_t dialogue_Room2 = {
+    "like I ever expected anything different",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Room2
 };
 
-dialogue_t dialogue_Room1 = {
-  "Yeah,",
-  800,
-  &dialogue_Room2,
-};
-
-#define DIALOGUES_COUNT 12 // keep this updated
-static const dialogue_t *dialogues[DIALOGUES_COUNT] = {
-    &dialogue_Room1,
+const dialogue_t dialogue_Room1 = {
+    "Yeah,",
+    800,
     &dialogue_Room2,
-    &dialogue_KnifeFound1,
-    &dialogue_GunFound1,
-    &dialogue_GunFound2,
-    &dialogue_GunFound3,
-    &dialogue_GunFound4,
-    &dialogue_GunFound5,
-    &dialogue_GunFound6,
-    &dialogue_Healed1,
-    &dialogue_Healed2,
-    &dialogue_Injured,
+    DIALOGUE_LAYOUT_dialogue_Room1
 };
-
-#define MAP_COUNT 5 // keep this updated
-static map_t *maps[MAP_COUNT] = {
-    &SmallMap,
-    &BigMap,
-    &TestMap,
-    &AgentOrangeMap,
-    &WallDemoMap,
-};
-
-void DialoguePrecalculate(dialogue_t *object) {
-    uint8_t lineCount = 0;
-    uint8_t pos = 0;
-    uint8_t maxLineWidth = 0;
-
-    while (object->text[pos] != '\0' && lineCount < 5) {
-        uint8_t lineStart = pos;
-        object->lineBreaks[lineCount] = pos;
-
-        uint8_t lastSpace = pos;
-        uint8_t hasSpace = 0;
-        uint8_t charCount = 0;
-
-        while (object->text[pos] != '\0' && charCount < 21) {
-            if (object->text[pos] == ' ') {
-                lastSpace = pos;
-                hasSpace = 1;
-            }
-            pos++;
-            charCount++;
-        }
-
-        uint8_t lineLen;
-        if (object->text[pos] == '\0') {
-            lineLen = pos - lineStart;
-        } else if (hasSpace) {
-            lineLen = lastSpace - lineStart;
-            pos = lastSpace + 1;
-        } else {
-            lineLen = 21;
-        }
-
-        if (lineLen > 0) {
-            uint8_t lineWidth = 4 * lineLen - 1;
-            if (lineWidth > maxLineWidth)
-                maxLineWidth = lineWidth;
-        }
-
-        lineCount++;
-    }
-
-    object->rectangleSize[0] = maxLineWidth + 4;
-    object->rectangleSize[1] = lineCount > 0 ? lineCount * 6 - 1 + 4 : 4;
-
-    object->rectangleOrigin[0] = (96 - object->rectangleSize[0]) / 2;
-    object->rectangleOrigin[1] = 64 - 2 - object->rectangleSize[1];
-
-    for (uint8_t i = 0; i < lineCount; i++) {
-        object->textOrigins[i][0] = object->rectangleOrigin[0] + 2;
-        object->textOrigins[i][1] = object->rectangleOrigin[1] + 2 + i * 6;
-    }
-}
-
-void MapPrecalculate(map_t *map) {
-    for (uint8_t x = 0; x < map->width; x++) {
-        for (uint8_t y = 0; y < map->height; y++) {
-            if (map->data[(uint16_t)x * map->height + y] == 0x20) {
-                map->DefaultSpwanPoint[0] = x;
-                map->DefaultSpwanPoint[1] = y;
-                return;
-            }
-        }
-    }
-}
-
-void PrecomputeAssets() {
-    for (uint16_t i = 0; i < DIALOGUES_COUNT; i++) {
-        DialoguePrecalculate(dialogues[i]);
-    }
-    for (uint8_t i = 0; i < MAP_COUNT; i++) {
-        MapPrecalculate(maps[i]);
-    }
-}
 
 static const uint8_t Level1_banner_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -580,35 +512,35 @@ const dogm128_bitmap_t Level5_banner = {76, 8, Level5_banner_data};
 
 static const uint8_t WiggleLinebitmap_data[4] = {0x55, 0xaa, 0x55, 0xaa};
 
-dogm128_bitmap_t wiggleLineBitmap = {2, 16, WiggleLinebitmap_data};
+const dogm128_bitmap_t wiggleLineBitmap = {2, 16, WiggleLinebitmap_data};
 
 static const uint8_t item_hand_data[] = {
     0x00, 0x00, 0x00, 0x00, 0xf8, 0x88, 0xfc, 0x84, 0xfc, 0x88, 0x78, 0x88, 0xf0, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x07, 0x08, 0x10, 0x22, 0x22, 0x21, 0x20, 0x20, 0x10, 0x0f, 0x00, 0x00, 0x00,
 };
 
-dogm128_bitmap_t item_hand = {16, 16, item_hand_data};
+const dogm128_bitmap_t item_hand = {16, 16, item_hand_data};
 
 static const uint8_t item_knife_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x00, 0x80, 0xc0, 0xe0, 0x70, 0x38, 0x1c, 0x0c, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x18, 0x0c, 0x07, 0x07, 0x07, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-dogm128_bitmap_t item_knife = {16, 16, item_knife_data};
+const dogm128_bitmap_t item_knife = {16, 16, item_knife_data};
 
 static const uint8_t item_gun_data[] = {
     0x00, 0x00, 0x80, 0xc0, 0xc0, 0xc0, 0xe0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0x00, 0x00,
     0x00, 0x00, 0x0f, 0x0f, 0x0f, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-dogm128_bitmap_t item_gun = {16, 16, item_gun_data};
+const dogm128_bitmap_t item_gun = {16, 16, item_gun_data};
 
 static const uint8_t HUD_hpImage_data[] = {
     0x9f, 0x04, 0x9b, 0x00, 0x9f, 0x80, 0x1f, 0x10, 0x10, 0x00, 0x1f, 0x10, 0x10, 0x00, 0x0a, 0x0f,
     0x02, 0x0f, 0x00, 0x0f, 0x02, 0x01, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-dogm128_bitmap_t HUD_hpImage = {15, 16, HUD_hpImage_data};
+const dogm128_bitmap_t HUD_hpImage = {15, 16, HUD_hpImage_data};
 
 
 // Generated by Mask + Color PNG Interlacer

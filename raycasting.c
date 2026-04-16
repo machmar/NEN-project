@@ -47,7 +47,7 @@ static const fx_t cameraX_lut[48] = {
 
 void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
 
-int RenderFrame(const player_t *player, map_t *map) {
+int RenderFrame(const player_t *player, const map_t *map) {
     int x;
 
     for (x = 0; x < screenWidth; x++) {
@@ -247,7 +247,7 @@ _Bool inline TileWalkable(uint8_t type) {
     return 0;
 }
 
-int MoveCamera(player_t *player, map_t *map, buttons_t buttons, dialogue_t **pDialogue) {
+int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue) {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
     fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
