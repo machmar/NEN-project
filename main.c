@@ -112,14 +112,16 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[2];
-map_t *CurrentMap = &WallDemoMap;
+map_t *CurrentMap = &Level0Map;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
+uint16_t backlightVal = 1023;
 
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
     // param1 = eventNum (tile & 0x0F), param2 = stepOn
-    (void)param1;
-    (void)param2;
+    if (param1 == 0 && param2 == 1) { // stepped on teleportation tile in Level0
+        backlightVal = 300;
+    }
 }
 
 void main(void) {
@@ -127,7 +129,7 @@ void main(void) {
     initDisplay();
     pwm_ccp1_init();
     dogm128_init();
-    Backlight(1023);
+    Backlight(backlightVal);
     set_LEDs(0x00);
     MapEventCallback = OnMapEvent;
 
@@ -163,13 +165,15 @@ void main(void) {
         MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
 
-        HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
         HUD_DrawItem(camera.currentItem);
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
-        HUD_DrawStats(&camera);
-        HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+        if (CurrentMap != &Level0Map) {
+            HUD_DrawBanner(CurrentMap->Banner);
+            HUD_DrawStats(&camera);
+            HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+        }
 
         static _Bool prevUse = 0;
         _Bool usePressed = buttons.use && !prevUse;
@@ -182,14 +186,14 @@ void main(void) {
             usePMill = millis;
         }
 
-        
         // display FPS in the corner for testing
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
-
+        
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));
+        Backlight(backlightVal);
     }
 }
 

@@ -33,11 +33,7 @@ typedef struct {
     void (*OnDialogueTile)(uint8_t tileVal, const dialogue_t **pDialogue);
 } map_t;
 
-extern map_t SmallMap;
-extern map_t BigMap;
-extern map_t TestMap;
-extern map_t AgentOrangeMap;
-extern map_t WallDemoMap;
+extern map_t Level0Map;
 
 /* Callback set by main.c; called by map event handlers with two arbitrary parameters. */
 extern void (*MapEventCallback)(uint8_t param1, uint8_t param2);
@@ -53,9 +49,6 @@ struct dialogue_t{
     uint8_t rectangleOrigin[2];
     uint8_t rectangleSize[2];
 };
-
-extern const dialogue_t dialogue_Room1;
-extern const dialogue_t dialogue_Room2;
 
 extern const dogm128_bitmap_t wiggleLineBitmap;
 

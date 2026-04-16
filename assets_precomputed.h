@@ -74,31 +74,115 @@
     .rectangleOrigin = {38, 53}, \
     .rectangleSize = {19, 9}
 
-#define DIALOGUE_LAYOUT_dialogue_Room2 \
+#define DIALOGUE_LAYOUT_dialogue_Level0_0_2 \
     .lineBreaks = {0, 21, 0, 0, 0}, \
     .textOrigins = {{8, 49}, {8, 55}, {0, 0}, {0, 0}, {0, 0}}, \
     .rectangleOrigin = {6, 47}, \
     .rectangleSize = {83, 15}
 
-#define DIALOGUE_LAYOUT_dialogue_Room1 \
+#define DIALOGUE_LAYOUT_dialogue_Level0_0_1 \
     .lineBreaks = {0, 0, 0, 0, 0}, \
     .textOrigins = {{38, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
     .rectangleOrigin = {36, 53}, \
     .rectangleSize = {23, 9}
 
-#define MAP_SPAWN_SmallMap \
-    .DefaultSpwanPoint = {13, 5}
+#define DIALOGUE_LAYOUT_dialogue_Level0_1_3 \
+    .lineBreaks = {0, 20, 0, 0, 0}, \
+    .textOrigins = {{10, 49}, {10, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 47}, \
+    .rectangleSize = {79, 15}
 
-#define MAP_SPAWN_BigMap \
-    .DefaultSpwanPoint = {26, 20}
+#define DIALOGUE_LAYOUT_dialogue_Level0_1_2 \
+    .lineBreaks = {0, 13, 32, 0, 0}, \
+    .textOrigins = {{12, 43}, {12, 49}, {12, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {10, 41}, \
+    .rectangleSize = {75, 21}
 
-#define MAP_SPAWN_TestMap \
-    .DefaultSpwanPoint = {13, 15}
+#define DIALOGUE_LAYOUT_dialogue_Level0_1_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{8, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 53}, \
+    .rectangleSize = {83, 9}
 
-#define MAP_SPAWN_AgentOrangeMap \
-    .DefaultSpwanPoint = {15, 20}
+#define DIALOGUE_LAYOUT_dialogue_Level0_2_3 \
+    .lineBreaks = {0, 19, 0, 0, 0}, \
+    .textOrigins = {{6, 49}, {6, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {4, 47}, \
+    .rectangleSize = {87, 15}
 
-#define MAP_SPAWN_WallDemoMap \
-    .DefaultSpwanPoint = {7, 6}
+#define DIALOGUE_LAYOUT_dialogue_Level0_2_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{20, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {18, 53}, \
+    .rectangleSize = {59, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_2_1 \
+    .lineBreaks = {0, 17, 37, 0, 0}, \
+    .textOrigins = {{10, 43}, {10, 49}, {10, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 41}, \
+    .rectangleSize = {79, 21}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_3_3 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{32, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {30, 53}, \
+    .rectangleSize = {35, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_3_2 \
+    .lineBreaks = {0, 21, 0, 0, 0}, \
+    .textOrigins = {{8, 49}, {8, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 47}, \
+    .rectangleSize = {83, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_3_1 \
+    .lineBreaks = {0, 18, 32, 0, 0}, \
+    .textOrigins = {{14, 43}, {14, 49}, {14, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {12, 41}, \
+    .rectangleSize = {71, 21}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_4_2 \
+    .lineBreaks = {0, 16, 0, 0, 0}, \
+    .textOrigins = {{18, 49}, {18, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {16, 47}, \
+    .rectangleSize = {63, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_4_1 \
+    .lineBreaks = {0, 19, 0, 0, 0}, \
+    .textOrigins = {{12, 49}, {12, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {10, 47}, \
+    .rectangleSize = {75, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_5_4 \
+    .lineBreaks = {0, 15, 0, 0, 0}, \
+    .textOrigins = {{20, 49}, {20, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {18, 47}, \
+    .rectangleSize = {59, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_5_3 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{34, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {32, 53}, \
+    .rectangleSize = {31, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_5_2 \
+    .lineBreaks = {0, 20, 38, 0, 0}, \
+    .textOrigins = {{10, 43}, {10, 49}, {10, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 41}, \
+    .rectangleSize = {79, 21}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_5_1 \
+    .lineBreaks = {0, 15, 36, 0, 0}, \
+    .textOrigins = {{8, 43}, {8, 49}, {8, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 41}, \
+    .rectangleSize = {83, 21}
+
+#define DIALOGUE_LAYOUT_dialogue_Level0_6_1 \
+    .lineBreaks = {0, 16, 36, 0, 0}, \
+    .textOrigins = {{10, 43}, {10, 49}, {10, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 41}, \
+    .rectangleSize = {79, 21}
+
+#define MAP_SPAWN_Level0Map \
+    .DefaultSpwanPoint = {0, 20}
 
 #endif
