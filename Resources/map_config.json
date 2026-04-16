@@ -18,8 +18,7 @@
           "mode": "color",
           "color": "#000000",
           "emoji": "",
-          "description": "Wall variant",
-          "wallExport": true
+          "description": "Wall variant"
         },
         {
           "id": 2,
@@ -27,8 +26,7 @@
           "mode": "color",
           "color": "#686868",
           "emoji": "",
-          "description": "it has a bit missing from the top and bottom",
-          "wallExport": true
+          "description": "it has a bit missing from the top and bottom"
         },
         {
           "id": 3,
@@ -36,8 +34,7 @@
           "mode": "color",
           "color": "#3f3f3f",
           "emoji": "",
-          "description": "it has a bit missing from the top",
-          "wallExport": true
+          "description": "it has a bit missing from the top"
         },
         {
           "id": 4,
@@ -45,8 +42,7 @@
           "mode": "color",
           "color": "#921da3",
           "emoji": "",
-          "description": "It has a small bit missing from the bottom",
-          "wallExport": true
+          "description": "It has a small bit missing from the bottom"
         },
         {
           "id": 5,
@@ -54,8 +50,7 @@
           "mode": "color",
           "color": "#52167e",
           "emoji": "",
-          "description": "top half is missing",
-          "wallExport": true
+          "description": "top half is missing"
         },
         {
           "id": 6,
@@ -63,8 +58,7 @@
           "mode": "color",
           "color": "#491eae",
           "emoji": "",
-          "description": "A door, can't walk through it, just looks like it.",
-          "wallExport": true
+          "description": "A door, can't walk through it, just looks like it."
         },
         {
           "id": 7,
@@ -72,8 +66,7 @@
           "mode": "color",
           "color": "#1e1b98",
           "emoji": "",
-          "description": "Like the door, but it has pixels at the bottom, not at the top",
-          "wallExport": true
+          "description": "Like the door, but it has pixels at the bottom, not at the top"
         },
         {
           "id": 8,
@@ -81,8 +74,7 @@
           "mode": "color",
           "color": "#3c67dd",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 9,
@@ -90,8 +82,7 @@
           "mode": "color",
           "color": "#3c94dd",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 10,
@@ -99,8 +90,7 @@
           "mode": "color",
           "color": "#3cc2dd",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 11,
@@ -108,8 +98,7 @@
           "mode": "color",
           "color": "#3cddca",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 12,
@@ -117,8 +106,7 @@
           "mode": "color",
           "color": "#3cdd9c",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 13,
@@ -126,8 +114,7 @@
           "mode": "color",
           "color": "#3cdd6f",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 14,
@@ -135,8 +122,7 @@
           "mode": "color",
           "color": "#1c9d1f",
           "emoji": "",
-          "description": "",
-          "wallExport": true
+          "description": ""
         },
         {
           "id": 15,
@@ -144,8 +130,7 @@
           "mode": "color",
           "color": "#2d7614",
           "emoji": "",
-          "description": "no wall for now",
-          "wallExport": true
+          "description": "no wall for now"
         }
       ]
     },
@@ -297,35 +282,39 @@
         },
         {
           "id": 1,
-          "name": "Spawn 1",
+          "name": "Spawn blob",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "▶️",
-          "description": "Spawn/marker slot"
+          "emoji": "🦠",
+          "description": "Spawnuti blobu",
+          "wallExport": false
         },
         {
           "id": 2,
-          "name": "Spawn 2",
+          "name": "Spawn ctyrrucka",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🟢",
-          "description": "Spawn/marker slot"
+          "emoji": "😋",
+          "description": "Tady se spawne ctyrrucka",
+          "wallExport": false
         },
         {
           "id": 3,
-          "name": "Spawn 3",
+          "name": "Spawn Chapadlak",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🔵",
-          "description": "Spawn/marker slot"
+          "emoji": "😫",
+          "description": "Tady se spawne chapadlak",
+          "wallExport": false
         },
         {
           "id": 4,
-          "name": "Spawn 4",
+          "name": "Spawn soldier",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🟡",
-          "description": "Spawn/marker slot"
+          "emoji": "👺",
+          "description": "Tady se spawnuje soldier",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -419,7 +408,7 @@
     },
     {
       "id": 3,
-      "name": "Item",
+      "name": "Event",
       "kinds": [
         {
           "id": 0,
@@ -431,11 +420,12 @@
         },
         {
           "id": 1,
-          "name": "Item 1",
+          "name": "Gun",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🔑",
-          "description": "Item slot"
+          "emoji": "🔫",
+          "description": "tady lezi guna",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -553,7 +543,7 @@
     },
     {
       "id": 4,
-      "name": "Type 4",
+      "name": "Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -589,91 +579,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Greeting",
+          "mode": "emoji",
           "color": "#bc3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "👋",
+          "description": "Greeting dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Question",
+          "mode": "emoji",
           "color": "#ddbf3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "❓",
+          "description": "Question dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Answer",
+          "mode": "emoji",
           "color": "#3cddc2",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💬",
+          "description": "Answer dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Farewell",
+          "mode": "emoji",
           "color": "#c43cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🫡",
+          "description": "Farewell dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "Warning",
+          "mode": "emoji",
           "color": "#ddc73c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⚠️",
+          "description": "Warning dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Threat",
+          "mode": "emoji",
           "color": "#3cddca",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😤",
+          "description": "Threat dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Beg",
+          "mode": "emoji",
           "color": "#cd3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🙏",
+          "description": "Beg dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Taunt",
+          "mode": "emoji",
           "color": "#ddcf3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😜",
+          "description": "Taunt dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Whisper",
+          "mode": "emoji",
           "color": "#3cddd2",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤫",
+          "description": "Whisper dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Shout",
+          "mode": "emoji",
           "color": "#d53cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📢",
+          "description": "Shout dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Silence",
+          "mode": "emoji",
           "color": "#ddd73c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤐",
+          "description": "Silence dialogue line"
         },
         {
           "id": 15,
@@ -687,7 +677,7 @@
     },
     {
       "id": 5,
-      "name": "Type 5",
+      "name": "NPC Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -723,91 +713,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
+          "name": "Quest Give",
           "mode": "emoji",
           "color": "#ddda3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📜",
+          "description": "Quest Give dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
+          "name": "Quest Done",
           "mode": "emoji",
           "color": "#3cdddd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "✅",
+          "description": "Quest Done dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
+          "name": "Quest Fail",
           "mode": "emoji",
           "color": "#dd3cda",
-          "emoji": "•",
-          "description": ""
+          "emoji": "❌",
+          "description": "Quest Fail dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
+          "name": "Shop Open",
           "mode": "emoji",
           "color": "#d7dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🛒",
+          "description": "Shop Open dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
+          "name": "Shop Bye",
           "mode": "emoji",
           "color": "#3cd5dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏪",
+          "description": "Shop Bye dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
+          "name": "Rumour",
           "mode": "emoji",
           "color": "#dd3cd2",
-          "emoji": "•",
-          "description": ""
+          "emoji": "👂",
+          "description": "Rumour dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
+          "name": "Lore",
           "mode": "emoji",
           "color": "#cfdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📖",
+          "description": "Lore dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
+          "name": "Joke",
           "mode": "emoji",
           "color": "#3ccddd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😂",
+          "description": "Joke dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
+          "name": "Riddle",
           "mode": "emoji",
           "color": "#dd3cca",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🧩",
+          "description": "Riddle dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
+          "name": "Hint",
           "mode": "emoji",
           "color": "#c7dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💡",
+          "description": "Hint dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
+          "name": "Story",
           "mode": "emoji",
           "color": "#3cc4dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📚",
+          "description": "Story dialogue line"
         },
         {
           "id": 15,
@@ -821,7 +811,7 @@
     },
     {
       "id": 6,
-      "name": "Type 6",
+      "name": "Combat Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -857,91 +847,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Battle Cry",
+          "mode": "emoji",
           "color": "#3cc2dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⚔️",
+          "description": "Battle Cry dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Surrender",
+          "mode": "emoji",
           "color": "#dd3cbf",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏳️",
+          "description": "Surrender dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Taunt",
+          "mode": "emoji",
           "color": "#bcdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "👊",
+          "description": "Taunt dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Victory",
+          "mode": "emoji",
           "color": "#3cbadd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏆",
+          "description": "Victory dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "Defeat",
+          "mode": "emoji",
           "color": "#dd3cb7",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💀",
+          "description": "Defeat dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Rally",
+          "mode": "emoji",
           "color": "#b4dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔥",
+          "description": "Rally dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Curse",
+          "mode": "emoji",
           "color": "#3cb2dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤬",
+          "description": "Curse dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Mercy",
+          "mode": "emoji",
           "color": "#dd3caf",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🕊️",
+          "description": "Mercy dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Challenge",
+          "mode": "emoji",
           "color": "#acdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🗡️",
+          "description": "Challenge dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Boast",
+          "mode": "emoji",
           "color": "#3caadd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😎",
+          "description": "Boast dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Pain",
+          "mode": "emoji",
           "color": "#dd3ca7",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😣",
+          "description": "Pain dialogue line"
         },
         {
           "id": 15,
@@ -955,7 +945,7 @@
     },
     {
       "id": 7,
-      "name": "Type 7",
+      "name": "Emotion Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -991,91 +981,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
+          "name": "Happy",
           "mode": "emoji",
           "color": "#dd3ca4",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😄",
+          "description": "Happy dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
+          "name": "Sad",
           "mode": "emoji",
           "color": "#a2dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😢",
+          "description": "Sad dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
+          "name": "Angry",
           "mode": "emoji",
           "color": "#3c9fdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😡",
+          "description": "Angry dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
+          "name": "Scared",
           "mode": "emoji",
           "color": "#dd3c9c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😨",
+          "description": "Scared dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
+          "name": "Surprised",
           "mode": "emoji",
           "color": "#9add3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😲",
+          "description": "Surprised dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
+          "name": "Disgusted",
           "mode": "emoji",
           "color": "#3c97dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤢",
+          "description": "Disgusted dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
+          "name": "Confused",
           "mode": "emoji",
           "color": "#dd3c94",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😕",
+          "description": "Confused dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
+          "name": "Excited",
           "mode": "emoji",
           "color": "#92dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤩",
+          "description": "Excited dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
+          "name": "Bored",
           "mode": "emoji",
           "color": "#3c8fdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😑",
+          "description": "Bored dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
+          "name": "Nervous",
           "mode": "emoji",
           "color": "#dd3c8c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😰",
+          "description": "Nervous dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
+          "name": "Relieved",
           "mode": "emoji",
           "color": "#8add3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😌",
+          "description": "Relieved dialogue line"
         },
         {
           "id": 15,
@@ -1089,7 +1079,7 @@
     },
     {
       "id": 8,
-      "name": "Type 8",
+      "name": "Merchant Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1125,91 +1115,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Welcome",
+          "mode": "emoji",
           "color": "#87dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤝",
+          "description": "Welcome dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Sell",
+          "mode": "emoji",
           "color": "#3c84dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💰",
+          "description": "Sell dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Buy",
+          "mode": "emoji",
           "color": "#dd3c82",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💸",
+          "description": "Buy dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Haggle",
+          "mode": "emoji",
           "color": "#7fdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🪙",
+          "description": "Haggle dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "No Deal",
+          "mode": "emoji",
           "color": "#3c7cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🚫",
+          "description": "No Deal dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Special Offer",
+          "mode": "emoji",
           "color": "#dd3c7a",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🌟",
+          "description": "Special Offer dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Out of Stock",
+          "mode": "emoji",
           "color": "#77dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📭",
+          "description": "Out of Stock dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Restock",
+          "mode": "emoji",
           "color": "#3c74dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📬",
+          "description": "Restock dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Rare Item",
+          "mode": "emoji",
           "color": "#dd3c71",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💎",
+          "description": "Rare Item dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Discount",
+          "mode": "emoji",
           "color": "#6fdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏷️",
+          "description": "Discount dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Goodbye",
+          "mode": "emoji",
           "color": "#3c6cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "👜",
+          "description": "Goodbye dialogue line"
         },
         {
           "id": 15,
@@ -1223,7 +1213,7 @@
     },
     {
       "id": 9,
-      "name": "Type 9",
+      "name": "Guard Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1259,91 +1249,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
+          "name": "Halt",
           "mode": "emoji",
           "color": "#3c69dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "✋",
+          "description": "Halt dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
+          "name": "Pass",
           "mode": "emoji",
           "color": "#dd3c67",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🟢",
+          "description": "Pass dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
+          "name": "Deny",
           "mode": "emoji",
           "color": "#64dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔴",
+          "description": "Deny dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
+          "name": "Alarm",
           "mode": "emoji",
           "color": "#3c61dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🚨",
+          "description": "Alarm dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
+          "name": "Patrol",
           "mode": "emoji",
           "color": "#dd3c5f",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔦",
+          "description": "Patrol dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
+          "name": "Suspicion",
           "mode": "emoji",
           "color": "#5cdd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🧐",
+          "description": "Suspicion dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
+          "name": "Arrest",
           "mode": "emoji",
           "color": "#3c59dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⛓️",
+          "description": "Arrest dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
+          "name": "Report",
           "mode": "emoji",
           "color": "#dd3c57",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📋",
+          "description": "Report dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
+          "name": "Bribe",
           "mode": "emoji",
           "color": "#54dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💵",
+          "description": "Bribe dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
+          "name": "Off Duty",
           "mode": "emoji",
           "color": "#3c51dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😴",
+          "description": "Off Duty dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
+          "name": "On Duty",
           "mode": "emoji",
           "color": "#dd3c4f",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🪖",
+          "description": "On Duty dialogue line"
         },
         {
           "id": 15,
@@ -1357,7 +1347,7 @@
     },
     {
       "id": 10,
-      "name": "Type 10",
+      "name": "Tutorial Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1393,91 +1383,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Move",
+          "mode": "emoji",
           "color": "#dd3c4c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🕹️",
+          "description": "Move dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Attack",
+          "mode": "emoji",
           "color": "#49dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🗡️",
+          "description": "Attack dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Defend",
+          "mode": "emoji",
           "color": "#3c47dd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🛡️",
+          "description": "Defend dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Interact",
+          "mode": "emoji",
           "color": "#dd3c44",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🖱️",
+          "description": "Interact dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "Inventory",
+          "mode": "emoji",
           "color": "#41dd3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🎒",
+          "description": "Inventory dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Map",
+          "mode": "emoji",
           "color": "#3c3fdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🗺️",
+          "description": "Map dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Save",
+          "mode": "emoji",
           "color": "#dd3c3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💾",
+          "description": "Save dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Objective",
+          "mode": "emoji",
           "color": "#3cdd3f",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🎯",
+          "description": "Objective dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Skill",
+          "mode": "emoji",
           "color": "#413cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🧠",
+          "description": "Skill dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Shortcut",
+          "mode": "emoji",
           "color": "#dd443c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⌨️",
+          "description": "Shortcut dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Complete",
+          "mode": "emoji",
           "color": "#3cdd47",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🎓",
+          "description": "Complete dialogue line"
         },
         {
           "id": 15,
@@ -1491,7 +1481,7 @@
     },
     {
       "id": 11,
-      "name": "Type 11",
+      "name": "Radio Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1527,91 +1517,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
+          "name": "Broadcast",
           "mode": "emoji",
           "color": "#3cdd49",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📡",
+          "description": "Broadcast dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
+          "name": "Incoming",
           "mode": "emoji",
           "color": "#4c3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📥",
+          "description": "Incoming dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
+          "name": "Static",
           "mode": "emoji",
           "color": "#dd4f3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📻",
+          "description": "Static dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
+          "name": "Encrypted",
           "mode": "emoji",
           "color": "#3cdd51",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔒",
+          "description": "Encrypted dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
+          "name": "Clear",
           "mode": "emoji",
           "color": "#543cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔓",
+          "description": "Clear dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
+          "name": "Distress",
           "mode": "emoji",
           "color": "#dd573c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🆘",
+          "description": "Distress dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
+          "name": "Coordinates",
           "mode": "emoji",
           "color": "#3cdd59",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📍",
+          "description": "Coordinates dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
+          "name": "Stand By",
           "mode": "emoji",
           "color": "#5c3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⏸️",
+          "description": "Stand By dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
+          "name": "Copy That",
           "mode": "emoji",
           "color": "#dd5f3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "✔️",
+          "description": "Copy That dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
+          "name": "Negative",
           "mode": "emoji",
           "color": "#3cdd61",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🚫",
+          "description": "Negative dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
+          "name": "Over & Out",
           "mode": "emoji",
           "color": "#643cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "📴",
+          "description": "Over & Out dialogue line"
         },
         {
           "id": 15,
@@ -1625,7 +1615,7 @@
     },
     {
       "id": 12,
-      "name": "Type 12",
+      "name": "Cutscene Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1661,91 +1651,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Monologue",
+          "mode": "emoji",
           "color": "#673cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🎭",
+          "description": "Monologue dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Reveal",
+          "mode": "emoji",
           "color": "#dd693c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🎬",
+          "description": "Reveal dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Flashback",
+          "mode": "emoji",
           "color": "#3cdd6c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⏪",
+          "description": "Flashback dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Dream",
+          "mode": "emoji",
           "color": "#6f3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💭",
+          "description": "Dream dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "Confession",
+          "mode": "emoji",
           "color": "#dd713c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🤭",
+          "description": "Confession dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Betrayal",
+          "mode": "emoji",
           "color": "#3cdd74",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🗡️",
+          "description": "Betrayal dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Reunion",
+          "mode": "emoji",
           "color": "#773cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🫂",
+          "description": "Reunion dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Death",
+          "mode": "emoji",
           "color": "#dd7a3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "⚰️",
+          "description": "Death dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Birth",
+          "mode": "emoji",
           "color": "#3cdd7c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🍼",
+          "description": "Birth dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Prophecy",
+          "mode": "emoji",
           "color": "#7f3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔮",
+          "description": "Prophecy dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Epilogue",
+          "mode": "emoji",
           "color": "#dd823c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🌅",
+          "description": "Epilogue dialogue line"
         },
         {
           "id": 15,
@@ -1759,7 +1749,7 @@
     },
     {
       "id": 13,
-      "name": "Type 13",
+      "name": "Puzzle Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1795,91 +1785,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
+          "name": "Clue",
           "mode": "emoji",
           "color": "#dd843c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔍",
+          "description": "Clue dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
+          "name": "Wrong",
           "mode": "emoji",
           "color": "#3cdd87",
-          "emoji": "•",
-          "description": ""
+          "emoji": "❌",
+          "description": "Wrong dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
+          "name": "Correct",
           "mode": "emoji",
           "color": "#8a3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "✅",
+          "description": "Correct dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
+          "name": "Hint",
           "mode": "emoji",
           "color": "#dd8c3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💡",
+          "description": "Hint dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
+          "name": "Reset",
           "mode": "emoji",
           "color": "#3cdd8f",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔄",
+          "description": "Reset dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
+          "name": "Locked",
           "mode": "emoji",
           "color": "#923cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔒",
+          "description": "Locked dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
+          "name": "Unlocked",
           "mode": "emoji",
           "color": "#dd943c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔓",
+          "description": "Unlocked dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
+          "name": "Cipher",
           "mode": "emoji",
           "color": "#3cdd97",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔣",
+          "description": "Cipher dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
+          "name": "Symbol",
           "mode": "emoji",
           "color": "#9a3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🔯",
+          "description": "Symbol dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
+          "name": "Pattern",
           "mode": "emoji",
           "color": "#dd9c3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🟦",
+          "description": "Pattern dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
+          "name": "Solved",
           "mode": "emoji",
           "color": "#3cdd9f",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏅",
+          "description": "Solved dialogue line"
         },
         {
           "id": 15,
@@ -1893,7 +1883,7 @@
     },
     {
       "id": 14,
-      "name": "Type 14",
+      "name": "Boss Dialogue",
       "kinds": [
         {
           "id": 0,
@@ -1929,91 +1919,91 @@
         },
         {
           "id": 4,
-          "name": "Kind 4",
-          "mode": "color",
+          "name": "Intro",
+          "mode": "emoji",
           "color": "#3cdda2",
-          "emoji": "•",
-          "description": ""
+          "emoji": "👑",
+          "description": "Intro dialogue line"
         },
         {
           "id": 5,
-          "name": "Kind 5",
-          "mode": "color",
+          "name": "Phase 2",
+          "mode": "emoji",
           "color": "#a43cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💢",
+          "description": "Phase 2 dialogue line"
         },
         {
           "id": 6,
-          "name": "Kind 6",
-          "mode": "color",
+          "name": "Phase 3",
+          "mode": "emoji",
           "color": "#dda73c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💥",
+          "description": "Phase 3 dialogue line"
         },
         {
           "id": 7,
-          "name": "Kind 7",
-          "mode": "color",
+          "name": "Enrage",
+          "mode": "emoji",
           "color": "#3cddaa",
-          "emoji": "•",
-          "description": ""
+          "emoji": "😈",
+          "description": "Enrage dialogue line"
         },
         {
           "id": 8,
-          "name": "Kind 8",
-          "mode": "color",
+          "name": "Summon",
+          "mode": "emoji",
           "color": "#ac3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🌀",
+          "description": "Summon dialogue line"
         },
         {
           "id": 9,
-          "name": "Kind 9",
-          "mode": "color",
+          "name": "Gloat",
+          "mode": "emoji",
           "color": "#ddaf3c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🦹",
+          "description": "Gloat dialogue line"
         },
         {
           "id": 10,
-          "name": "Kind 10",
-          "mode": "color",
+          "name": "Weak",
+          "mode": "emoji",
           "color": "#3cddb2",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🩸",
+          "description": "Weak dialogue line"
         },
         {
           "id": 11,
-          "name": "Kind 11",
-          "mode": "color",
+          "name": "Final Words",
+          "mode": "emoji",
           "color": "#b43cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "💬",
+          "description": "Final Words dialogue line"
         },
         {
           "id": 12,
-          "name": "Kind 12",
-          "mode": "color",
+          "name": "Death",
+          "mode": "emoji",
           "color": "#ddb73c",
-          "emoji": "•",
-          "description": ""
+          "emoji": "☠️",
+          "description": "Death dialogue line"
         },
         {
           "id": 13,
-          "name": "Kind 13",
-          "mode": "color",
+          "name": "Escape",
+          "mode": "emoji",
           "color": "#3cddba",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🌫️",
+          "description": "Escape dialogue line"
         },
         {
           "id": 14,
-          "name": "Kind 14",
-          "mode": "color",
+          "name": "Defeated",
+          "mode": "emoji",
           "color": "#bc3cdd",
-          "emoji": "•",
-          "description": ""
+          "emoji": "🏴",
+          "description": "Defeated dialogue line"
         },
         {
           "id": 15,
