@@ -527,3 +527,23 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
   }
 }
 
+void EnemyRandomMovement(entity_t *entities, int amount){
+    static int prevFrames = 0;
+    prevFrames++;
+    if (prevFrames > 20) {
+        prevFrames = 0;
+        for(int i = 0; i < amount; i++){
+            if(entities[i].health <= 0 || entities[i].lineOfSight == 0) // don't change movement if dead or if player is in sight, prevents jittering
+              continue;
+
+            int32_t amplitude = FX_I(entities[i].movementModifier);
+            int32_t span;
+            int32_t value;
+            if (amplitude < 0) amplitude = -amplitude;
+            span = (amplitude << 1);
+            value = ((int32_t)rand16() % span) - amplitude;
+            entities[i].lateralModifier = (fx_t)value;
+        }
+    }
+}
+
