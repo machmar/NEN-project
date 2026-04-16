@@ -183,6 +183,6 @@
     .rectangleSize = {79, 21}
 
 #define MAP_SPAWN_Level0Map \
-    .DefaultSpwanPoint = {0, 20}
+    .DefaultSpwanPoint = {1, 9}
 
 #endif

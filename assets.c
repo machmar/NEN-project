@@ -332,8 +332,8 @@ static void Level0Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialog
 }
 
 map_t Level0Map = {
-    15,
-    25,
+    8,
+    11,
     Level0_data,
     MAP_SPAWN_Level0Map,
     &Level0_bitmap,
