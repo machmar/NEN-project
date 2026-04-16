@@ -115,6 +115,12 @@ static entity_t entities[2];
 map_t *CurrentMap = &WallDemoMap;
 dialogue_t *CurrentDialogue = NULL;
 
+static void OnMapEvent(uint8_t param1, uint8_t param2) {
+    // param1 = eventNum (tile & 0x0F), param2 = stepOn
+    (void)param1;
+    (void)param2;
+}
+
 void main(void) {
     init_ports();
     initDisplay();
@@ -122,6 +128,7 @@ void main(void) {
     dogm128_init();
     Backlight(1023);
     set_LEDs(0x00);
+    MapEventCallback = OnMapEvent;
 
     camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
     camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);

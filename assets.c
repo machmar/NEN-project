@@ -1,6 +1,8 @@
 #include "assets.h"
 #include "assets_precomputed.h"
 
+void (*MapEventCallback)(uint8_t param1, uint8_t param2) = NULL;
+
 // When defining the dialogue, add the macro like it is in others, python generates the data for it into assets_precomputed.h before compilation
 const dialogue_t dialogue_GunFound6 = {
     "got like 500 bullets in there",
@@ -132,7 +134,7 @@ static const uint8_t SmallMap_banner_data[] = {
 
 const dogm128_bitmap_t SmallMap_banner = {76, 8, SmallMap_banner_data};
 
-const map_t SmallMap = {
+map_t SmallMap = {
     20,
     15,
     SmallMap_data,
@@ -209,7 +211,7 @@ static const uint8_t BigMap_banner_data[] = {
 
 const dogm128_bitmap_t BigMap_banner = {76, 8, BigMap_banner_data};
 
-const map_t BigMap = {
+map_t BigMap = {
     32,
     64,
     BigMap_data,
@@ -270,7 +272,7 @@ static const uint8_t TestMap_banner_data[] = {
 
 const dogm128_bitmap_t TestMap_banner = {76, 8, TestMap_banner_data};
 
-const map_t TestMap = {
+map_t TestMap = {
     24,
     24,
     TestMap_data,
@@ -347,7 +349,7 @@ static const uint8_t AgentOrange_banner_data[] = {
 
 const dogm128_bitmap_t AgentOrange_banner = {76, 8, AgentOrange_banner_data};
 
-const map_t AgentOrangeMap = {
+map_t AgentOrangeMap = {
     32,
     64,
     AgentOrange_data,
@@ -426,6 +428,8 @@ static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *pl
                 break;
         }
     }
+    
+    if (MapEventCallback) MapEventCallback(eventNum, stepOn);
 }
 
 static void WallDemoMap_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
@@ -433,7 +437,7 @@ static void WallDemoMap_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDial
         *pDialogue = &dialogue_Room1;
 }
 
-const map_t WallDemoMap = {
+map_t WallDemoMap = {
     15,
     25,
     WallDemo_data,

@@ -16,7 +16,7 @@ void HUD_DrawBanner(const dogm128_bitmap_t *text) {
     dogm128_blit_or(10, 0, text, 0);
 }
 
-void HUD_DrawMap(const map_t *map, const player_t *player) {
+void HUD_DrawMap(map_t *map, const player_t *player) {
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;
     if (map->height > 32)
@@ -52,7 +52,7 @@ void HUD_DrawBorders() {
 }
 
 void HUD_DrawItem(item_t item) {
-    if (item >= ITEM_GUN)
+    if (item >= ITEM_COUNT)
         return;
 
     switch (item) {
