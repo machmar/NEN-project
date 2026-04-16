@@ -58,6 +58,44 @@ static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
 static const fx_t ENEMY_MOVE_SPEED = FX(1) / 8;
 
+#define CLEAR_VISIBLE_ROWS(rows) do { \
+  (rows)[0] = 0; (rows)[1] = 0; (rows)[2] = 0; (rows)[3] = 0; \
+  (rows)[4] = 0; (rows)[5] = 0; (rows)[6] = 0; (rows)[7] = 0; \
+} while (0)
+
+#define COPY_VISIBLE_ROWS(dst, src) do { \
+  (dst)[0] = (src)[0]; (dst)[1] = (src)[1]; (dst)[2] = (src)[2]; (dst)[3] = (src)[3]; \
+  (dst)[4] = (src)[4]; (dst)[5] = (src)[5]; (dst)[6] = (src)[6]; (dst)[7] = (src)[7]; \
+} while (0)
+
+static inline void DrawEntities_ApplyStripeMasks(uint8_t *display_buffer,
+                         uint16_t bufferIndex,
+                         uint8_t pixelStride,
+                         uint8_t fillMask,
+                         uint8_t fillClearMask,
+                         uint8_t edgeHClearMask,
+                         uint8_t edgeVClearMask)
+{
+  if (!(fillMask || fillClearMask || edgeHClearMask || edgeVClearMask))
+    return;
+
+  uint8_t mergedClear = (uint8_t)(fillClearMask | edgeHClearMask);
+  uint8_t invClear = (uint8_t)(~mergedClear);
+  uint8_t *dst = &display_buffer[bufferIndex];
+
+  dst[0] = (uint8_t)((dst[0] & invClear) | fillMask);
+  if (pixelStride > 1)
+    dst[1] = (uint8_t)((dst[1] & invClear) | fillMask);
+  if (pixelStride > 2)
+    dst[2] = (uint8_t)((dst[2] & invClear) | fillMask);
+  if (pixelStride > 3)
+    dst[3] = (uint8_t)((dst[3] & invClear) | fillMask);
+
+  // Keep vertical outline 1px wide even when coarse x stride is enabled.
+  if (edgeVClearMask)
+    dst[0] &= (uint8_t)(~edgeVClearMask);
+}
+
 int RenderFrame(player_t *player, map_t *map, line_t *buffer)
 {
     int x;
@@ -313,72 +351,108 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   uint8_t rendered = 0;
   if (amount <= 0)
       return;
+  if (amount > MAX_ENTITIES)
+      amount = MAX_ENTITIES;
 
-  // Precompute squared distance once, then insertion-sort (fewer moves than bubble sort for small arrays).
+  uint8_t renderOrder[MAX_ENTITIES];
+
+    fx_t playerPosX = player->posX;
+    fx_t playerPosY = player->posY;
+    fx_t playerDirX = player->dirX;
+    fx_t playerDirY = player->dirY;
+    fx_t playerPlaneX = player->planeX;
+    fx_t playerPlaneY = player->planeY;
+    fx_t *zBuffer = player->zBuffer;
+    int walkFrameThreshold = FRAMES_PER_WALK * amount;
+
+    // Precompute squared distance and initialize render order.
   for (int i = 0; i < amount; i++)
   {
-      fx_t dx = fx_sub(player->posX, entities[i].posX);
-      fx_t dy = fx_sub(player->posY, entities[i].posY);
+      fx_t dx = fx_sub(playerPosX, entities[i].posX);
+      fx_t dy = fx_sub(playerPosY, entities[i].posY);
       entities[i].distance = fx_add(fx_mul(dx, dx), fx_mul(dy, dy));
+      renderOrder[i] = (uint8_t)i;
   }
 
+    // Sort only indices (far to near), avoiding full entity struct moves.
   for (int i = 1; i < amount; i++)
   {
-      entity_t key = entities[i];
+      uint8_t keyIndex = renderOrder[i];
+      fx_t keyDistance = entities[keyIndex].distance;
       int j = i - 1;
-      while (j >= 0 && entities[j].distance < key.distance)
+      while (j >= 0 && entities[renderOrder[j]].distance < keyDistance)
       {
-          entities[j + 1] = entities[j];
+        renderOrder[j + 1] = renderOrder[j];
           j--;
       }
-      entities[j + 1] = key;
+      renderOrder[j + 1] = keyIndex;
   }
 
-  fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(player->planeX, player->dirY), fx_mul(player->dirX, player->planeY)));
+  fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(playerPlaneX, playerDirY), fx_mul(playerDirX, playerPlaneY)));
 
-  // Render entities.
+  // Render entities in sorted order.
   for (int i = 0; i < amount; i++)
   {
-    if (entities[i].sprite->data[0] == 0)
+    entity_t *e = &entities[renderOrder[i]];
+    spriteData_t *sprite = e->sprite;
+
+    if (sprite->data[0] == 0)
       continue;
 
     // Translate sprite position relative to camera.
-    fx_t spriteX = fx_sub(entities[i].posX, player->posX);
-    fx_t spriteY = fx_sub(entities[i].posY, player->posY);
+    fx_t spriteX = fx_sub(e->posX, playerPosX);
+    fx_t spriteY = fx_sub(e->posY, playerPosY);
+    fx_t cameraX = fx_sub(fx_mul(playerDirY, spriteX), fx_mul(playerDirX, spriteY));
+    fx_t cameraY = fx_add(fx_mul(fx_neg(playerPlaneY), spriteX), fx_mul(playerPlaneX, spriteY));
+
+    // Cull sprites behind camera or clearly outside horizontal FOV before more expensive math.
+    if (cameraY <= 0)
+      continue;
+
+    if ((int32_t)fx_abs_fast(cameraX) > (int32_t)cameraY * 2)
+      continue;
 
     // Transform sprite with inverse camera matrix.
-    fx_t transformX = fx_mul(invDet, fx_sub(fx_mul(player->dirY, spriteX), fx_mul(player->dirX, spriteY)));
-    fx_t transformY = fx_mul(invDet, fx_add(fx_mul(fx_neg(player->planeY), spriteX), fx_mul(player->planeX, spriteY)));
+    fx_t transformY = fx_mul(invDet, cameraY);
     if (transformY <= FX_RAW(32))
       continue;
+    fx_t transformX = fx_mul(invDet, cameraX);
 
-    // Skip sprite if it's clearly outside horizontal FOV — prevents int16 overflow in fx_div
-    if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
-      continue;
-
-    int spriteScreenX = VIEWPORT_HALF_W - FX_I(fx_mul(FX(VIEWPORT_HALF_W), fx_div(transformX, transformY)));
-    int heightOffsetScreen = FX_I(fx_div(entities[i].heightOffset, transformY));
+    // Use one reciprocal for several projections to reduce expensive fixed-point divisions.
+    fx_t invTransformY = fx_inv_clamped(transformY);
+    fx_t projectedScale = fx_mul(FX(screenHeight), invTransformY);
+    int spriteScreenX = VIEWPORT_HALF_W - FX_I(fx_mul(FX(VIEWPORT_HALF_W), fx_mul(transformX, invTransformY)));
+    int heightOffsetScreen = FX_I(fx_mul(e->heightOffset, invTransformY));
 
     // Calculate projected sprite size.
-    int spriteHeight = FX_I(fx_abs_fast(fx_div(FX(screenHeight), transformY)));
+    int spriteHeight = FX_I(fx_abs_fast(projectedScale));
     if (spriteHeight <= 0)
       continue;
 
-    int drawStartY = -(spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
+    int spriteCenterY = VIEWPORT_HALF_H + heightOffsetScreen;
+    int halfSpriteH = spriteHeight >> 1;
+    if ((spriteCenterY + halfSpriteH) <= 0 || (spriteCenterY - halfSpriteH) >= screenHeight)
+      continue;
+
+    int drawStartY = -halfSpriteH + spriteCenterY;
     if (drawStartY < 0) drawStartY = 0;
-    int drawEndY = (spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
+    int drawEndY = halfSpriteH + spriteCenterY;
     if (drawEndY >= screenHeight) drawEndY = screenHeight - 1;
     if (drawEndY <= drawStartY)
       continue;
 
-    int spriteWidth = FX_I(fx_abs_fast(fx_div(fx_div(FX(screenHeight), transformY), entities[i].ratio)));
+    int spriteWidth = FX_I(fx_abs_fast(fx_div(projectedScale, e->ratio)));
     if (spriteWidth <= 0)
       continue;
 
-    int spriteLeft = -(spriteWidth >> 1) + spriteScreenX;
+    int halfSpriteW = spriteWidth >> 1;
+    if ((spriteScreenX + halfSpriteW) <= 0 || (spriteScreenX - halfSpriteW) >= VIEWPORT_WIDTH_PIXELS)
+      continue;
+
+    int spriteLeft = spriteScreenX - halfSpriteW;
     int drawStartX = spriteLeft;
     if (drawStartX < 0) drawStartX = 0;
-    int drawEndX = (spriteWidth >> 1) + spriteScreenX;
+    int drawEndX = spriteScreenX + halfSpriteW;
     if (drawEndX >= VIEWPORT_WIDTH_PIXELS) drawEndX = VIEWPORT_WIDTH_PIXELS - 1;
     if (drawEndX <= drawStartX)
       continue;
@@ -394,93 +468,88 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     screenYStart = drawStartY;
 
     // Incremental texture mapping removes divisions from inner loops.
-    uint16_t texXStep = (uint16_t)(entities[i].sprite->width << 8) / (uint16_t)spriteWidth;
+    uint8_t texWidth = sprite->width;
+    uint8_t texHeight = sprite->height;
+    uint16_t texXStep = (uint16_t)(texWidth << 8) / (uint16_t)spriteWidth;
     uint16_t texXPos = (uint16_t)(drawStartX - spriteLeft) * texXStep;
     uint16_t texYBase = (uint16_t)((drawStartY - heightOffsetScreen) << 8) - (screenHeight << 7) + ((uint16_t)spriteHeight << 7);
-    uint16_t texYStep = (uint16_t)(entities[i].sprite->height << 8) / (uint16_t)spriteHeight;
-    uint16_t texYStart = (uint16_t)(texYBase * entities[i].sprite->height) / (uint16_t)spriteHeight;
+    uint16_t texYStep = (uint16_t)(texHeight << 8) / (uint16_t)spriteHeight;
+    uint16_t texYStart = (uint16_t)(texYBase * texHeight) / (uint16_t)spriteHeight;
+    uint16_t texXAdvance;
 
     static uint8_t walkSprite = 0;
-    if(entities[i].walking && prevFrames > FRAMES_PER_WALK * amount){
+    if(e->walking && prevFrames > walkFrameThreshold){
       walkSprite ^= 1;
       prevFrames = 0;
     }
     uint8_t usedSprite = walkSprite;
-    if(entities[i].health <= 0)
+    if(e->health <= 0)
       usedSprite = 2;
+    const uint8_t *spriteFrame = sprite->data[usedSprite];
 
-    uint8_t pixelStride = (entities[i].distance < FX(6)) ? ((entities[i].distance < FX(3)) ? 4 : 2) : 1;
-    for (uint8_t r = 0; r < 8; r++)
-      g_draw_leftVisibleRows[r] = 0;
+    uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
+    CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
+    texXAdvance = (uint16_t)(texXStep * pixelStride);
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
     {
-      if (transformY >= player->zBuffer[stripe >> 1])
+      if (transformY >= zBuffer[stripe >> 1])
       {
-        for (uint8_t r = 0; r < 8; r++)
-          g_draw_leftVisibleRows[r] = 0;
-        texXPos += texXStep * pixelStride;
+        CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
+        texXPos += texXAdvance;
         continue;
       }
 
       uint16_t texX = texXPos >> 8;
-      texXPos += texXStep * pixelStride;
-      if (texX >= entities[i].sprite->width)
+      texXPos += texXAdvance;
+      if (texX >= texWidth)
       {
-        for (uint8_t r = 0; r < 8; r++)
-          g_draw_leftVisibleRows[r] = 0;
+        CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
         continue;
       }
 
       uint16_t texYPos = texYStart;
-      uint8_t page = (uint8_t)(drawStartY >> 3);
-      uint8_t nextPageY = (page + 1) << 3;
+      uint8_t rowIndex = (uint8_t)(drawStartY >> 3);
+      uint8_t screenBit = (uint8_t)(1U << (drawStartY & 7));
       uint8_t fillMask = 0;
       uint8_t fillClearMask = 0;
       uint8_t edgeHClearMask = 0;
       uint8_t edgeVClearMask = 0;
-      uint16_t bufferIndex = (page * SCREEN_WIDTH) + stripe;
+      uint16_t bufferIndex = ((uint16_t)rowIndex * SCREEN_WIDTH) + stripe;
       uint8_t prevVisibleInStripe = 0;
-      for (uint8_t r = 0; r < 8; r++)
-        g_draw_currentVisibleRows[r] = 0;
+      uint16_t lastTexY = 0xFFFF;
+      uint16_t texRowOffset = 0;
+      CLEAR_VISIBLE_ROWS(g_draw_currentVisibleRows);
 
       for (uint8_t y = (uint8_t)drawStartY; y < drawEndY; y++)
       {
-        if (y == nextPageY)
-        {
-          if (fillMask || fillClearMask || edgeHClearMask || edgeVClearMask)
-          {
-            uint8_t mergedClear = fillClearMask | edgeHClearMask;
-            for (uint8_t p = 0; p < pixelStride; p++)
-              display_buffer[bufferIndex + p] &= ~mergedClear;
-            for (uint8_t p = 0; p < pixelStride; p++)
-              display_buffer[bufferIndex + p] |= fillMask;
-
-            // Keep vertical outline 1px wide even when coarse x stride is enabled.
-            if (edgeVClearMask)
-              display_buffer[bufferIndex] &= ~edgeVClearMask;
-          }
-          page++;
-          nextPageY += 8;
-          bufferIndex = (page * SCREEN_WIDTH) + stripe;
-          fillMask = 0;
-          fillClearMask = 0;
-          edgeHClearMask = 0;
-          edgeVClearMask = 0;
-        }
-
         uint16_t texY = texYPos >> 8;
-        uint8_t screenBit = (uint8_t)(1U << (y & 7));
-        uint8_t rowIndex = (uint8_t)(y >> 3);
         uint8_t leftVisible = (g_draw_leftVisibleRows[rowIndex] & screenBit) ? 1 : 0;
         uint8_t visible = 0;
         uint8_t texColor = 0;
 
-        if (texY < entities[i].sprite->height)
+        if (texY < texHeight)
         {
-          uint16_t idx = (uint16_t)(texY * entities[i].sprite->width + texX);
+          if (texY != lastTexY)
+          {
+            if (lastTexY == 0xFFFF)
+            {
+              texRowOffset = (uint16_t)(texY * texWidth);
+            }
+            else
+            {
+              uint16_t dTexY = (uint16_t)(texY - lastTexY);
+              if (dTexY == 1)
+                texRowOffset += texWidth;
+              else
+                texRowOffset += (uint16_t)(dTexY * texWidth);
+            }
+            lastTexY = texY;
+          }
+
+          uint16_t idx = (uint16_t)(texRowOffset + texX);
           uint8_t shift = (uint8_t)(idx & 7);
-          const uint8_t *pair = &entities[i].sprite->data[usedSprite][(idx >> 3) * 2];
+          const uint8_t *pair = &spriteFrame[(idx >> 3) * 2];
           uint8_t texBit = (uint8_t)(1U << shift);
 
           visible = ((uint8_t)(~pair[0]) & texBit) ? 1 : 0;
@@ -508,21 +577,29 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
         texYPos += texYStep;
         prevVisibleInStripe = visible;
+
+        if (screenBit == 0x80)
+        {
+          DrawEntities_ApplyStripeMasks(display_buffer, bufferIndex, pixelStride,
+                                        fillMask, fillClearMask, edgeHClearMask, edgeVClearMask);
+          bufferIndex += SCREEN_WIDTH;
+          fillMask = 0;
+          fillClearMask = 0;
+          edgeHClearMask = 0;
+          edgeVClearMask = 0;
+          screenBit = 1;
+          rowIndex++;
+        }
+        else
+        {
+          screenBit <<= 1;
+        }
       }
 
-      if (fillMask || fillClearMask || edgeHClearMask || edgeVClearMask) {
-        uint8_t mergedClear = fillClearMask | edgeHClearMask;
-        for (uint8_t p = 0; p < pixelStride; p++)
-          display_buffer[bufferIndex + p] &= ~mergedClear;
-        for (uint8_t p = 0; p < pixelStride; p++)
-          display_buffer[bufferIndex + p] |= fillMask;
+      DrawEntities_ApplyStripeMasks(display_buffer, bufferIndex, pixelStride,
+                                    fillMask, fillClearMask, edgeHClearMask, edgeVClearMask);
 
-        if (edgeVClearMask)
-          display_buffer[bufferIndex] &= ~edgeVClearMask;
-      }
-
-      for (uint8_t r = 0; r < 8; r++)
-        g_draw_leftVisibleRows[r] = g_draw_currentVisibleRows[r];
+      COPY_VISIBLE_ROWS(g_draw_leftVisibleRows, g_draw_currentVisibleRows);
     }
   }
 }
