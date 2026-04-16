@@ -24,7 +24,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "raycasting.h"
 #include "dogm128_fast.h"
 #include "fx8.h"
+#include "utils.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 #define FRAMES_PER_WALK 4
 #define SCREEN_WIDTH 128
@@ -325,7 +327,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   }
 
   fx_t *zBuffer = player->zBuffer;
-  int screenWidthPixels = screenWidth; // Half-resolution: 48 strips covering 96 pixels
+  int screenWidthPixels = screenWidth << 1; // 96 px wide 3D viewport
   int halfW = screenWidthPixels >> 1;
   int halfH = screenHeight >> 1;
   
@@ -406,12 +408,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if(entities[i].health <= 0)
       usedSprite = 2;
 
-    uint8_t pixelStride = (entities[i].distance < FX(3)) ? 4 : 2;
-    uint8_t loopStride = (pixelStride >> 1);
+    uint8_t pixelStride = (entities[i].distance < FX(6)) ? ((entities[i].distance < FX(3)) ? 4 : 2) : 1;
+    uint8_t loopStride = pixelStride;
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += loopStride)
     {
-      if (transformY >= zBuffer[stripe])
+      if (transformY >= zBuffer[stripe >> 1])
       {
         texXPos += texXStep * loopStride;
         continue;
@@ -427,7 +429,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       uint8_t nextPageY = (page + 1) << 3;
       uint8_t mask = 0;
       uint8_t clearMask = 0;
-      uint16_t bufferIndex = (page * SCREEN_WIDTH) + stripe * 2;
+      uint16_t bufferIndex = (page * SCREEN_WIDTH) + stripe;
 
       for (uint8_t y = (uint8_t)drawStartY; y < drawEndY; y++)
       {
@@ -442,7 +444,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
           }
           page++;
           nextPageY += 8;
-          bufferIndex = (page * SCREEN_WIDTH) + stripe * 2;
+          bufferIndex = (page * SCREEN_WIDTH) + stripe;
           mask = 0;
           clearMask = 0;
         }
