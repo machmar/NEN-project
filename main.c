@@ -113,7 +113,15 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[4];
-map_t *CurrentMap = &TestMap;
+map_t *CurrentMap = &WallDemoMap;
+dialogue_t *CurrentDialogue = NULL;
+millis_t usePMill = 0;
+
+static void OnMapEvent(uint8_t param1, uint8_t param2) {
+    // param1 = eventNum (tile & 0x0F), param2 = stepOn
+    (void)param1;
+    (void)param2;
+}
 
 void main(void) {
     init_ports();
@@ -122,7 +130,7 @@ void main(void) {
     dogm128_init();
     Backlight(1023);
     set_LEDs(0x00);
-
+    MapEventCallback = OnMapEvent;
 
     camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
     camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
@@ -222,8 +230,8 @@ void main(void) {
         dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, CurrentMap, buttons);
-        RenderFrame(&camera, CurrentMap, frame_buffer);
+        MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
+        RenderFrame(&camera, CurrentMap);
         DrawEntities(&camera, entities, 4, dogm_fb);
         EnemyRandomMovement(entities, 4);
         EnemyAi(&camera, entities, 4, CurrentMap);
@@ -234,16 +242,24 @@ void main(void) {
         HUD_DrawMap(CurrentMap, &camera);
         HUD_DrawCompass(&camera);
         HUD_DrawStats(&camera);
+        HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
 
+        static _Bool prevUse = 0;
+        _Bool usePressed = buttons.use && !prevUse;
+        prevUse = buttons.use;
+
+        _Bool dialogueActive = (CurrentDialogue != NULL);
+        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+        if (usePressed && !dialogueActive) {
+            // use button available for future interactions
+            usePMill = millis;
+        }
+
+        
+        // display FPS in the corner for testing
         frame_length = millis - PMill;
         utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
-        utoa(FX_I(camera.posX), buf, 0);
-        dogm128_text(0, 6, buf);
-        utoa(FX_I(camera.posY), buf, 0);
-        dogm128_text(20, 6, buf);
-        utoa(FX_I(entities[0].lateralModifier), buf, 0);
-        dogm128_text(0, 12, buf);
 
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));

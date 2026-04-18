@@ -1,7 +1,8 @@
 #include "HUDStuff.h"
 #include "utils.h"
 
-void HUD_DrawBanner(dogm128_bitmap_t *text) {
+void HUD_DrawBanner(const dogm128_bitmap_t *text)
+{
     dogm128_hline(10, 0, 75, DISP_COL_WHITE);
     dogm128_hline(10, 1, 75, DISP_COL_WHITE);
     dogm128_hline(11, 2, 73, DISP_COL_WHITE);
@@ -16,7 +17,8 @@ void HUD_DrawBanner(dogm128_bitmap_t *text) {
     dogm128_blit_or(10, 0, text, 0);
 }
 
-void HUD_DrawMap(map_t *map, player_t *player) {
+void HUD_DrawMap(map_t *map, const player_t *player)
+{
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;
     if (map->height > 32)
@@ -34,51 +36,56 @@ void HUD_DrawMap(map_t *map, player_t *player) {
     if (FX_I(player->posY) - height_scroll > bottom_edge_scroll_threshold && height_scroll < max_scroll)
         height_scroll++;
 
-    dogm128_blit_or(x_loc, (int16_t) y_loc - height_scroll, map->minimap, 32 + height_scroll);
+    dogm128_blit_or(x_loc, (int16_t)y_loc - height_scroll, map->minimap, 32 + height_scroll);
 
     static uint8_t show = 0;
     if (show & 0b100)
-        dogm128_pixel(((uint8_t) FX_I(player->posX)) + x_loc + x_player_offset,
-            (uint8_t) FX_I(player->posY) + (uint8_t) (y_loc - height_scroll) + y_player_offset,
-            DISP_COL_BLACK);
+        dogm128_pixel(((uint8_t)FX_I(player->posX)) + x_loc + x_player_offset,
+                      (uint8_t)FX_I(player->posY) + (uint8_t)(y_loc - height_scroll) + y_player_offset,
+                      DISP_COL_BLACK);
     show++;
 }
 
-void HUD_DrawBorders() {
+void HUD_DrawBorders()
+{
     dogm128_vline(96, 0, 64, DISP_COL_BLACK);
     dogm128_hline(96, 32, 32, DISP_COL_BLACK);
     dogm128_hline(96, 47, 32, DISP_COL_BLACK);
     dogm128_blit_or(111, 32, &wiggleLineBitmap, 0);
 }
 
-void HUD_DrawItem(item_t item) {
-    if (item >= ITEM_GUN)
+void HUD_DrawItem(item_t item)
+{
+    if (item >= ITEM_COUNT)
         return;
 
-    switch (item) {
-        case ITEM_HAND:
-            dogm128_blit_or(96, 32, &item_hand, 0);
-            break;
-        case ITEM_KNIFE:
-            dogm128_blit_or(96, 32, &item_knife, 0);
-            break;
-        case ITEM_GUN:
-            dogm128_blit_or(96, 32, &item_gun, 0);
-            break;
+    switch (item)
+    {
+    case ITEM_HAND:
+        dogm128_blit_or(96, 32, &item_hand, 0);
+        break;
+    case ITEM_KNIFE:
+        dogm128_blit_or(96, 32, &item_knife, 0);
+        break;
+    case ITEM_GUN:
+        dogm128_blit_or(96, 32, &item_gun, 0);
+        break;
     }
 }
 
-void HUD_DrawCompass(player_t *player) {
+void HUD_DrawCompass(const player_t *player)
+{
     static const int8_t pointerPoints[3][2] = {
         {6, 0},
         {-1, -2},
-        {-1, 2}
-    };
+        {-1, 2}};
     uint8_t static rx[3], ry[3];
     fx_t static prevAngle = INT16_MAX;
-    if (prevAngle != player->angle) {
+    if (prevAngle != player->angle)
+    {
         prevAngle = player->angle;
-        for (uint8_t i = 0; i < 3; i++) {
+        for (uint8_t i = 0; i < 3; i++)
+        {
             rx[i] = 120 + FX_I(fx_sub(fx_mul(FX(pointerPoints[i][0]), player->dirX), fx_mul(FX(pointerPoints[i][1]), player->dirY)));
             ry[i] = 40 + FX_I(fx_add(fx_mul(FX(pointerPoints[i][0]), player->dirY), fx_mul(FX(pointerPoints[i][1]), player->dirX)));
         }
@@ -93,7 +100,8 @@ void HUD_DrawCompass(player_t *player) {
     dogm128_pixel(114, 40, DISP_COL_BLACK);
 }
 
-void HUD_DrawStats(player_t *player) {
+void HUD_DrawStats(const player_t *player)
+{
     char buf[5];
     dogm128_blit_or(98, 50, &HUD_hpImage, 14);
     utoa(player->kills, buf, 3);
@@ -102,16 +110,104 @@ void HUD_DrawStats(player_t *player) {
     dogm128_text(108, 57, buf);
 }
 
-uint8_t inline HUD_GetLEDHP(player_t *player) {
+void HUD_DrawItemPOV(const player_t *player, _Bool use)
+{
+    switch (player->currentItem)
+    {
+    case ITEM_HAND:
+        break;
+    case ITEM_KNIFE:
+        if (use)
+            dogm128_blit_aligned_masked(33, 40, &pov_knife_use);
+        else
+            dogm128_blit_aligned_masked(28, 40, &pov_knife_hold);
+        break;
+    case ITEM_GUN:
+        if (use)
+            dogm128_blit_aligned_masked(35, 40, &pov_gun_use);
+        else
+            dogm128_blit_aligned_masked(59, 40, &pov_gun_hold);
+        break;
+    default:
+        break;
+    }
+}
+
+_Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance)
+{
+    if (*dialogue == NULL)
+        return 0;
+
+    static const dialogue_t *prevDialogue = NULL;
+    static millis_t startTime = 0;
+
+    const dialogue_t *d = *dialogue;
+
+    if (d != prevDialogue)
+    {
+        startTime = millis;
+        prevDialogue = d;
+    }
+
+    if (advance || millis - startTime >= d->timeLength)
+    {
+        startTime = millis;
+        *dialogue = d->nextDialogue;
+        prevDialogue = *dialogue;
+        if (*dialogue == NULL)
+            return 0;
+        d = *dialogue;
+    }
+
+    uint8_t rx = d->rectangleOrigin[0];
+    uint8_t ry = d->rectangleOrigin[1];
+    uint8_t rw = d->rectangleSize[0];
+    uint8_t rh = d->rectangleSize[1];
+
+    dogm128_fill_rect(rx, ry, rw, rh, DISP_COL_WHITE);
+
+    uint8_t lineCount = 0;
+    for (uint8_t i = 0; i < 5; i++)
+    {
+        if (i > 0 && d->lineBreaks[i] == 0)
+            break;
+        if (d->text[d->lineBreaks[i]] == '\0')
+            break;
+        lineCount++;
+    }
+
+    for (uint8_t i = 0; i < lineCount; i++)
+    {
+        uint8_t tx = d->textOrigins[i][0];
+        uint8_t ty = d->textOrigins[i][1];
+        uint8_t start = d->lineBreaks[i];
+        uint8_t end = (i + 1 < lineCount) ? d->lineBreaks[i + 1] - 1 : 255;
+
+        for (uint8_t j = start; j != end && d->text[j] != '\0'; j++)
+        {
+            dogm128_char(tx, ty, d->text[j]);
+            tx += 4;
+        }
+    }
+
+    return 1;
+}
+
+uint8_t inline HUD_GetLEDHP(const player_t *player)
+{
     static millis_t PrevMill = 0;
     static _Bool blink_state = 0;
     uint8_t out = 0xff >> (8 - player->health);
 
     static const uint16_t blinkSpeed[3] = {10, 200, 500};
-    if (player->health > 2) {
+    if (player->health > 2)
+    {
         blink_state = 1;
-    } else {
-        if (millis - PrevMill >= blinkSpeed[player->health <= 2 ? player->health : 1]) {
+    }
+    else
+    {
+        if (millis - PrevMill >= blinkSpeed[player->health <= 2 ? player->health : 1])
+        {
             PrevMill = millis;
             blink_state = !blink_state;
         }

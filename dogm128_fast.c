@@ -432,6 +432,115 @@ void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
     paint_counter++;
 }
 
+/* Apply a byte-mask to a horizontal run of w consecutive framebuffer bytes.
+   Working at the byte level instead of bit-by-bit is 8× faster on the PIC18. */
+static void fill_hrun(uint8_t *p, uint8_t w, uint8_t mask, dogm128_color_t color)
+{
+    if (color == DISP_COL_BLACK)
+    {
+        while (w--) *p++ |= mask;
+    }
+    else if (color == DISP_COL_WHITE)
+    {
+        uint8_t nm = (uint8_t)~mask;
+        while (w--) *p++ &= nm;
+    }
+    else
+    {
+        while (w--)
+        {
+            if (paint(color)) *p |= mask;
+            else              *p &= (uint8_t)~mask;
+            p++;
+        }
+    }
+}
+
+void dogm128_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color)
+{
+    if (w == 0 || h == 0) return;
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if ((uint16_t)x + w > DOGM_WIDTH)  w = DOGM_WIDTH - x;
+    if ((uint16_t)y + h > DOGM_HEIGHT) h = DOGM_HEIGHT - y;
+
+    /* top edge */
+    dogm128_hline(x, y, w, color);
+    if (h == 1) return;
+
+    /* bottom edge */
+    dogm128_hline(x, (uint8_t)(y + h - 1), w, color);
+    if (h == 2) return;
+
+    /* left vertical side — use page-chunked BLACK fast-path when possible */
+    if (color == DISP_COL_BLACK)
+        dogm128_vlineBLACK(x, (uint8_t)(y + 1), (uint8_t)(h - 2));
+    else
+        dogm128_vline(x, (uint8_t)(y + 1), (uint8_t)(h - 2), color);
+
+    if (w < 2) return;
+
+    /* right vertical side */
+    if (color == DISP_COL_BLACK)
+        dogm128_vlineBLACK((uint8_t)(x + w - 1), (uint8_t)(y + 1), (uint8_t)(h - 2));
+    else
+        dogm128_vline((uint8_t)(x + w - 1), (uint8_t)(y + 1), (uint8_t)(h - 2), color);
+}
+
+void dogm128_fill_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, dogm128_color_t color)
+{
+    uint8_t  y2, page_s, page_e, p;
+    uint8_t  top_mask, bot_mask;
+    uint8_t *row;
+
+    if (w == 0 || h == 0) return;
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if ((uint16_t)x + w > DOGM_WIDTH)  w = DOGM_WIDTH - x;
+    if ((uint16_t)y + h > DOGM_HEIGHT) h = DOGM_HEIGHT - y;
+
+    y2     = (uint8_t)(y + h - 1);
+    page_s = y  >> 3;
+    page_e = y2 >> 3;
+
+    /* bits [y&7 .. 7] in the first page */
+    top_mask = (uint8_t)(0xFFu << (y & 7));
+    /* bits [0 .. y2&7] in the last page */
+    bot_mask = (uint8_t)(0xFFu >> (7u - (y2 & 7u)));
+
+    if (page_s == page_e)
+    {
+        /* entire rect fits in one page row */
+        fill_hrun(&dogm_fb[((uint16_t)page_s << 7) + x], w,
+                  (uint8_t)(top_mask & bot_mask), color);
+        return;
+    }
+
+    /* top partial page */
+    fill_hrun(&dogm_fb[((uint16_t)page_s << 7) + x], w, top_mask, color);
+
+    /* full middle pages — write whole bytes, no read-modify-write needed */
+    for (p = (uint8_t)(page_s + 1u); p < page_e; p++)
+    {
+        row = &dogm_fb[((uint16_t)p << 7) + x];
+        if (color == DISP_COL_BLACK)
+        {
+            uint8_t xi = w;
+            while (xi--) *row++ = 0xFFu;
+        }
+        else if (color == DISP_COL_WHITE)
+        {
+            uint8_t xi = w;
+            while (xi--) *row++ = 0x00u;
+        }
+        else
+        {
+            fill_hrun(row, w, 0xFFu, color);
+        }
+    }
+
+    /* bottom partial page */
+    fill_hrun(&dogm_fb[((uint16_t)page_e << 7) + x], w, bot_mask, color);
+}
+
 void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
 {
     uint8_t        page_y, pages, sp, sx;
@@ -459,6 +568,41 @@ void dogm128_blit_aligned(uint8_t x, uint8_t y, const dogm128_bitmap_t *bmp)
             *d++ = *src++;
 
         dst += 128;                              /* advance one full page row */
+    }
+}
+
+void dogm128_blit_aligned_masked(uint8_t x, uint8_t y, const dogm128_bitmap_masked_t *bmp)
+{
+    uint8_t        page_y, pages, sp, sx;
+    uint8_t       *dst;
+    const uint8_t *src;
+
+    if (!bmp || !bmp->data) return;
+    if (x >= DOGM_WIDTH || y >= DOGM_HEIGHT) return;
+    if (bmp->w == 0 || bmp->h == 0) return;
+    if (y & 7) return;
+
+    page_y = y >> 3;
+    pages  = (bmp->h + 7) >> 3;
+
+    if ((uint16_t)x + bmp->w > DOGM_WIDTH)  return;
+    if ((uint16_t)page_y + pages > 8)        return;
+
+    dst = &dogm_fb[((uint16_t)page_y << 7) + x];
+    src = bmp->data;
+
+    for (sp = 0; sp < pages; sp++)
+    {
+        uint8_t *d = dst;
+        for (sx = 0; sx < bmp->w; sx++)
+        {
+            uint8_t mask  = *src++;
+            uint8_t color = *src++;
+            *d = (uint8_t)((*d & mask) | (color & (uint8_t)~mask));
+            d++;
+        }
+
+        dst += 128;
     }
 }
 

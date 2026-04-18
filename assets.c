@@ -1,5 +1,92 @@
 #include "assets.h"
+#include "assets_precomputed.h"
 
+void (*MapEventCallback)(uint8_t param1, uint8_t param2) = NULL;
+
+// When defining the dialogue, add the macro like it is in others, python generates the data for it into assets_precomputed.h before compilation
+const dialogue_t dialogue_GunFound6 = {
+    "got like 500 bullets in there",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_GunFound6
+};
+
+const dialogue_t dialogue_GunFound5 = {
+    "and whats up with this mag",
+    2200,
+    &dialogue_GunFound6,
+    DIALOGUE_LAYOUT_dialogue_GunFound5
+};
+
+const dialogue_t dialogue_GunFound4 = {
+    "--",
+    2000,
+    &dialogue_GunFound5,
+    DIALOGUE_LAYOUT_dialogue_GunFound4
+};
+
+const dialogue_t dialogue_GunFound3 = {
+    "Who even left this here?",
+    2500,
+    &dialogue_GunFound4,
+    DIALOGUE_LAYOUT_dialogue_GunFound3
+};
+
+const dialogue_t dialogue_GunFound2 = {
+    "Ill definitely use this",
+    2200,
+    &dialogue_GunFound3,
+    DIALOGUE_LAYOUT_dialogue_GunFound2
+};
+
+const dialogue_t dialogue_GunFound1 = {
+    "Oh damn",
+    1200,
+    &dialogue_GunFound2,
+    DIALOGUE_LAYOUT_dialogue_GunFound1
+};
+
+const dialogue_t dialogue_KnifeFound1 = {
+    "Better then nothing I guess",
+    2300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_KnifeFound1
+};
+
+const dialogue_t dialogue_KnifeFoundAgain1 = {
+    "Ill rather keep the gun",
+    2300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_KnifeFoundAgain1
+};
+
+const dialogue_t dialogue_Healed2 = {
+    "I guess",
+    1200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Healed2
+};
+
+const dialogue_t dialogue_Healed1 = {
+    "think it healed me",
+    1900,
+    &dialogue_Healed2,
+    DIALOGUE_LAYOUT_dialogue_Healed1
+};
+
+const dialogue_t dialogue_Injured2 = {
+    "hurts",
+    1200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Injured2
+};
+
+const dialogue_t dialogue_Injured = {
+    "fuck",
+    1200,
+    &dialogue_Injured2,
+    DIALOGUE_LAYOUT_dialogue_Injured
+};
 
 uint8_t static const SmallMap_data[20][15] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -15,7 +102,7 @@ uint8_t static const SmallMap_data[20][15] = {
     {1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1},
     {1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1},
     {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1},
     {1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1},
@@ -51,7 +138,7 @@ map_t SmallMap = {
     20,
     15,
     SmallMap_data,
-    {1, 1},
+    MAP_SPAWN_SmallMap,
     &SmallMap_minimap,
     {5, 10},
     {6, 8},
@@ -85,7 +172,7 @@ uint8_t static const BigMap_data[32][64] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1},
@@ -128,7 +215,7 @@ map_t BigMap = {
     32,
     64,
     BigMap_data,
-    {26, 19},
+    MAP_SPAWN_BigMap,
     &BigMap_bitmap,
     {5, 26},
     {0, 0},
@@ -149,7 +236,7 @@ uint8_t static const TestMap_data[24][24] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -189,7 +276,7 @@ map_t TestMap = {
     24,
     24,
     TestMap_data,
-    {15, 13},
+    MAP_SPAWN_TestMap,
     &TestMap_bitmap,
     {5, 26},
     {4, 4},
@@ -212,7 +299,7 @@ static const uint8_t AgentOrange_data[32][64] = {
     {3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
     {3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 3, 3},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 3},
-    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
+    {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
     {3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
     {3, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
     {3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 3, 0, 0, 0, 3, 0, 0, 0, 0, 0, 3},
@@ -266,7 +353,7 @@ map_t AgentOrangeMap = {
     32,
     64,
     AgentOrange_data,
-    {15, 20},
+    MAP_SPAWN_AgentOrangeMap,
     &AgentOrange_bitmap,
     {5, 26},
     {0, 0},
@@ -274,15 +361,15 @@ map_t AgentOrangeMap = {
 };
 
 static const uint8_t WallDemo_data[15][25] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4},
+    {1, 1, 1, 1, 7, 1, 7, 1, 7, 1, 7, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {4, 0, 0, 0, 0x33, 0, 0x32, 0, 0x31, 0, 0x30, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4},
     {4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 4},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 5},
     {5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 1},
-    {2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0x40, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 19, 0, 0, 0, 0, 1},
+    {2, 0, 0, 0, 0, 0, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2},
+    {1, 0, 0, 0, 0, 0, 0x30, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 1},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 7},
     {7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 0, 7},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
@@ -314,15 +401,67 @@ static const uint8_t WallDemo_banner_data[] = {
 
 const dogm128_bitmap_t WallDemo_banner = {76, 8, WallDemo_banner_data};
 
+static void WallDemoMap_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0: //knife
+                if (player->currentItem == ITEM_GUN)
+                    *pDialogue = &dialogue_KnifeFoundAgain1;
+                else if (player->currentItem != ITEM_KNIFE){
+                    player->currentItem = ITEM_KNIFE;
+                    *pDialogue = &dialogue_KnifeFound1;
+                }
+                break;
+            case 1: // gun
+                player->currentItem = ITEM_GUN;
+                *pDialogue = &dialogue_GunFound1;
+                break;
+            case 2: // healed
+                player->health = 5;
+                *pDialogue = &dialogue_Healed1;
+                break;
+            case 3: // injured
+                player->health = 1;
+                *pDialogue = &dialogue_Injured;
+                break;
+        }
+    }
+    
+    if (MapEventCallback) MapEventCallback(eventNum, stepOn);
+}
+
+static void WallDemoMap_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
+    if (tileVal == 0x40)
+        *pDialogue = &dialogue_Room1;
+}
+
 map_t WallDemoMap = {
     15,
     25,
     WallDemo_data,
-    {7, 6},
+    MAP_SPAWN_WallDemoMap,
     &WallDemo_bitmap,
     {1, 30},
     {8, 3},
     &WallDemo_banner,
+    WallDemoMap_OnEventTile,
+    WallDemoMap_OnDialogueTile,
+};
+
+const dialogue_t dialogue_Room2 = {
+    "like I ever expected anything different",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Room2
+};
+
+const dialogue_t dialogue_Room1 = {
+    "Yeah,",
+    800,
+    &dialogue_Room2,
+    DIALOGUE_LAYOUT_dialogue_Room1
 };
 
 static const uint8_t Level1_banner_data[] = {
@@ -377,36 +516,142 @@ const dogm128_bitmap_t Level5_banner = {76, 8, Level5_banner_data};
 
 static const uint8_t WiggleLinebitmap_data[4] = {0x55, 0xaa, 0x55, 0xaa};
 
-dogm128_bitmap_t wiggleLineBitmap = {2, 16, WiggleLinebitmap_data};
+const dogm128_bitmap_t wiggleLineBitmap = {2, 16, WiggleLinebitmap_data};
 
 static const uint8_t item_hand_data[] = {
     0x00, 0x00, 0x00, 0x00, 0xf8, 0x88, 0xfc, 0x84, 0xfc, 0x88, 0x78, 0x88, 0xf0, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x07, 0x08, 0x10, 0x22, 0x22, 0x21, 0x20, 0x20, 0x10, 0x0f, 0x00, 0x00, 0x00,
 };
 
-dogm128_bitmap_t item_hand = {16, 16, item_hand_data};
+const dogm128_bitmap_t item_hand = {16, 16, item_hand_data};
 
 static const uint8_t item_knife_data[] = {
-    0x00, 0x00, 0x00, 0x00, 0x80, 0x80, 0x00, 0x80, 0xc0, 0xe0, 0x70, 0x38, 0x1c, 0x0c, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x18, 0x0c, 0x07, 0x07, 0x07, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0x00, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x00, 0x00,
+    0x00, 0x00, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x01, 0x00, 0x00, 0x00
 };
 
-dogm128_bitmap_t item_knife = {16, 16, item_knife_data};
+const dogm128_bitmap_t item_knife = {16, 16, item_knife_data};
 
 static const uint8_t item_gun_data[] = {
     0x00, 0x00, 0x80, 0xc0, 0xc0, 0xc0, 0xe0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0xc0, 0x00, 0x00,
     0x00, 0x00, 0x0f, 0x0f, 0x0f, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 };
 
-dogm128_bitmap_t item_gun = {16, 16, item_gun_data};
+const dogm128_bitmap_t item_gun = {16, 16, item_gun_data};
 
 static const uint8_t HUD_hpImage_data[] = {
     0x9f, 0x04, 0x9b, 0x00, 0x9f, 0x80, 0x1f, 0x10, 0x10, 0x00, 0x1f, 0x10, 0x10, 0x00, 0x0a, 0x0f,
     0x02, 0x0f, 0x00, 0x0f, 0x02, 0x01, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-dogm128_bitmap_t HUD_hpImage = {15, 16, HUD_hpImage_data};
+const dogm128_bitmap_t HUD_hpImage = {15, 16, HUD_hpImage_data};
 
+
+// Generated by Mask + Color PNG Interlacer
+// Mask source: pov_knife_hold-mask.png
+// Color source: pov_knife_hold-color.png
+// Dimensions: 14 x 24
+// Mode: vertical byte
+// Thresholding: average RGB > 127 = white, otherwise black
+// Black = 1, White = 0
+// Interleaving: mask byte, color byte, mask byte, color byte, ...
+
+const unsigned char pov_knife_hold_data[] = {
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0x7f, 0x80, 0x7f, 0x80, 0x3f, 0x40, 0x3f, 0x40, 0x1f, 0x60,
+    0x1f, 0x60, 0x1f, 0xe0, 0xff, 0x00, 0x7f, 0x80, 0x1f, 0xe0, 0x07, 0x38,
+    0x03, 0x04, 0x01, 0x02, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0xe0, 0xc0, 0x38, 0xf8, 0x07, 0xf9, 0x06, 0xf0, 0x0f,
+    0xf0, 0x08, 0xf0, 0x08, 0x40, 0xb0, 0x00, 0xf0, 0x00, 0xe0, 0x00, 0xe0,
+    0x00, 0xe0, 0xc0, 0x38, 0xf0, 0x0f, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00
+};
+const dogm128_bitmap_masked_t pov_knife_hold = {14, 24, pov_knife_hold_data};
+
+// Generated by Mask + Color PNG Interlacer
+// Mask source: pov_knife_use-mask.png
+// Color source: pov_knife_use-color.png
+// Dimensions: 39 x 24
+// Mode: vertical byte
+// Thresholding: average RGB > 127 = white, otherwise black
+// Black = 1, White = 0
+// Interleaving: mask byte, color byte, mask byte, color byte, ...
+
+const unsigned char pov_knife_use_data[] = {
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0x7f, 0x80, 0x7f, 0x80, 0x7f, 0x80, 0x3f, 0xc0, 0x3f, 0x40, 0x3f, 0x40,
+    0x3f, 0x40, 0x3f, 0x40, 0x3f, 0x40, 0x3f, 0x40, 0x3f, 0x40, 0x3f, 0x40,
+    0x7f, 0x80, 0x7f, 0x80, 0x7f, 0x80, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0x7f, 0x80, 0x7f, 0x80, 0x7f, 0x80, 0x7f, 0x80, 0xbf, 0x40, 0xbf, 0x40,
+    0xbd, 0x42, 0xdd, 0x22, 0xde, 0x21, 0xfc, 0x03, 0xf8, 0x06, 0xf8, 0x04,
+    0xf8, 0x05, 0xf0, 0x09, 0xf0, 0x09, 0xe0, 0x1b, 0xc0, 0x32, 0xc0, 0x26,
+    0x80, 0x4c, 0x00, 0xc8, 0x00, 0x98, 0x00, 0xb0, 0x00, 0x20, 0x00, 0x61,
+    0x00, 0x43, 0x01, 0xc2, 0x03, 0x84, 0x07, 0x08, 0x0f, 0x30, 0x1f, 0x20,
+    0x1f, 0x60, 0x7f, 0x80, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xf7, 0x08, 0xf7, 0x08, 0xf7, 0x08, 0xf7, 0x08, 0xf7, 0x08, 0xf7, 0x08,
+    0xf7, 0x08, 0xf7, 0x08, 0xf3, 0x0c, 0xbb, 0x44, 0xbb, 0x44, 0xbb, 0x44,
+    0xdb, 0x24, 0xdd, 0x22, 0xdd, 0x22, 0xdd, 0x22, 0xde, 0x21, 0xee, 0x11,
+    0xef, 0x10, 0xef, 0x10, 0xf7, 0x08, 0xf7, 0x08, 0xf7, 0x08, 0xfb, 0x04,
+    0xfa, 0x05, 0xfa, 0x05, 0xfc, 0x02, 0xf8, 0x06, 0xf0, 0x0c, 0xe0, 0x18,
+    0xe0, 0x11, 0xc0, 0x36, 0x90, 0x6c, 0x20, 0xd8, 0xc0, 0x3d, 0x0c, 0xf3,
+    0x1f, 0xe0, 0x3f, 0xc0, 0x7f, 0x80
+};
+const dogm128_bitmap_masked_t pov_knife_use = {39, 24, pov_knife_use_data};
+
+// Generated by Mask + Color PNG Interlacer
+// Mask source: pov_gun_hold-mask.png
+// Color source: pov_gun_hold-color.png
+// Dimensions: 21 x 24
+// Mode: vertical byte
+// Thresholding: average RGB > 127 = white, otherwise black
+// Black = 1, White = 0
+// Interleaving: mask byte, color byte, mask byte, color byte, ...
+
+const unsigned char pov_gun_hold_data[] = {
+    0xc0, 0x3f, 0x80, 0x41, 0x01, 0x82, 0x03, 0x04, 0x07, 0x08, 0x07, 0x08,
+    0x07, 0x18, 0x03, 0x24, 0x07, 0x48, 0x07, 0x88, 0x0f, 0x10, 0x1f, 0x20,
+    0x3f, 0x40, 0x3f, 0x40, 0x7f, 0x80, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xfe, 0x01, 0xfc, 0x02, 0x18, 0xe4, 0x10, 0x28, 0x00, 0x10, 0x00, 0xf0,
+    0x00, 0x20, 0x00, 0x60, 0x00, 0x80, 0x00, 0x80, 0x00, 0xfc, 0x00, 0x7e,
+    0x00, 0x7f, 0x01, 0x7e, 0x73, 0x8c, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0x80, 0x7f,
+    0x80, 0x40, 0x00, 0xc0, 0x00, 0x03, 0x00, 0x02, 0x00, 0x02, 0x00, 0x04,
+    0x00, 0x07, 0x00, 0x06, 0x00, 0x0c, 0x00, 0x08, 0x00, 0x08, 0x00, 0x0b,
+    0x03, 0x0c, 0x03, 0xc4, 0x87, 0x78
+};
+const dogm128_bitmap_masked_t pov_gun_hold = {21, 24, pov_gun_hold_data};
+
+// Generated by Mask + Color PNG Interlacer
+// Mask source: pov_gun_use-mask.png
+// Color source: pov_gun_use-color.png
+// Dimensions: 31 x 24
+// Mode: vertical byte
+// Thresholding: average RGB > 127 = white, otherwise black
+// Black = 1, White = 0
+// Interleaving: mask byte, color byte, mask byte, color byte, ...
+
+const unsigned char pov_gun_use_data[] = {
+    0xf7, 0x08, 0xe7, 0x18, 0xe6, 0x19, 0xf6, 0x09, 0x76, 0x89, 0x76, 0x89,
+    0x24, 0x8b, 0xa9, 0x02, 0x85, 0x02, 0x61, 0x02, 0x03, 0xf0, 0x03, 0xfc,
+    0x03, 0xf4, 0x00, 0xf7, 0x03, 0xfc, 0x0b, 0xf0, 0x4b, 0x80, 0xd9, 0x02,
+    0x90, 0x0b, 0xaa, 0x11, 0xaa, 0x11, 0xaa, 0x11, 0x6a, 0x91, 0x6a, 0x91,
+    0x7b, 0x80, 0x3b, 0xc0, 0xfb, 0x00, 0xfb, 0x00, 0xfb, 0x00, 0xf3, 0x00,
+    0xf7, 0x00, 0xff, 0x00, 0xff, 0x00, 0xfe, 0x01, 0x02, 0xfd, 0x00, 0x87,
+    0x01, 0x02, 0x01, 0x06, 0x01, 0x04, 0x00, 0x02, 0x00, 0x02, 0x00, 0x03,
+    0x00, 0x03, 0x00, 0x03, 0x00, 0x03, 0x00, 0x03, 0x00, 0x03, 0x00, 0x03,
+    0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x06, 0x03, 0xfc, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0x02, 0xfd, 0x00, 0x87, 0x00, 0x86, 0x00, 0x86, 0x00, 0x84, 0x00, 0x84,
+    0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x84,
+    0x00, 0x84, 0x00, 0x84, 0x00, 0x84, 0x00, 0x86, 0x00, 0x87, 0x02, 0x85,
+    0x03, 0x84, 0x03, 0xfc, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00,
+    0xff, 0x00, 0xff, 0x00, 0xff, 0x00
+};
+const dogm128_bitmap_masked_t pov_gun_use = {31, 24, pov_gun_use_data};
 
 // Generated by Mask + Color PNG Interlacer
 // Mask source: blob_step1-mask.png

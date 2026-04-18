@@ -297,11 +297,14 @@ _Bool inline TileWalkable(uint8_t type) {
     return 0;
 }
 
-int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
+int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue) {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
     fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
     uint8_t tile = 0; // the tile that's being walked into
+    static uint8_t prevCellX = 0xFF; // 0xFF = sentinel (uninitialized)
+    static uint8_t prevCellY = 0xFF;
+    static uint8_t prevTile = 0;
     if (buttons.front) {
         tile = MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
         if (TileWalkable(tile))
@@ -336,9 +339,33 @@ int MoveCamera(player_t *player, map_t *map, buttons_t buttons) {
         player->planeY = fx_neg(fx_mul(player->dirX, (fx_t) 0x00a9));
     }
 
-    if (buttons.use) {
-        player->posX = FX(map->DefaultSpwanPoint[0]);
-        player->posY = FX(map->DefaultSpwanPoint[1]);
+    /* Tile-change detection: fire map callbacks when the player enters a new cell */
+    uint8_t newCellX = (uint8_t)FX_I(player->posX);
+    uint8_t newCellY = (uint8_t)FX_I(player->posY);
+
+    if (prevCellX == 0xFF) {
+        /* First call: initialise tracking without firing any callbacks */
+        prevCellX = newCellX;
+        prevCellY = newCellY;
+        prevTile  = MAP_AT(map, newCellX, newCellY);
+    } else if (newCellX != prevCellX || newCellY != prevCellY) {
+        uint8_t newTile = MAP_AT(map, newCellX, newCellY);
+
+        /* Stepped off an event tile */
+        if (prevTile >= 0x30 && prevTile <= 0x3F && map->OnEventTile)
+            map->OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
+
+        /* Stepped onto an event tile */
+        if (newTile >= 0x30 && newTile <= 0x3F && map->OnEventTile)
+            map->OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+
+        /* Stepped onto a dialogue tile (entry only, not exit) */
+        if (newTile >= 0x40 && newTile <= 0xEF && map->OnDialogueTile)
+            map->OnDialogueTile(newTile, pDialogue);
+
+        prevCellX = newCellX;
+        prevCellY = newCellY;
+        prevTile  = newTile;
     }
 }
 

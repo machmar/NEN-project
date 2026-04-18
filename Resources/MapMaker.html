@@ -867,6 +867,7 @@
           color: normalizeColor(srcKind.color || '#ffffff'),
           emoji: typeof srcKind.emoji === 'string' ? srcKind.emoji : '',
           description: typeof srcKind.description === 'string' ? srcKind.description : '',
+          wallExport: typeof srcKind.wallExport === 'boolean' ? srcKind.wallExport : false,
         });
       }
       out.push(type);
