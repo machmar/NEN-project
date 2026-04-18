@@ -113,7 +113,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[4];
-map_t *CurrentMap = &WallDemoMap;
+map_t *CurrentMap = &TestMap;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
 
@@ -233,7 +233,6 @@ void main(void) {
         MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
         DrawEntities(&camera, entities, 4, dogm_fb);
-        EnemyRandomMovement(entities, 4);
         EnemyAi(&camera, entities, 4, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
@@ -249,7 +248,7 @@ void main(void) {
         prevUse = buttons.use;
 
         _Bool dialogueActive = (CurrentDialogue != NULL);
-        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+        //HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
         if (usePressed && !dialogueActive) {
             // use button available for future interactions
             usePMill = millis;

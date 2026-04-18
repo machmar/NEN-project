@@ -13,9 +13,9 @@ typedef struct __attribute__((packed)) {
 buttons_t;
 
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue);
-int RenderFrame(const player_t *player, const map_t *map);
+int RenderFrame(player_t *player, const map_t *map);
 void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
 void EnemyAi(player_t *player, entity_t* entities, int amount, map_t *map);
-void EnemyRandomMovement(entity_t *entities, int amount);
+void HitDetection(player_t *player, buttons_t buttons, entity_t *entities, int amount);
 
 #endif // RAYCASTING_H

@@ -22,13 +22,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include "raycasting.h"
+#include "assets.h"
 #include "dogm128_fast.h"
 #include "fx8.h"
 #include "utils.h"
 #include <stdint.h>
 #include <stdlib.h>
 
-#define FRAMES_PER_WALK 4
+#define FRAMES_PER_WALK 16
 #define SCREEN_WIDTH 128
 #define VIEWPORT_WIDTH_PIXELS (screenWidth << 1)
 #define VIEWPORT_HALF_W (VIEWPORT_WIDTH_PIXELS >> 1)
@@ -58,23 +59,25 @@ static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
 static const fx_t ENEMY_MOVE_SPEED = FX(1) / 8;
 
-#define CLEAR_VISIBLE_ROWS(rows) do { \
-  (rows)[0] = 0; (rows)[1] = 0; (rows)[2] = 0; (rows)[3] = 0; \
-  (rows)[4] = 0; (rows)[5] = 0; (rows)[6] = 0; (rows)[7] = 0; \
-} while (0)
+static void DrawEntities_ClearRows(uint8_t *rows)
+{
+  for (uint8_t r = 0; r < 8; r++)
+    rows[r] = 0;
+}
 
-#define COPY_VISIBLE_ROWS(dst, src) do { \
-  (dst)[0] = (src)[0]; (dst)[1] = (src)[1]; (dst)[2] = (src)[2]; (dst)[3] = (src)[3]; \
-  (dst)[4] = (src)[4]; (dst)[5] = (src)[5]; (dst)[6] = (src)[6]; (dst)[7] = (src)[7]; \
-} while (0)
+static void DrawEntities_CopyRows(uint8_t *dst, const uint8_t *src)
+{
+  for (uint8_t r = 0; r < 8; r++)
+    dst[r] = src[r];
+}
 
-static inline void DrawEntities_ApplyStripeMasks(uint8_t *display_buffer,
-                         uint16_t bufferIndex,
-                         uint8_t pixelStride,
-                         uint8_t fillMask,
-                         uint8_t fillClearMask,
-                         uint8_t edgeHClearMask,
-                         uint8_t edgeVClearMask)
+static void DrawEntities_ApplyStripeMasks(uint8_t *display_buffer,
+                                          uint16_t bufferIndex,
+                                          uint8_t pixelStride,
+                                          uint8_t fillMask,
+                                          uint8_t fillClearMask,
+                                          uint8_t edgeHClearMask,
+                                          uint8_t edgeVClearMask)
 {
   if (!(fillMask || fillClearMask || edgeHClearMask || edgeVClearMask))
     return;
@@ -83,20 +86,15 @@ static inline void DrawEntities_ApplyStripeMasks(uint8_t *display_buffer,
   uint8_t invClear = (uint8_t)(~mergedClear);
   uint8_t *dst = &display_buffer[bufferIndex];
 
-  dst[0] = (uint8_t)((dst[0] & invClear) | fillMask);
-  if (pixelStride > 1)
-    dst[1] = (uint8_t)((dst[1] & invClear) | fillMask);
-  if (pixelStride > 2)
-    dst[2] = (uint8_t)((dst[2] & invClear) | fillMask);
-  if (pixelStride > 3)
-    dst[3] = (uint8_t)((dst[3] & invClear) | fillMask);
+  for (uint8_t p = 0; p < pixelStride; p++)
+    dst[p] = (uint8_t)((dst[p] & invClear) | fillMask);
 
   // Keep vertical outline 1px wide even when coarse x stride is enabled.
   if (edgeVClearMask)
     dst[0] &= (uint8_t)(~edgeVClearMask);
 }
 
-int RenderFrame(player_t *player, map_t *map, line_t *buffer)
+int RenderFrame(player_t *player, const map_t *map)
 {
     int x;
 
@@ -390,7 +388,6 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     fx_t playerPlaneX = player->planeX;
     fx_t playerPlaneY = player->planeY;
     fx_t *zBuffer = player->zBuffer;
-    int walkFrameThreshold = FRAMES_PER_WALK * amount;
 
     // Precompute squared distance and initialize render order.
   for (int i = 0; i < amount; i++)
@@ -432,18 +429,14 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     fx_t cameraX = fx_sub(fx_mul(playerDirY, spriteX), fx_mul(playerDirX, spriteY));
     fx_t cameraY = fx_add(fx_mul(fx_neg(playerPlaneY), spriteX), fx_mul(playerPlaneX, spriteY));
 
-    // Cull sprites behind camera or clearly outside horizontal FOV before more expensive math.
-    if (cameraY <= 0)
-      continue;
-
-    if ((int32_t)fx_abs_fast(cameraX) > (int32_t)cameraY * 2)
-      continue;
-
     // Transform sprite with inverse camera matrix.
+    fx_t transformX = fx_mul(invDet, cameraX);
     fx_t transformY = fx_mul(invDet, cameraY);
     if (transformY <= FX_RAW(32))
       continue;
-    fx_t transformX = fx_mul(invDet, cameraX);
+
+    if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
+      continue;
 
     // Use one reciprocal for several projections to reduce expensive fixed-point divisions.
     fx_t invTransformY = fx_inv_clamped(transformY);
@@ -456,14 +449,9 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (spriteHeight <= 0)
       continue;
 
-    int spriteCenterY = VIEWPORT_HALF_H + heightOffsetScreen;
-    int halfSpriteH = spriteHeight >> 1;
-    if ((spriteCenterY + halfSpriteH) <= 0 || (spriteCenterY - halfSpriteH) >= screenHeight)
-      continue;
-
-    int drawStartY = -halfSpriteH + spriteCenterY;
+    int drawStartY = -(spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
     if (drawStartY < 0) drawStartY = 0;
-    int drawEndY = halfSpriteH + spriteCenterY;
+    int drawEndY = (spriteHeight >> 1) + VIEWPORT_HALF_H + heightOffsetScreen;
     if (drawEndY >= screenHeight) drawEndY = screenHeight - 1;
     if (drawEndY <= drawStartY)
       continue;
@@ -472,14 +460,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (spriteWidth <= 0)
       continue;
 
-    int halfSpriteW = spriteWidth >> 1;
-    if ((spriteScreenX + halfSpriteW) <= 0 || (spriteScreenX - halfSpriteW) >= VIEWPORT_WIDTH_PIXELS)
-      continue;
-
-    int spriteLeft = spriteScreenX - halfSpriteW;
+    int spriteLeft = -(spriteWidth >> 1) + spriteScreenX;
     int drawStartX = spriteLeft;
     if (drawStartX < 0) drawStartX = 0;
-    int drawEndX = spriteScreenX + halfSpriteW;
+    int drawEndX = (spriteWidth >> 1) + spriteScreenX;
     if (drawEndX >= VIEWPORT_WIDTH_PIXELS) drawEndX = VIEWPORT_WIDTH_PIXELS - 1;
     if (drawEndX <= drawStartX)
       continue;
@@ -505,7 +489,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     uint16_t texXAdvance;
 
     static uint8_t walkSprite = 0;
-    if(e->walking && prevFrames > walkFrameThreshold){
+    if(e->walking && prevFrames > FRAMES_PER_WALK){
       walkSprite ^= 1;
       prevFrames = 0;
     }
@@ -515,14 +499,14 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     const uint8_t *spriteFrame = sprite->data[usedSprite];
 
     uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
-    CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
+    DrawEntities_ClearRows(g_draw_leftVisibleRows);
     texXAdvance = (uint16_t)(texXStep * pixelStride);
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
     {
       if (transformY >= zBuffer[stripe >> 1])
       {
-        CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
+        DrawEntities_ClearRows(g_draw_leftVisibleRows);
         texXPos += texXAdvance;
         continue;
       }
@@ -531,7 +515,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       texXPos += texXAdvance;
       if (texX >= texWidth)
       {
-        CLEAR_VISIBLE_ROWS(g_draw_leftVisibleRows);
+        DrawEntities_ClearRows(g_draw_leftVisibleRows);
         continue;
       }
 
@@ -544,9 +528,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       uint8_t edgeVClearMask = 0;
       uint16_t bufferIndex = ((uint16_t)rowIndex * SCREEN_WIDTH) + stripe;
       uint8_t prevVisibleInStripe = 0;
-      uint16_t lastTexY = 0xFFFF;
-      uint16_t texRowOffset = 0;
-      CLEAR_VISIBLE_ROWS(g_draw_currentVisibleRows);
+      DrawEntities_ClearRows(g_draw_currentVisibleRows);
 
       for (uint8_t y = (uint8_t)drawStartY; y < drawEndY; y++)
       {
@@ -557,24 +539,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
         if (texY < texHeight)
         {
-          if (texY != lastTexY)
-          {
-            if (lastTexY == 0xFFFF)
-            {
-              texRowOffset = (uint16_t)(texY * texWidth);
-            }
-            else
-            {
-              uint16_t dTexY = (uint16_t)(texY - lastTexY);
-              if (dTexY == 1)
-                texRowOffset += texWidth;
-              else
-                texRowOffset += (uint16_t)(dTexY * texWidth);
-            }
-            lastTexY = texY;
-          }
-
-          uint16_t idx = (uint16_t)(texRowOffset + texX);
+          uint16_t idx = (uint16_t)(texY * texWidth + texX);
           uint8_t shift = (uint8_t)(idx & 7);
           const uint8_t *pair = &spriteFrame[(idx >> 3) * 2];
           uint8_t texBit = (uint8_t)(1U << shift);
@@ -626,16 +591,32 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       DrawEntities_ApplyStripeMasks(display_buffer, bufferIndex, pixelStride,
                                     fillMask, fillClearMask, edgeHClearMask, edgeVClearMask);
 
-      COPY_VISIBLE_ROWS(g_draw_leftVisibleRows, g_draw_currentVisibleRows);
+      DrawEntities_CopyRows(g_draw_leftVisibleRows, g_draw_currentVisibleRows);
     }
   }
 }
 
 void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
+  static int prevFrames = 0;
   for(int i = 0; i < amount; i++){
     entity_t *e = &entities[i];
     if(e->health <= 0)
       continue;
+    if (e->lineOfSight && prevFrames++ > 20){
+      int16_t amplitude = e->movementModifier;
+      uint16_t span;
+      int32_t value;
+
+      if (amplitude < 0) amplitude = -amplitude;
+      if (amplitude == 0) {
+        e->lateralModifier = 0;
+        continue;
+      }
+
+      span = amplitude << 1;
+      value = ((int32_t)((uint16_t)rand16() % span)) - amplitude;
+      e->lateralModifier = (fx_t)value;
+    }
 
     fx_t dx = fx_sub(
         fx_add(
@@ -683,31 +664,5 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
       e->walking = 0;
     }
   }
-}
-
-void EnemyRandomMovement(entity_t *entities, int amount){
-    static int prevFrames = 0;
-    prevFrames++;
-    if (prevFrames > 20) {
-        prevFrames = 0;
-        for(int i = 0; i < amount; i++){
-            if(entities[i].health <= 0 || entities[i].lineOfSight == 0)
-              continue;
-
-            int16_t amplitude = entities[i].movementModifier;
-            uint16_t span;
-            int32_t value;
-
-            if (amplitude < 0) amplitude = -amplitude;
-            if (amplitude == 0) {
-              entities[i].lateralModifier = 0;
-              continue;
-            }
-
-            span = amplitude << 1;
-            value = ((int32_t)((uint16_t)rand16() % span)) - amplitude;
-            entities[i].lateralModifier = (fx_t)value;
-        }
-    }
 }
 
