@@ -152,7 +152,7 @@ void main(void) {
     entities[0].posX = FX(20);
     entities[0].posY = FX(20);
     entities[0].health = 100;
-    entities[0].sprite = &ctyrruckaSprite;
+    entities[0].sprite = &blobSprite;
     entities[0].ratio = 0x00c0;
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
@@ -166,7 +166,7 @@ void main(void) {
     entities[1].ratio = FX(1);
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
-    entities[1].movementModifier = 0x0190;  // 1.5625
+    entities[1].movementModifier = FX(2);  // 1.5625
     entities[1].lateralModifier = FX(1);
 
     entities[2].posX = FX(18);
@@ -176,7 +176,7 @@ void main(void) {
     entities[2].ratio = FX(1);
     entities[2].heightOffset = FX(0);
     entities[2].walking = 1;
-    entities[2].movementModifier = FX(9);
+    entities[2].movementModifier = 0X01C0;
     entities[2].lateralModifier = FX(1);
 
     entities[3].posX = FX(18);
@@ -186,7 +186,7 @@ void main(void) {
     entities[3].ratio = FX(1);
     entities[3].heightOffset = FX(0);
     entities[3].walking = 1;
-    entities[3].movementModifier = FX(4);
+    entities[3].movementModifier = FX(3);
     entities[3].lateralModifier = FX(1);
 /*
     

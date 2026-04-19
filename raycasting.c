@@ -58,7 +58,7 @@ void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
 /* Keep these scratch buffers static to reduce DrawEntities auto-stack pressure. */
 static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
-static const fx_t ENEMY_MOVE_SPEED = FX(1) / 8;
+static const fx_t BASE_ENEMY_MOVE_SPEED = FX(1) / 4;
 
 static void DrawEntities_ClearRows(uint8_t *rows)
 {
@@ -427,8 +427,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     entity_t *e = &entities[renderOrder[i]];
     spriteData_t *sprite = e->sprite;
 
-    if (sprite->data[0] == 0)
+    if (e->distance < FX_ZERO){
+      e->lineOfSight = 0;
+      e->distance = FX(127);
       continue;
+    }
+
 
     // Translate sprite position relative to camera.
     fx_t spriteX = fx_sub(e->posX, playerPosX);
@@ -439,9 +443,11 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     // Transform sprite with inverse camera matrix.
     fx_t transformX = fx_mul(invDet, cameraX);
     fx_t transformY = fx_mul(invDet, cameraY);
-    if (transformY <= FX_RAW(32))
+    if (transformY <= FX_RAW(32)){
+      e->lineOfSight = 0;
       continue;
-
+    }
+  
     if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
       continue;
 
@@ -505,6 +511,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
     DrawEntities_ClearRows(g_draw_leftVisibleRows);
     texXAdvance = (uint16_t)(texXStep * pixelStride);
+
+    e->lineOfSight = 1;
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
     {
@@ -605,24 +613,30 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
 void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
   static int prevFrames = 0;
+  bool updateLateral = false;
+
+  prevFrames++;
+  if (prevFrames > 20) {
+    prevFrames = 0;
+    updateLateral = true;
+  }
+
   for(int i = 0; i < amount; i++){
     entity_t *e = &entities[i];
-    if(e->health <= 0)
+    if(e->health <= 0 || e->distance == FX(127))
       continue;
-    if (e->lineOfSight && prevFrames++ > 20){
-      int16_t amplitude = e->movementModifier;
-      uint16_t span;
-      int32_t value;
+
+    // Randomize lateral strafe periodically for all visible enemies.
+    if (updateLateral && e->lineOfSight) {
+      int16_t amplitude = (int16_t)e->movementModifier;
 
       if (amplitude < 0) amplitude = -amplitude;
       if (amplitude == 0) {
         e->lateralModifier = 0;
-        continue;
+      } else {
+        int16_t span = ((amplitude << 1) + 1);
+        e->lateralModifier = (fx_t)(((int32_t)rand16() % span) - (amplitude));
       }
-
-      span = amplitude << 1;
-      value = ((int32_t)((uint16_t)rand16() % span)) - amplitude;
-      e->lateralModifier = (fx_t)value;
     }
 
     fx_t dx = fx_sub(
@@ -640,8 +654,8 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
         e->posY
     );
 
-    e->lineOfSight = (e->distance < FX(100)) ? 1 : 0;
 
+      
     // Keep a small body radius around the player to prevent overlap/pushing.
     if (e->distance < FX_RAW(64) && e->lineOfSight) {
       e->walking = 0;
@@ -655,16 +669,17 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
       fx_t dirY = fx_mul(dy, invDistance);
       uint8_t tile;
 
+      // Scaling speed with distance
+      fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
       // Check for wall collisions before moving
-      tile = MAP_AT(map, FX_I(fx_add(e->posX, fx_mul(dirX, ENEMY_MOVE_SPEED))), FX_I(e->posY));
+      uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, fx_mul(dirX, moveSpeed))), FX_I(e->posY));
+      uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, fx_mul(dirY, moveSpeed))));
 
-      if (tile <= 0x00 || tile >= 0x0f)
-        e->posX = fx_add(e->posX, fx_mul(dirX, ENEMY_MOVE_SPEED));
+      if (tileX <= 0x00 || tileX >= 0x0f)
+          e->posX = fx_add(e->posX, fx_mul(dirX, moveSpeed));
 
-      tile = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, fx_mul(dirY, ENEMY_MOVE_SPEED))));
-
-      if (tile <= 0x00 || tile >= 0x0f)
-        e->posY = fx_add(e->posY, fx_mul(dirY, ENEMY_MOVE_SPEED));
+      if (tileY <= 0x00 || tileY >= 0x0f)
+        e->posY = fx_add(e->posY, fx_mul(dirY, moveSpeed));
       
       e->walking = 1;
     } else {
