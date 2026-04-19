@@ -158,6 +158,7 @@ void main(void) {
     entities[0].walking = 1;
     entities[0].movementModifier = 0x0190;
     entities[0].lateralModifier = FX(1);
+    entities[0].hitDistance = FX(3);
    
     entities[1].posX = FX(2);
     entities[1].posY = FX(2);
@@ -168,26 +169,29 @@ void main(void) {
     entities[1].walking = 1;
     entities[1].movementModifier = FX(2);  // 1.5625
     entities[1].lateralModifier = FX(1);
+    entities[1].hitDistance = FX(4);
 
     entities[2].posX = FX(18);
     entities[2].posY = FX(12);
     entities[2].health = 100;
     entities[2].sprite = &chapadloSprite;
-    entities[2].ratio = FX(1);
+    entities[2].ratio = 0X00C0;
     entities[2].heightOffset = FX(0);
     entities[2].walking = 1;
     entities[2].movementModifier = 0X01C0;
     entities[2].lateralModifier = FX(1);
+    entities[2].hitDistance = FX(6);
 
     entities[3].posX = FX(18);
     entities[3].posY = FX(17);
     entities[3].health = 100;
     entities[3].sprite = &soilderSprite;
-    entities[3].ratio = FX(1);
+    entities[3].ratio = 0X01C0;
     entities[3].heightOffset = FX(0);
     entities[3].walking = 1;
     entities[3].movementModifier = FX(3);
     entities[3].lateralModifier = FX(1);
+    entities[3].hitDistance = FX(20);
 /*
     
     entities[4].posX = FX(20);

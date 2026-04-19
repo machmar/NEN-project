@@ -30,7 +30,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#define FRAMES_PER_WALK 16
+#define PLAYER_HIT_FRAME_DELAY 50
+#define FRAMES_PER_WALK_ANIMATE 16
 #define SCREEN_WIDTH 128
 #define VIEWPORT_WIDTH_PIXELS (screenWidth << 1)
 #define VIEWPORT_HALF_W (VIEWPORT_WIDTH_PIXELS >> 1)
@@ -54,6 +55,7 @@ static const fx_t cameraX_lut[48] = {
 
 
 void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
+void HitPlayer(player_t *player, entity_t *entity);
 
 /* Keep these scratch buffers static to reduce DrawEntities auto-stack pressure. */
 static uint8_t g_draw_leftVisibleRows[8];
@@ -429,6 +431,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
     if (e->distance < FX_ZERO){
       e->lineOfSight = 0;
+      e->hitDelayFrames = 30;
       e->distance = FX(127);
       continue;
     }
@@ -445,6 +448,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     fx_t transformY = fx_mul(invDet, cameraY);
     if (transformY <= FX_RAW(32)){
       e->lineOfSight = 0;
+      e->hitDelayFrames = 30;
       continue;
     }
   
@@ -499,7 +503,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     uint16_t texXAdvance;
 
     static uint8_t walkSprite = 0;
-    if(e->walking && prevFrames > FRAMES_PER_WALK){
+    if(e->walking && prevFrames > FRAMES_PER_WALK_ANIMATE){
       walkSprite ^= 1;
       prevFrames = 0;
     }
@@ -513,6 +517,9 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     texXAdvance = (uint16_t)(texXStep * pixelStride);
 
     e->lineOfSight = 1;
+    if (e->hitDelayFrames > 0)
+      e->hitDelayFrames--;
+    HitPlayer(player, e);
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
     {
@@ -612,10 +619,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 }
 
 void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
-  static int prevFrames = 0;
+  static uint16_t prevFrames = 0;
+  static uint16_t hitDelayFrames = 0;
   bool updateLateral = false;
 
   prevFrames++;
+  hitDelayFrames++;
   if (prevFrames > 20) {
     prevFrames = 0;
     updateLateral = true;
@@ -694,5 +703,12 @@ void HitDetection(player_t *player, entity_t *entities){
   else if(player->currentItem == ITEM_KNIFE) hitDistance = FX(2);
   if (entities->distance < hitDistance) {
     entities->health = 0;
+  }
+}
+
+void HitPlayer(player_t *player, entity_t *entity){
+  if (entity->distance <= entity->hitDistance && entity->hitDelayFrames == 0 && entity->health > 0) {
+    player->health -= 1;
+    entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
   }
 }
