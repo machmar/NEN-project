@@ -149,10 +149,10 @@ void main(void) {
 
     char buf[10];
 
-    entities[0].posX = FX(12);
-    entities[0].posY = FX(12);
+    entities[0].posX = FX(20);
+    entities[0].posY = FX(20);
     entities[0].health = 100;
-    entities[0].sprite = &blobSprite;
+    entities[0].sprite = &ctyrruckaSprite;
     entities[0].ratio = 0x00c0;
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
@@ -176,7 +176,7 @@ void main(void) {
     entities[2].ratio = FX(1);
     entities[2].heightOffset = FX(0);
     entities[2].walking = 1;
-    entities[2].movementModifier = FX(2);
+    entities[2].movementModifier = FX(9);
     entities[2].lateralModifier = FX(1);
 
     entities[3].posX = FX(18);
@@ -222,6 +222,7 @@ void main(void) {
     entities[7].heightOffset = FX(0);
     entities[7].walking = 0;
     */
+    camera.currentItem = ITEM_GUN;
     while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
@@ -232,7 +233,7 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
-        DrawEntities(&camera, entities, 4, dogm_fb);
+        DrawEntities(&camera, entities, 4, dogm_fb, buttons);
         EnemyAi(&camera, entities, 4, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);

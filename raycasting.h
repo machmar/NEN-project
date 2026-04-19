@@ -14,8 +14,8 @@ buttons_t;
 
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue);
 int RenderFrame(player_t *player, const map_t *map);
-void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer);
+void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer, buttons_t buttons);
 void EnemyAi(player_t *player, entity_t* entities, int amount, map_t *map);
-void HitDetection(player_t *player, buttons_t buttons, entity_t *entities, int amount);
+void HitDetection(player_t *player, entity_t *entities);
 
 #endif // RAYCASTING_H

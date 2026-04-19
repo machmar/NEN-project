@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "utils.h"
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define FRAMES_PER_WALK 16
 #define SCREEN_WIDTH 128
@@ -367,7 +368,7 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     }
 }
 
-void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer)
+void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer, buttons_t buttons)
 {
   static int prevFrames = 0;
   prevFrames++;
@@ -381,13 +382,13 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
   uint8_t renderOrder[MAX_ENTITIES];
 
-    fx_t playerPosX = player->posX;
-    fx_t playerPosY = player->posY;
-    fx_t playerDirX = player->dirX;
-    fx_t playerDirY = player->dirY;
-    fx_t playerPlaneX = player->planeX;
-    fx_t playerPlaneY = player->planeY;
-    fx_t *zBuffer = player->zBuffer;
+  fx_t playerPosX = player->posX;
+  fx_t playerPosY = player->posY;
+  fx_t playerDirX = player->dirX;
+  fx_t playerDirY = player->dirY;
+  fx_t playerPlaneX = player->planeX;
+  fx_t playerPlaneY = player->planeY;
+  fx_t *zBuffer = player->zBuffer;
 
     // Precompute squared distance and initialize render order.
   for (int i = 0; i < amount; i++)
@@ -413,6 +414,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   }
 
   fx_t invDet = fx_inv_clamped(fx_sub(fx_mul(playerPlaneX, playerDirY), fx_mul(playerDirX, playerPlaneY)));
+
+  static bool useHeld = false;
+  bool useRisingEdge = buttons.use && !useHeld;
+  uint8_t hitTarget = 0xFF;
+
+  useHeld = buttons.use;
 
   // Render entities in sorted order.
   for (int i = 0; i < amount; i++)
@@ -468,15 +475,12 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     if (drawEndX <= drawStartX)
       continue;
 
-    // Skipping rendering if previous sprite is within +-2 pixels of current sprite
-    if (rendered &&
-        (drawStartX - screenXStart) >= -4 && (drawStartX - screenXStart) <= 4 &&
-        (drawStartY - screenYStart) >= -4 && (drawStartY - screenYStart) <= 4){
-          continue;
-        }
-    rendered = 1;
-    screenXStart = drawStartX;
-    screenYStart = drawStartY;
+    if (useRisingEdge) {
+      int centerX = (drawStartX + drawEndX) >> 1;
+      if (centerX > 40 && centerX < 56) { // aim tolerance of +-8 pixels around center of screen
+        hitTarget = renderOrder[i];
+      }
+    }
 
     // Incremental texture mapping removes divisions from inner loops.
     uint8_t texWidth = sprite->width;
@@ -594,6 +598,9 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
       DrawEntities_CopyRows(g_draw_leftVisibleRows, g_draw_currentVisibleRows);
     }
   }
+
+  if (useRisingEdge && hitTarget != 0xFF)
+    HitDetection(player, &entities[hitTarget]);
 }
 
 void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
@@ -666,3 +673,11 @@ void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
   }
 }
 
+void HitDetection(player_t *player, entity_t *entities){
+  fx_t hitDistance = FX_ZERO;
+  if(player->currentItem == ITEM_GUN) hitDistance = FX(50);
+  else if(player->currentItem == ITEM_KNIFE) hitDistance = FX(2);
+  if (entities->distance < hitDistance) {
+    entities->health = 0;
+  }
+}
