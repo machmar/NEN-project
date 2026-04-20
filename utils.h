@@ -8,8 +8,10 @@
 #ifndef UTILS_H
 #define	UTILS_H
 
+#include <stdint.h>
+
 typedef uint32_t millis_t;
-volatile millis_t millis = 0;
+extern volatile millis_t millis;
 
 static void utoa(uint16_t v, char *buf, uint8_t len) {
     char tmp[6];

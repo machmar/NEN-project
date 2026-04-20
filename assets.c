@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "assets.h"
 #include "assets_precomputed.h"
 
@@ -137,7 +139,7 @@ const dogm128_bitmap_t SmallMap_banner = {76, 8, SmallMap_banner_data};
 map_t SmallMap = {
     20,
     15,
-    SmallMap_data,
+    &SmallMap_data[0][0],
     MAP_SPAWN_SmallMap,
     &SmallMap_minimap,
     {5, 10},
@@ -214,7 +216,7 @@ const dogm128_bitmap_t BigMap_banner = {76, 8, BigMap_banner_data};
 map_t BigMap = {
     32,
     64,
-    BigMap_data,
+    &BigMap_data[0][0],
     MAP_SPAWN_BigMap,
     &BigMap_bitmap,
     {5, 26},
@@ -275,7 +277,7 @@ const dogm128_bitmap_t TestMap_banner = {76, 8, TestMap_banner_data};
 map_t TestMap = {
     24,
     24,
-    TestMap_data,
+    &TestMap_data[0][0],
     MAP_SPAWN_TestMap,
     &TestMap_bitmap,
     {5, 26},
@@ -352,7 +354,7 @@ const dogm128_bitmap_t AgentOrange_banner = {76, 8, AgentOrange_banner_data};
 map_t AgentOrangeMap = {
     32,
     64,
-    AgentOrange_data,
+    &AgentOrange_data[0][0],
     MAP_SPAWN_AgentOrangeMap,
     &AgentOrange_bitmap,
     {5, 26},
@@ -440,7 +442,7 @@ static void WallDemoMap_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDial
 map_t WallDemoMap = {
     15,
     25,
-    WallDemo_data,
+    &WallDemo_data[0][0],
     MAP_SPAWN_WallDemoMap,
     &WallDemo_bitmap,
     {1, 30},

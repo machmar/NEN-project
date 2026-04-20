@@ -1,21 +1,7 @@
 #ifndef DOGM128_FAST_H
 #define DOGM128_FAST_H
 
-#include <xc.h>
 #include <stdint.h>
-
-#define DOGM_CS_LAT       LATCbits.LATC0
-#define DOGM_CS_TRIS      TRISCbits.TRISC0
-
-#define DOGM_A0_LAT       LATDbits.LATD0
-#define DOGM_A0_TRIS      TRISDbits.TRISD0
-
-/* optional, only if LCD reset is actually connected */
-#define DOGM_RST_LAT      LATDbits.LATD1
-#define DOGM_RST_TRIS     TRISDbits.TRISD1
-
-#define DOGM_SCK_TRIS     TRISBbits.TRISB1
-#define DOGM_MOSI_TRIS    TRISCbits.TRISC7
 
 #define DOGM_WIDTH        128
 #define DOGM_HEIGHT       64

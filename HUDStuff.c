@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #include "HUDStuff.h"
 #include "utils.h"
 
@@ -193,7 +195,7 @@ _Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance)
     return 1;
 }
 
-uint8_t inline HUD_GetLEDHP(const player_t *player)
+uint8_t HUD_GetLEDHP(const player_t *player)
 {
     static millis_t PrevMill = 0;
     static _Bool blink_state = 0;

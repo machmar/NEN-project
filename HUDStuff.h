@@ -20,7 +20,7 @@ void HUD_DrawCompass(const player_t *player);
 void HUD_DrawStats(const player_t *player);
 void HUD_DrawItemPOV(const player_t *player, _Bool use);
 _Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance);
-uint8_t inline HUD_GetLEDHP(const player_t *player);
+uint8_t HUD_GetLEDHP(const player_t *player);
 
 #endif	/* HUDSTUFF_H */
 

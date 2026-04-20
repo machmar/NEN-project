@@ -45,7 +45,7 @@ static const fx_t cameraX_lut[48] = {
     -128, -138, -149, -160, -170, -181, -192, -202, -213, -224, -234, -245
 };
 
-void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
+static void Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type);
 
 int RenderFrame(const player_t *player, const map_t *map) {
     int x;
@@ -183,7 +183,7 @@ int RenderFrame(const player_t *player, const map_t *map) {
     return 0;
 }
 
-void inline Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type) {
+static void Line(uint8_t location, uint8_t start, uint8_t length, uint8_t type) {
     switch (type) {
         case 0x02: // strange floating wall
         case 0x11:
@@ -317,6 +317,8 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
         prevCellY = newCellY;
         prevTile  = newTile;
     }
+
+    return 0;
 }
 
 void DrawEntities(player_t *player, entity_t* entities, int amount, uint8_t *display_buffer) {

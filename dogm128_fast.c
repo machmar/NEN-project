@@ -1,7 +1,15 @@
-#include <xc.h>
 #include <stdint.h>
-#include "globals.h"
+#include <string.h>
+
+#include "hardware/i2c.h"
+#include "pico/stdlib.h"
 #include "dogm128_fast.h"
+
+#define DOGM_I2C i2c1
+#define DOGM_I2C_ADDR 0x3C
+#define DOGM_I2C_SDA_PIN 26
+#define DOGM_I2C_SCL_PIN 27
+#define DOGM_I2C_BAUDRATE 400000u
 
 static const uint8_t font3x5[][3] = {
     {0x00,0x00,0x00}, // 32 space
@@ -75,38 +83,40 @@ static uint8_t paint_counter = 0;
 
 uint8_t dogm_fb[1024];
 
-static void spi_write(uint8_t d)
+static void i2c_write_raw(const uint8_t *data, size_t len)
 {
-    SSPBUF = d;
-    while (!PIR1bits.SSPIF) { }
-    PIR1bits.SSPIF = 0;
+    (void)i2c_write_blocking(DOGM_I2C, DOGM_I2C_ADDR, data, len, false);
 }
 
 static void lcd_cmd(uint8_t c)
 {
-    DOGM_A0_LAT = 0;
-    DOGM_CS_LAT = 0;
-    __nop();
-    spi_write(c);
-    __nop();
-    DOGM_CS_LAT = 1;
+    const uint8_t tx[2] = {0x00u, c};
+    i2c_write_raw(tx, sizeof(tx));
 }
 
-static void lcd_data(uint8_t d)
+static void lcd_data(const uint8_t *data, size_t len)
 {
-    DOGM_A0_LAT = 1;
-    DOGM_CS_LAT = 0;
-    spi_write(d);
-    DOGM_CS_LAT = 1;
+    uint8_t tx[17];
+    tx[0] = 0x40u;
+
+    while (len > 0)
+    {
+        size_t chunk = (len > 16u) ? 16u : len;
+        memcpy(&tx[1], data, chunk);
+        i2c_write_raw(tx, chunk + 1u);
+        data += chunk;
+        len -= chunk;
+    }
 }
 
-static void spi_init(void)
+static void display_bus_init(void)
 {
-    DOGM_SCK_TRIS  = 0;
-    DOGM_MOSI_TRIS = 0;
-    SSPSTAT = 0x40;
-    SSPCON1 = 0x20;
-    PIR1bits.SSPIF = 0;
+    i2c_init(DOGM_I2C, DOGM_I2C_BAUDRATE);
+    gpio_set_function(DOGM_I2C_SDA_PIN, GPIO_FUNC_I2C);
+    gpio_set_function(DOGM_I2C_SCL_PIN, GPIO_FUNC_I2C);
+    gpio_pull_up(DOGM_I2C_SDA_PIN);
+    gpio_pull_up(DOGM_I2C_SCL_PIN);
+    sleep_ms(20);
 }
 
 _Bool paint(dogm128_color_t color)
@@ -132,30 +142,29 @@ void AdvanceDither(void)
 
 void dogm128_init(void)
 {
-    DOGM_CS_TRIS  = 0;
-    DOGM_A0_TRIS  = 0;
-    DOGM_RST_TRIS = 0;
-    DOGM_CS_LAT   = 1;
+    static const uint8_t init_seq[] = {
+        0xAE,       /* display off */
+        0xD5, 0x80, /* clock divide */
+        0xA8, 0x3F, /* mux ratio for 64 lines */
+        0xD3, 0x00, /* display offset */
+        0x40,       /* start line 0 */
+        0x8D, 0x14, /* charge pump on */
+        0x20, 0x02, /* page addressing mode */
+        0xA1,       /* segment remap */
+        0xC8,       /* COM scan dec */
+        0xDA, 0x12, /* COM pins */
+        0x81, 0x8F, /* contrast */
+        0xD9, 0xF1, /* pre-charge */
+        0xDB, 0x40, /* VCOM detect */
+        0xA4,       /* display follows RAM */
+        0xA6,       /* normal (not inverted) */
+        0xAF        /* display on */
+    };
 
-    spi_init();
+    display_bus_init();
 
-    DOGM_RST_LAT = 0;
-    __delay_ms(1000);
-    DOGM_RST_LAT = 1;
-
-    lcd_cmd(0x40);
-    lcd_cmd(0xA1);
-    lcd_cmd(0xC0);
-    lcd_cmd(0xA6);
-    lcd_cmd(0xA2);
-    lcd_cmd(0x2F);
-    lcd_cmd(0xF8);
-    lcd_cmd(0x00);
-    lcd_cmd(0x27);
-    dogm128_contrast(0x16);
-    lcd_cmd(0xAC);
-    lcd_cmd(0x00);
-    lcd_cmd(0xAF);
+    for (size_t i = 0; i < sizeof(init_seq); ++i)
+        lcd_cmd(init_seq[i]);
 
     dogm128_clear();
     dogm128_refresh();
@@ -163,31 +172,23 @@ void dogm128_init(void)
 
 void dogm128_refresh(void)
 {
-    /* Point src at the start of the framebuffer and walk it straight through.
-       Avoids the ((uint16_t)page << 7) + x address recomputation every pixel. */
     const uint8_t *src = dogm_fb;
-    uint8_t page, x;
+    uint8_t page;
 
     for (page = 0; page < 8; page++)
     {
         lcd_cmd(0xB0 | page);
-        lcd_cmd(0x10);
         lcd_cmd(0x00);
-
-        DOGM_A0_LAT = 1;
-        DOGM_CS_LAT = 0;
-
-        for (x = 0; x < 128; x++)
-            spi_write(*src++);
-
-        DOGM_CS_LAT = 1;
+        lcd_cmd(0x10);
+        lcd_data(src, 128);
+        src += 128;
     }
 }
 
 void dogm128_contrast(uint8_t v)
 {
     lcd_cmd(0x81);
-    lcd_cmd(v & 0x3F);
+    lcd_cmd(v);
 }
 
 void dogm128_clear(void)
