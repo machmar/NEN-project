@@ -113,7 +113,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[MAX_ENTITIES];
-map_t *CurrentMap = &TestMap;
+map_t *CurrentMap = &WallDemoMap;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
 
@@ -149,8 +149,8 @@ void main(void) {
 
     char buf[10];
 
-    entities[0].posX = FX(20);
-    entities[0].posY = FX(20);
+    entities[0].posX = FX(5);
+    entities[0].posY = FX(5);
     entities[0].health = 100;
     entities[0].sprite = &blobSprite;
     entities[0].ratio = 0x00c0;
@@ -160,8 +160,8 @@ void main(void) {
     entities[0].lateralModifier = FX(1);
     entities[0].hitDistance = FX(3);
    
-    entities[1].posX = FX(2);
-    entities[1].posY = FX(2);
+    entities[1].posX = FX(8);
+    entities[1].posY = FX(8);
     entities[1].health = 100;
     entities[1].sprite = &ctyrruckaSprite;
     entities[1].ratio = FX(1);
@@ -171,8 +171,8 @@ void main(void) {
     entities[1].lateralModifier = FX(1);
     entities[1].hitDistance = FX(4);
 
-    entities[2].posX = FX(18);
-    entities[2].posY = FX(12);
+    entities[2].posX = FX(3);
+    entities[2].posY = FX(3);
     entities[2].health = 100;
     entities[2].sprite = &chapadloSprite;
     entities[2].ratio = 0X00C0;
@@ -182,8 +182,8 @@ void main(void) {
     entities[2].lateralModifier = FX(1);
     entities[2].hitDistance = FX(6);
 
-    entities[3].posX = FX(18);
-    entities[3].posY = FX(17);
+    entities[3].posX = FX(6);
+    entities[3].posY = FX(2);
     entities[3].health = 100;
     entities[3].sprite = &soilderSprite;
     entities[3].ratio = 0X0120;
@@ -193,8 +193,8 @@ void main(void) {
     entities[3].lateralModifier = FX(1);
     entities[3].hitDistance = FX(20);
     
-    entities[4].posX = FX(20);
-    entities[4].posY = FX(20);
+    entities[4].posX = FX(7);
+    entities[4].posY = FX(9);
     entities[4].health = 100;
     entities[4].sprite = &ctyrruckaSprite;
     entities[4].ratio = FX(1);
@@ -242,7 +242,6 @@ void main(void) {
     entities[9].walking = 0;
 */
 
-    camera.currentItem = ITEM_GUN;
     while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
@@ -269,7 +268,7 @@ void main(void) {
         prevUse = buttons.use;
 
         _Bool dialogueActive = (CurrentDialogue != NULL);
-        //HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
         if (usePressed && !dialogueActive) {
             // use button available for future interactions
             usePMill = millis;

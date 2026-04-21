@@ -432,10 +432,21 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
       continue;
     }
 
+    static uint8_t walkSprite = 0;
+    if(e->walking && prevFrames > FRAMES_PER_WALK_ANIMATE){
+      walkSprite ^= 1;
+      prevFrames = 0;
+    }
+    uint8_t usedSprite = walkSprite;
+    if(e->health <= 0){
+      e->heightOffset = 0x2800;
+      e->ratio = 0x0060;
+      usedSprite = 0; // death frame
+    }
 
     // Translate sprite position relative to camera.
-  fx_t spriteX = fx_sub(e->posX, playerPosX);
-  fx_t spriteY = fx_sub(e->posY, playerPosY);
+    fx_t spriteX = fx_sub(e->posX, playerPosX);
+    fx_t spriteY = fx_sub(e->posY, playerPosY);
     fx_t cameraX = fx_sub(fx_mul(playerDirY, spriteX), fx_mul(playerDirX, spriteY));
     fx_t cameraY = fx_add(fx_mul(fx_neg(playerPlaneY), spriteX), fx_mul(playerPlaneX, spriteY));
 
@@ -497,19 +508,13 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     uint16_t texYStep = (uint16_t)(texHeight << 8) / (uint16_t)spriteHeight;
     uint16_t texYStart = (uint16_t)(texYBase * texHeight) / (uint16_t)spriteHeight;
     uint16_t texXAdvance;
-
-    static uint8_t walkSprite = 0;
-    if(e->walking && prevFrames > FRAMES_PER_WALK_ANIMATE){
-      walkSprite ^= 1;
-      prevFrames = 0;
-    }
-    uint8_t usedSprite = walkSprite;
-    if(e->health <= 0)
-      usedSprite = 2;
+      
+    /*
     else if (e->hitDelayFrames < 4)
       usedSprite = 4;
     else if (e->hitDelayFrames <= 10)
       usedSprite = 3;
+    */
     const uint8_t *spriteFrame = sprite->data[usedSprite];
 
     uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
