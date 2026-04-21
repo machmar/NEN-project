@@ -304,6 +304,7 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     uint8_t tile = 0; // the tile that's being walked into
     static millis_t PrevCallTime = 0;
     fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between frames is 255, we want to apply whole entire movement
+    movementMultiplier = movementMultiplier < 0x10 ? 0x10 : movementMultiplier;
     // because 255 in fx_t is equal to 1, 512ms will make it 2, therefor it'll get applied twice to compensate
     PrevCallTime = millis;
     moveSpeed = fx_mul(movementMultiplier, moveSpeed);
