@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[4];
+static entity_t entities[MAX_ENTITIES];
 map_t *CurrentMap = &TestMap;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
@@ -156,7 +156,7 @@ void main(void) {
     entities[0].ratio = 0x00c0;
     entities[0].heightOffset = FX(1);
     entities[0].walking = 1;
-    entities[0].movementModifier = 0x0190;
+    entities[0].movementModifier = FX(1);
     entities[0].lateralModifier = FX(1);
     entities[0].hitDistance = FX(3);
    
@@ -186,13 +186,12 @@ void main(void) {
     entities[3].posY = FX(17);
     entities[3].health = 100;
     entities[3].sprite = &soilderSprite;
-    entities[3].ratio = 0X01C0;
+    entities[3].ratio = 0X0120;
     entities[3].heightOffset = FX(0);
     entities[3].walking = 1;
     entities[3].movementModifier = FX(3);
     entities[3].lateralModifier = FX(1);
     entities[3].hitDistance = FX(20);
-/*
     
     entities[4].posX = FX(20);
     entities[4].posY = FX(20);
@@ -201,7 +200,7 @@ void main(void) {
     entities[4].ratio = FX(1);
     entities[4].heightOffset = FX(0);
     entities[4].walking = 0;
-
+/*
     entities[5].posX = FX(18);
     entities[5].posY = FX(1);
     entities[5].health = 100;
@@ -218,14 +217,31 @@ void main(void) {
     entities[6].heightOffset = FX(0);
     entities[6].walking = 0;
 
-    entities[7].posX = FX(8);
-    entities[7].posY = FX(16);
+    entities[7].posX = FX(9);
+    entities[7].posY = FX(10);
     entities[7].health = 100;
     entities[7].sprite = &chapadloSprite;
     entities[7].ratio = FX(1);
     entities[7].heightOffset = FX(0);
     entities[7].walking = 0;
-    */
+
+    entities[8].posX = FX(10);
+    entities[8].posY = FX(16);
+    entities[8].health = 100;
+    entities[8].sprite = &chapadloSprite;
+    entities[8].ratio = FX(1);
+    entities[8].heightOffset = FX(0);
+    entities[8].walking = 0;
+
+    entities[9].posX = FX(6);
+    entities[9].posY = FX(7);
+    entities[9].health = 100;
+    entities[9].sprite = &chapadloSprite;
+    entities[9].ratio = FX(1);
+    entities[9].heightOffset = FX(0);
+    entities[9].walking = 0;
+*/
+
     camera.currentItem = ITEM_GUN;
     while (1) {
         static millis_t PMill = 0;
@@ -237,8 +253,8 @@ void main(void) {
 
         MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
-        DrawEntities(&camera, entities, 4, dogm_fb, buttons);
-        EnemyAi(&camera, entities, 4, CurrentMap);
+        DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
+        EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
@@ -265,6 +281,9 @@ void main(void) {
         utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
 
+        utoa(FX_I(entities[0].lateralModifier), buf, 0);
+        dogm128_text(0, 6, buf);
+
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));
     }
@@ -275,7 +294,6 @@ void __interrupt() isr(void) {
         PIR1bits.TMR2IF = 0;
         static uint8_t local_tick = 0;
         local_tick++;
-        AdvanceDither();
         if (local_tick & 0b100) {
             local_tick = 0;
             // 1 kHz task here

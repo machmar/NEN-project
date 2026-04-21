@@ -1140,28 +1140,35 @@ const unsigned char soilder_step2[] = {
 spriteData_t blobSprite = {BLOB_WIDTH, BLOB_HEIGHT, 
     {(const uint8_t*)blob_step1,
         (const uint8_t*)blob_step2,
-        (const uint8_t*)blob_death
+        (const uint8_t*)blob_death,
+        (const uint8_t*)blob_step2,
+        (const uint8_t*)blob_step1,
     },  
 };
 
 spriteData_t chapadloSprite = {CHAPADLO_WIDTH, CHAPADLO_HEIGHT, 
     {(const uint8_t*)chapadlo_step1,
         (const uint8_t*)chapadlo_step2,
-        (const uint8_t*)chapadlo_death
+        (const uint8_t*)chapadlo_death,
+            (const uint8_t*)chapadlo_step2,
+            (const uint8_t*)chapadlo_step1,
     },  
 };
 
 spriteData_t ctyrruckaSprite = {CTYRRUCKA_WIDTH, CTYRRUCKA_HEIGHT, 
     {(const uint8_t*)ctyrrucka_step1,
         (const uint8_t*)ctyrrucka_step2,
-        (const uint8_t*)ctyrrucka_death
+        (const uint8_t*)ctyrrucka_death,
+        (const uint8_t*)ctyrrucka_step2,
+        (const uint8_t*)ctyrrucka_step1,
     },  
 };
 
 spriteData_t soilderSprite = {SOILDER_WIDTH, SOILDER_HEIGHT, 
     {(const uint8_t*)soilder_step1,
      (const uint8_t*)soilder_step2,
-     //(const uint8_t*)soilder_dath,
+     //(const uint8_t*)soilder_death,
+        (const uint8_t*)soilder_aim,
         (const uint8_t*)soilder_aim,
         (const uint8_t*)soilder_shoot
     },  

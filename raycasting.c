@@ -370,18 +370,14 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     }
 }
 
-void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer, buttons_t buttons)
+void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons)
 {
-  static int prevFrames = 0;
+  static uint8_t prevFrames = 0;
   prevFrames++;
-  int screenXStart = 0;
-  int screenYStart = 0;
-  uint8_t rendered = 0;
   if (amount <= 0)
       return;
   if (amount > MAX_ENTITIES)
       amount = MAX_ENTITIES;
-
   uint8_t renderOrder[MAX_ENTITIES];
 
   fx_t playerPosX = player->posX;
@@ -393,20 +389,20 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   fx_t *zBuffer = player->zBuffer;
 
     // Precompute squared distance and initialize render order.
-  for (int i = 0; i < amount; i++)
+  for (uint8_t i = 0; i < amount; i++)
   {
       fx_t dx = fx_sub(playerPosX, entities[i].posX);
       fx_t dy = fx_sub(playerPosY, entities[i].posY);
       entities[i].distance = fx_add(fx_mul(dx, dx), fx_mul(dy, dy));
-      renderOrder[i] = (uint8_t)i;
+      renderOrder[i] = i;
   }
 
     // Sort only indices (far to near), avoiding full entity struct moves.
-  for (int i = 1; i < amount; i++)
+  for (uint8_t i = 1; i < amount; i++)
   {
       uint8_t keyIndex = renderOrder[i];
       fx_t keyDistance = entities[keyIndex].distance;
-      int j = i - 1;
+      int8_t j = (int8_t)i - 1;
       while (j >= 0 && entities[renderOrder[j]].distance < keyDistance)
       {
         renderOrder[j + 1] = renderOrder[j];
@@ -424,7 +420,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
   useHeld = buttons.use;
 
   // Render entities in sorted order.
-  for (int i = 0; i < amount; i++)
+  for (uint8_t i = 0; i < amount; i++)
   {
     entity_t *e = &entities[renderOrder[i]];
     spriteData_t *sprite = e->sprite;
@@ -438,8 +434,8 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
 
     // Translate sprite position relative to camera.
-    fx_t spriteX = fx_sub(e->posX, playerPosX);
-    fx_t spriteY = fx_sub(e->posY, playerPosY);
+  fx_t spriteX = fx_sub(e->posX, playerPosX);
+  fx_t spriteY = fx_sub(e->posY, playerPosY);
     fx_t cameraX = fx_sub(fx_mul(playerDirY, spriteX), fx_mul(playerDirX, spriteY));
     fx_t cameraY = fx_add(fx_mul(fx_neg(playerPlaneY), spriteX), fx_mul(playerPlaneX, spriteY));
 
@@ -487,7 +483,7 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
 
     if (useRisingEdge) {
       int centerX = (drawStartX + drawEndX) >> 1;
-      if (centerX > 40 && centerX < 56) { // aim tolerance of +-8 pixels around center of screen
+      if ((uint8_t)(centerX - 41) < 15) { // aim tolerance of +-8 pixels around center of screen
         hitTarget = renderOrder[i];
       }
     }
@@ -510,6 +506,10 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     uint8_t usedSprite = walkSprite;
     if(e->health <= 0)
       usedSprite = 2;
+    else if (e->hitDelayFrames < 4)
+      usedSprite = 4;
+    else if (e->hitDelayFrames <= 10)
+      usedSprite = 3;
     const uint8_t *spriteFrame = sprite->data[usedSprite];
 
     uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
@@ -618,82 +618,76 @@ void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *di
     HitDetection(player, &entities[hitTarget]);
 }
 
-void EnemyAi(player_t *player, entity_t *entities, int amount, map_t *map){
+void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
   static uint16_t prevFrames = 0;
-  static uint16_t hitDelayFrames = 0;
   bool updateLateral = false;
+  fx_t playerPosX = player->posX;
+  fx_t playerPosY = player->posY;
+  fx_t playerDirX = player->dirX;
+  fx_t playerDirY = player->dirY;
 
   prevFrames++;
-  hitDelayFrames++;
   if (prevFrames > 20) {
     prevFrames = 0;
     updateLateral = true;
   }
 
-  for(int i = 0; i < amount; i++){
+  for(uint8_t i = 0; i < amount; i++){
     entity_t *e = &entities[i];
     if(e->health <= 0 || e->distance == FX(127))
       continue;
 
-    // Randomize lateral strafe periodically for all visible enemies.
-    if (updateLateral && e->lineOfSight) {
-      int16_t amplitude = (int16_t)e->movementModifier;
+    if (!e->lineOfSight) {
+      e->walking = 0;
+      continue;
+    }
 
-      if (amplitude < 0) amplitude = -amplitude;
-      if (amplitude == 0) {
-        e->lateralModifier = 0;
-      } else {
-        int16_t span = ((amplitude << 1) + 1);
-        e->lateralModifier = (fx_t)(((int32_t)rand16() % span) - (amplitude));
-      }
+    // Randomize lateral strafe periodically for all visible enemies.
+    if (updateLateral) {
+      //Cursed way saving FLASH to generate random fixed point number in range of [-amplitude, amplitude]
+      int16_t amplitude = FX_I(e->movementModifier);
+      uint8_t randomByte = (uint8_t)rand16();
+      e->lateralModifier = (randomByte * amplitude);
+      if (randomByte > 127) e->lateralModifier |= 0xff00;
+    }
+
+      
+    // Keep a small body radius around the player to prevent overlap/pushing.
+    if (e->distance < FX_RAW(64)) {
+      e->walking = 0;
+      continue;
     }
 
     fx_t dx = fx_sub(
         fx_add(
-            fx_add(player->posX, fx_mul(player->dirX, e->movementModifier)),
-            fx_mul(fx_neg(player->dirY), e->lateralModifier)
+            fx_add(playerPosX, playerDirX),
+            fx_mul(fx_neg(playerDirY), e->lateralModifier)
         ),
         e->posX
     );
     fx_t dy = fx_sub(
         fx_add(
-            fx_add(player->posY, fx_mul(player->dirY, e->movementModifier)),
-            fx_mul(player->dirX, e->lateralModifier)
+            fx_add(playerPosY, playerDirY),
+            fx_mul(playerDirX, e->lateralModifier)
         ),
         e->posY
     );
+    fx_t invDistance = fx_div(FX(1), e->distance);
+    fx_t dirX = fx_mul(dx, invDistance);
+    fx_t dirY = fx_mul(dy, invDistance);
 
+    // Scaling speed with distance
+    fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
+    uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, dirX)), FX_I(e->posY));
+    uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, dirY)));
 
-      
-    // Keep a small body radius around the player to prevent overlap/pushing.
-    if (e->distance < FX_RAW(64) && e->lineOfSight) {
-      e->walking = 0;
-      continue;
-    }
+    if (tileX <= 0x00 || tileX >= 0x0f)
+        e->posX = fx_add(e->posX, fx_mul(dirX, moveSpeed));
 
-    // Move towards player if in line of sight
-    if (e->lineOfSight) {
-      fx_t invDistance = fx_div(FX(1), e->distance);
-      fx_t dirX = fx_mul(dx, invDistance);
-      fx_t dirY = fx_mul(dy, invDistance);
-      uint8_t tile;
+    if (tileY <= 0x00 || tileY >= 0x0f)
+      e->posY = fx_add(e->posY, fx_mul(dirY, moveSpeed));
 
-      // Scaling speed with distance
-      fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
-      // Check for wall collisions before moving
-      uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, fx_mul(dirX, moveSpeed))), FX_I(e->posY));
-      uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, fx_mul(dirY, moveSpeed))));
-
-      if (tileX <= 0x00 || tileX >= 0x0f)
-          e->posX = fx_add(e->posX, fx_mul(dirX, moveSpeed));
-
-      if (tileY <= 0x00 || tileY >= 0x0f)
-        e->posY = fx_add(e->posY, fx_mul(dirY, moveSpeed));
-      
-      e->walking = 1;
-    } else {
-      e->walking = 0;
-    }
+    e->walking = 1;
   }
 }
 

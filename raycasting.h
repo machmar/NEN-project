@@ -2,10 +2,11 @@
 #define RAYCASTING_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "fx8.h"
 #include "assets.h"
 
-#define MAX_ENTITIES 10
+#define MAX_ENTITIES 5
 
 typedef struct __attribute__((packed)) {
     bool front, back, use, left, right;
@@ -14,8 +15,8 @@ buttons_t;
 
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue);
 int RenderFrame(player_t *player, const map_t *map);
-void DrawEntities(player_t *player, entity_t* entities,  int amount, uint8_t *display_buffer, buttons_t buttons);
-void EnemyAi(player_t *player, entity_t* entities, int amount, map_t *map);
+void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons);
+void EnemyAi(player_t *player, entity_t* entities, uint8_t amount, map_t *map);
 void HitDetection(player_t *player, entity_t *entities);
 
 #endif // RAYCASTING_H

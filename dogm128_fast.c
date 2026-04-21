@@ -71,8 +71,6 @@ static const uint8_t font3x5[][3] = {
     {0x01,0x02,0x00}, // 96 `
 };
 
-static uint8_t paint_counter = 0;
-
 uint8_t dogm_fb[1024];
 
 static void spi_write(uint8_t d)
@@ -107,27 +105,6 @@ static void spi_init(void)
     SSPSTAT = 0x40;
     SSPCON1 = 0x20;
     PIR1bits.SSPIF = 0;
-}
-
-_Bool paint(dogm128_color_t color)
-{
-    paint_counter++;
-    switch(color)
-    {
-        case DISP_COL_WHITE:      return 0;
-        case DISP_COL_BLACK:      return 1;
-        case DISP_COL_GREY:       return paint_counter & 1;
-        case DISP_COL_LIGHT_GREY: if (paint_counter >= 3) paint_counter = 0;
-                                  return paint_counter == 0;
-        case DISP_COL_DARK_GREY:  if (paint_counter >= 3) paint_counter = 0;
-                                  return paint_counter != 0;
-        default:                  return 0;
-    }
-}
-
-void AdvanceDither(void)
-{
-    paint_counter++;    /* skip one dither step without touching the framebuffer */
 }
 
 void dogm128_init(void)
@@ -224,7 +201,7 @@ void dogm128_pixel(uint8_t x, uint8_t y, dogm128_color_t color)
     i = ((uint16_t)(y >> 3) << 7) + x;
     m = (uint8_t)(1u << (y & 7));
 
-    if (paint(color))
+    if (color)
         dogm_fb[i] |= m;
     else
         dogm_fb[i] &= (uint8_t)~m;
@@ -245,7 +222,7 @@ void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, dogm128_color_t color)
 
     /* Hoist the branch out of the per-pixel loop.
        paint() is called once; for a solid color its result is constant. */
-    if (paint(color))
+    if (color)
     {
         while (w--)
             *p++ |= m;
@@ -256,9 +233,6 @@ void dogm128_hline(uint8_t x, uint8_t y, uint8_t w, dogm128_color_t color)
         while (w--)
             *p++ &= nm;
     }
-    /* paint() already incremented paint_counter once; hline used to call it
-       once per pixel then add an extra increment at the end ? that's now
-       one call total, which is correct for a single scanline. */
 }
 
 void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, dogm128_color_t color)
@@ -269,7 +243,7 @@ void dogm128_vline(uint8_t x, uint8_t y, uint8_t h, dogm128_color_t color)
         h = DOGM_HEIGHT - y;
 
     /* Hoist the color decision out of the per-pixel loop. */
-    if (paint(color))
+    if (color)
     {
         while (h--)
         {
@@ -415,13 +389,12 @@ void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
             {
                 uint16_t i = ((uint16_t)(y0 >> 3) << 7) + (uint8_t)x0;
                 uint8_t  m = (uint8_t)(1u << (y0 & 7));
-                if (paint(color))
+                if (color)
                     dogm_fb[i] |= m;
                 else
                     dogm_fb[i] &= (uint8_t)~m;
             }
             else
-                paint_counter++;   /* keep dither phase consistent */
 
             if (x0 == x1 && y0 == y1) break;
             e2 = err << 1;
@@ -429,7 +402,6 @@ void dogm128_line(int x0, int y0, int x1, int y1, dogm128_color_t color)
             if (e2 <= dx) { err += dx; y0 += sy; }
         }
     }
-    paint_counter++;
 }
 
 /* Apply a byte-mask to a horizontal run of w consecutive framebuffer bytes.
@@ -449,7 +421,7 @@ static void fill_hrun(uint8_t *p, uint8_t w, uint8_t mask, dogm128_color_t color
     {
         while (w--)
         {
-            if (paint(color)) *p |= mask;
+            if (color) *p |= mask;
             else              *p &= (uint8_t)~mask;
             p++;
         }

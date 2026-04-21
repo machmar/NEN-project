@@ -96,8 +96,6 @@ typedef struct {
     uint8_t type;
 } line_t;
 
-line_t frame_buffer[48];
-
 typedef struct
 {
     uint8_t width;
