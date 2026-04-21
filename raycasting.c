@@ -59,7 +59,7 @@ void HitPlayer(player_t *player, entity_t *entity);
 /* Keep these scratch buffers static to reduce DrawEntities auto-stack pressure. */
 static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
-static const fx_t BASE_ENEMY_MOVE_SPEED = FX(1) / 4;
+static const fx_t BASE_ENEMY_MOVE_SPEED = FX_ONE;
 
 static void DrawEntities_ClearRows(uint8_t *rows)
 {
@@ -299,9 +299,15 @@ _Bool inline TileWalkable(uint8_t type) {
 
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue) {
     //move forward if no wall in front of you
-    fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
-    fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
+    fx_t moveSpeed = FX_ONE; //the constant value is in squares/quatersecond
+    fx_t rotSpeed = 0x0028; //the constant value is in radians/quatersecond (0.1PI per frame)
     uint8_t tile = 0; // the tile that's being walked into
+    static millis_t PrevCallTime = 0;
+    fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between frames is 255, we want to apply whole entire movement
+    // because 255 in fx_t is equal to 1, 512ms will make it 2, therefor it'll get applied twice to compensate
+    PrevCallTime = millis;
+    moveSpeed = fx_mul(movementMultiplier, moveSpeed);
+    rotSpeed = fx_mul(movementMultiplier, rotSpeed);
     static uint8_t prevCellX = 0xFF; // 0xFF = sentinel (uninitialized)
     static uint8_t prevCellY = 0xFF;
     static uint8_t prevTile = 0;
@@ -625,17 +631,19 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
 }
 
 void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
-  static uint16_t prevFrames = 0;
+  static millis_t lastCall = 0;
+  uint16_t sinceLastCall = millis - lastCall;
   bool updateLateral = false;
   fx_t playerPosX = player->posX;
   fx_t playerPosY = player->posY;
   fx_t playerDirX = player->dirX;
   fx_t playerDirY = player->dirY;
 
-  prevFrames++;
-  if (prevFrames > 20) {
-    prevFrames = 0;
-    updateLateral = true;
+  static uint16_t moveLateral = 0;
+  moveLateral += sinceLastCall;
+  if (moveLateral >= 1000) {
+      moveLateral = 0;
+      updateLateral = true;
   }
 
   for(uint8_t i = 0; i < amount; i++){
@@ -684,6 +692,7 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
 
     // Scaling speed with distance
     fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
+    moveSpeed = fx_mul(moveSpeed, (fx_t)sinceLastCall); // check player move to understand
     uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, dirX)), FX_I(e->posY));
     uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, dirY)));
 
@@ -695,6 +704,7 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
 
     e->walking = 1;
   }
+  lastCall = millis;
 }
 
 void HitDetection(player_t *player, entity_t *entities){
