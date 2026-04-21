@@ -269,7 +269,7 @@ void main(void) {
 
         _Bool dialogueActive = (CurrentDialogue != NULL);
         HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
-        if (usePressed && !dialogueActive) {
+        if (usePressed) {
             // use button available for future interactions
             usePMill = millis;
         }
