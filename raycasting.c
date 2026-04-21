@@ -300,9 +300,15 @@ _Bool inline TileWalkable(uint8_t type) {
 
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue) {
     //move forward if no wall in front of you
-    fx_t moveSpeed = FX_HALF; //the constant value is in squares/second
-    fx_t rotSpeed = 0x0008; //the constant value is in radians/second (0.1PI per frame)
+    fx_t moveSpeed = FX_ONE; //the constant value is in squares/quatersecond
+    fx_t rotSpeed = 0x0028; //the constant value is in radians/quatersecond (0.1PI per frame)
     uint8_t tile = 0; // the tile that's being walked into
+    static millis_t PrevCallTime = 0;
+    fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between frames is 255, we want to apply whole entire movement
+    // because 255 in fx_t is equal to 1, 512ms will make it 2, therefor it'll get applied twice to compensate
+    PrevCallTime = millis;
+    moveSpeed = fx_mul(movementMultiplier, moveSpeed);
+    rotSpeed = fx_mul(movementMultiplier, rotSpeed);
     static uint8_t prevCellX = 0xFF; // 0xFF = sentinel (uninitialized)
     static uint8_t prevCellY = 0xFF;
     static uint8_t prevTile = 0;
