@@ -60,7 +60,7 @@ void HitPlayer(player_t *player, entity_t *entity);
 /* Keep these scratch buffers static to reduce DrawEntities auto-stack pressure. */
 static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
-static const fx_t BASE_ENEMY_MOVE_SPEED = FX(1) / 4;
+static const fx_t BASE_ENEMY_MOVE_SPEED = FX_ONE;
 
 static void DrawEntities_ClearRows(uint8_t *rows)
 {
@@ -630,17 +630,19 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
 }
 
 void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
-  static uint16_t prevFrames = 0;
+  static millis_t lastCall = 0;
+  uint16_t sinceLastCall = millis - lastCall;
   bool updateLateral = false;
   fx_t playerPosX = player->posX;
   fx_t playerPosY = player->posY;
   fx_t playerDirX = player->dirX;
   fx_t playerDirY = player->dirY;
 
-  prevFrames++;
-  if (prevFrames > 20) {
-    prevFrames = 0;
-    updateLateral = true;
+  static uint16_t moveLateral = 0;
+  moveLateral += sinceLastCall;
+  if (moveLateral >= 1000) {
+      moveLateral = 0;
+      updateLateral = true;
   }
 
   for(uint8_t i = 0; i < amount; i++){
@@ -689,6 +691,7 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
 
     // Scaling speed with distance
     fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
+    moveSpeed = fx_mul(moveSpeed, (fx_t)sinceLastCall); // check player move to understand
     uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, dirX)), FX_I(e->posY));
     uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, dirY)));
 
@@ -700,6 +703,7 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
 
     e->walking = 1;
   }
+  lastCall = millis;
 }
 
 void HitDetection(player_t *player, entity_t *entities){
