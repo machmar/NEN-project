@@ -518,7 +518,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     */
     const uint8_t *spriteFrame = sprite->data[usedSprite];
 
-    uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 4 : 2) : 1;
+    uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 1 : 1) : 1;
     DrawEntities_ClearRows(g_draw_leftVisibleRows);
     texXAdvance = (uint16_t)(texXStep * pixelStride);
 
