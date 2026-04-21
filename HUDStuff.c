@@ -106,9 +106,9 @@ void HUD_DrawStats(const player_t *player)
 {
     char buf[5];
     dogm128_blit_or(98, 50, &HUD_hpImage, 14);
-    utoa(player->kills, buf, 3);
+    utoa_mine(player->kills, buf, 3);
     dogm128_text(114, 50, buf);
-    utoa(player->health, buf, 1);
+    utoa_mine(player->health, buf, 1);
     dogm128_text(108, 57, buf);
 }
 

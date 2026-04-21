@@ -13,7 +13,7 @@
 typedef uint32_t millis_t;
 extern volatile millis_t millis;
 
-static void utoa(uint16_t v, char *buf, uint8_t len) {
+static void utoa_mine(uint16_t v, char *buf, uint8_t len) {
     char tmp[6];
     uint8_t i = 0;
 
@@ -41,27 +41,6 @@ static void utoa(uint16_t v, char *buf, uint8_t len) {
     *buf = 0;
 }
 
-static void utoa32(uint32_t v, char *buf) {
-    char tmp[11];
-    uint8_t i = 0;
-
-    if (v == 0) {
-        buf[0] = '0';
-        buf[1] = 0;
-        return;
-    }
-
-    while (v > 0) {
-        tmp[i++] = '0' + (v % 10);
-        v /= 10;
-    }
-
-    while (i > 0)
-        *buf++ = tmp[--i];
-
-    *buf = 0;
-}
-
 static uint16_t rng = 0xACE1;
 
 static inline uint16_t rand16(void) {
@@ -69,14 +48,6 @@ static inline uint16_t rand16(void) {
     rng ^= rng >> 9;
     rng ^= rng << 8;
     return rng;
-}
-
-static inline uint8_t rand128(void) {
-    return rand16() & 0x7F;
-}
-
-static inline uint8_t rand64(void) {
-    return rand16() & 0x3F;
 }
 
 #endif	/* UTILS_H */
