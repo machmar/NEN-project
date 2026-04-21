@@ -49,6 +49,4 @@ void dogm128_blit_or(int16_t x, int16_t y, const dogm128_bitmap_t *bmp, uint8_t 
 void dogm128_char(uint8_t x, uint8_t y, char c);
 void dogm128_text(uint8_t x, uint8_t y, const char *s);
 
-void AdvanceDither();
-
 #endif

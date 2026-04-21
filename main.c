@@ -1,3 +1,4 @@
+#include <builtins.h>
 #include <xc.h>
 #include <stdint.h>
 #include "globals.h"
@@ -111,7 +112,7 @@ void Backlight(uint16_t duty10) {
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[2];
+static entity_t entities[MAX_ENTITIES];
 map_t *CurrentMap = &WallDemoMap;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
@@ -136,32 +137,123 @@ void main(void) {
     camera.angle = FX_ANGLE_HALF; // facing -X
     camera.dirX = fx_cos(camera.angle);
     camera.dirY = fx_sin(camera.angle);
-    camera.planeX = fx_mul(camera.dirY, (fx_t) 0x00a9);
-    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t) 0x00a9));
+    camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
+    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
+    // Filling zBuffer with max distance to test sprite rendering
+    for(int i = 0; i < 48 - 1; i++){
+        camera.zBuffer[i] = FX(64);
+    }
+    
     camera.health = 5;
     camera.kills = 69;
 
     char buf[10];
 
-    entities[0].posX = 17;
-    entities[0].posY = 12;
+    entities[0].posX = FX(5);
+    entities[0].posY = FX(5);
     entities[0].health = 100;
-    entities[0].sprite = sprite;
-
-    entities[1].posX = 17;
-    entities[1].posY = 8.5;
+    entities[0].sprite = &blobSprite;
+    entities[0].ratio = 0x00c0;
+    entities[0].heightOffset = FX(1);
+    entities[0].walking = 1;
+    entities[0].movementModifier = FX(1);
+    entities[0].lateralModifier = FX(1);
+    entities[0].hitDistance = FX(3);
+   
+    entities[1].posX = FX(8);
+    entities[1].posY = FX(8);
     entities[1].health = 100;
-    entities[1].sprite = sprite;
+    entities[1].sprite = &ctyrruckaSprite;
+    entities[1].ratio = FX(1);
+    entities[1].heightOffset = FX(0);
+    entities[1].walking = 1;
+    entities[1].movementModifier = FX(2);  // 1.5625
+    entities[1].lateralModifier = FX(1);
+    entities[1].hitDistance = FX(4);
+
+    entities[2].posX = FX(3);
+    entities[2].posY = FX(3);
+    entities[2].health = 100;
+    entities[2].sprite = &chapadloSprite;
+    entities[2].ratio = 0X00C0;
+    entities[2].heightOffset = FX(0);
+    entities[2].walking = 1;
+    entities[2].movementModifier = 0X01C0;
+    entities[2].lateralModifier = FX(1);
+    entities[2].hitDistance = FX(6);
+
+    entities[3].posX = FX(6);
+    entities[3].posY = FX(2);
+    entities[3].health = 100;
+    entities[3].sprite = &soilderSprite;
+    entities[3].ratio = 0X0120;
+    entities[3].heightOffset = FX(0);
+    entities[3].walking = 1;
+    entities[3].movementModifier = FX(3);
+    entities[3].lateralModifier = FX(1);
+    entities[3].hitDistance = FX(20);
+    
+    entities[4].posX = FX(7);
+    entities[4].posY = FX(9);
+    entities[4].health = 100;
+    entities[4].sprite = &ctyrruckaSprite;
+    entities[4].ratio = FX(1);
+    entities[4].heightOffset = FX(0);
+    entities[4].walking = 0;
+/*
+    entities[5].posX = FX(18);
+    entities[5].posY = FX(1);
+    entities[5].health = 100;
+    entities[5].sprite = &soilderSprite;
+    entities[5].ratio = FX(1);
+    entities[5].heightOffset = FX(0);
+    entities[5].walking = 0;
+
+    entities[6].posX = FX(1);
+    entities[6].posY = FX(14);
+    entities[6].health = 100;
+    entities[6].sprite = &blobSprite;
+    entities[6].ratio = FX(1);
+    entities[6].heightOffset = FX(0);
+    entities[6].walking = 0;
+
+    entities[7].posX = FX(9);
+    entities[7].posY = FX(10);
+    entities[7].health = 100;
+    entities[7].sprite = &chapadloSprite;
+    entities[7].ratio = FX(1);
+    entities[7].heightOffset = FX(0);
+    entities[7].walking = 0;
+
+    entities[8].posX = FX(10);
+    entities[8].posY = FX(16);
+    entities[8].health = 100;
+    entities[8].sprite = &chapadloSprite;
+    entities[8].ratio = FX(1);
+    entities[8].heightOffset = FX(0);
+    entities[8].walking = 0;
+
+    entities[9].posX = FX(6);
+    entities[9].posY = FX(7);
+    entities[9].health = 100;
+    entities[9].sprite = &chapadloSprite;
+    entities[9].ratio = FX(1);
+    entities[9].heightOffset = FX(0);
+    entities[9].walking = 0;
+*/
 
     while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
+        static uint8_t prevFrames = 0;
         PMill = millis;
         dogm128_clear();
         buttons = read_buttons();
 
         MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
         RenderFrame(&camera, CurrentMap);
+        DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
+        EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap);
 
         HUD_DrawBanner(CurrentMap->Banner);
         HUD_DrawBorders();
@@ -188,6 +280,9 @@ void main(void) {
         utoa(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
 
+        utoa(FX_I(entities[0].lateralModifier), buf, 0);
+        dogm128_text(0, 6, buf);
+
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(&camera));
     }
@@ -198,7 +293,6 @@ void __interrupt() isr(void) {
         PIR1bits.TMR2IF = 0;
         static uint8_t local_tick = 0;
         local_tick++;
-        AdvanceDither();
         if (local_tick & 0b100) {
             local_tick = 0;
             // 1 kHz task here
