@@ -277,10 +277,10 @@ void main(void) {
         
         // display FPS in the corner for testing
         frame_length = millis - PMill;
-        utoa(1000 / frame_length, buf, 0);
+        utoa_mine(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
 
-        utoa(FX_I(entities[0].lateralModifier), buf, 0);
+        utoa_mine(FX_I(entities[0].lateralModifier), buf, 0);
         dogm128_text(0, 6, buf);
 
         dogm128_refresh();
