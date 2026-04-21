@@ -9,7 +9,7 @@
 #define DOGM_I2C_ADDR 0x3C
 #define DOGM_I2C_SDA_PIN 26
 #define DOGM_I2C_SCL_PIN 27
-#define DOGM_I2C_BAUDRATE 400000u
+#define DOGM_I2C_BAUDRATE 3000000u
 
 static const uint8_t font3x5[][3] = {
     {0x00,0x00,0x00}, // 32 space
