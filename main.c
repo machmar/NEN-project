@@ -16,6 +16,7 @@
 #pragma config CPUDIV = OSC1_PLL2
 #pragma config USBDIV = 2
 #pragma config WDT = OFF
+#pragma config WDTPS = 1        // shortest timeout (~4 ms typical)
 #pragma config LVP = OFF
 #pragma config PBADEN = OFF
 
@@ -123,9 +124,14 @@ void DrawMenu(buttons_t state) {
 
     dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
     dogm128_text(1, 64 - 8, "resume");
-    
+    dogm128_text(127 - 20, 64 - 8, "reset");
+
     if (menuOpen == 2) {
         if (state.back) menuOpen = 0;
+        if (state.right) {
+            WDTCONbits.SWDTEN = 1;
+            while (1);
+        }
     }
 }
 
@@ -139,11 +145,12 @@ millis_t usePMill = 0;
 
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
     // param1 = eventNum (tile & 0x0F), param2 = stepOn
-    (void)param1;
-    (void)param2;
+    (void) param1;
+    (void) param2;
 }
 
 void main(void) {
+    WDTCONbits.SWDTEN = 0;   // disable WDT
     init_ports();
     initDisplay();
     pwm_ccp1_init();
@@ -157,13 +164,13 @@ void main(void) {
     camera.angle = FX_ANGLE_HALF; // facing -X
     camera.dirX = fx_cos(camera.angle);
     camera.dirY = fx_sin(camera.angle);
-    camera.planeX = fx_mul(camera.dirY, (fx_t)0x00a9);
-    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t)0x00a9));
+    camera.planeX = fx_mul(camera.dirY, (fx_t) 0x00a9);
+    camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t) 0x00a9));
     // Filling zBuffer with max distance to test sprite rendering
-    for(int i = 0; i < 48 - 1; i++){
+    for (int i = 0; i < 48 - 1; i++) {
         camera.zBuffer[i] = FX(64);
     }
-    
+
     camera.health = 5;
     camera.kills = 69;
 
@@ -179,7 +186,7 @@ void main(void) {
     entities[0].movementModifier = FX(1);
     entities[0].lateralModifier = FX(1);
     entities[0].hitDistance = FX(3);
-   
+
     entities[1].posX = FX(8);
     entities[1].posY = FX(8);
     entities[1].health = 100;
@@ -187,7 +194,7 @@ void main(void) {
     entities[1].ratio = FX(1);
     entities[1].heightOffset = FX(0);
     entities[1].walking = 1;
-    entities[1].movementModifier = FX(2);  // 1.5625
+    entities[1].movementModifier = FX(2); // 1.5625
     entities[1].lateralModifier = FX(1);
     entities[1].hitDistance = FX(4);
 
@@ -212,7 +219,7 @@ void main(void) {
     entities[3].movementModifier = FX(3);
     entities[3].lateralModifier = FX(1);
     entities[3].hitDistance = FX(20);
-    
+
     entities[4].posX = FX(7);
     entities[4].posY = FX(9);
     entities[4].health = 100;
@@ -220,47 +227,47 @@ void main(void) {
     entities[4].ratio = FX(1);
     entities[4].heightOffset = FX(0);
     entities[4].walking = 0;
-/*
-    entities[5].posX = FX(18);
-    entities[5].posY = FX(1);
-    entities[5].health = 100;
-    entities[5].sprite = &soilderSprite;
-    entities[5].ratio = FX(1);
-    entities[5].heightOffset = FX(0);
-    entities[5].walking = 0;
+    /*
+        entities[5].posX = FX(18);
+        entities[5].posY = FX(1);
+        entities[5].health = 100;
+        entities[5].sprite = &soilderSprite;
+        entities[5].ratio = FX(1);
+        entities[5].heightOffset = FX(0);
+        entities[5].walking = 0;
 
-    entities[6].posX = FX(1);
-    entities[6].posY = FX(14);
-    entities[6].health = 100;
-    entities[6].sprite = &blobSprite;
-    entities[6].ratio = FX(1);
-    entities[6].heightOffset = FX(0);
-    entities[6].walking = 0;
+        entities[6].posX = FX(1);
+        entities[6].posY = FX(14);
+        entities[6].health = 100;
+        entities[6].sprite = &blobSprite;
+        entities[6].ratio = FX(1);
+        entities[6].heightOffset = FX(0);
+        entities[6].walking = 0;
 
-    entities[7].posX = FX(9);
-    entities[7].posY = FX(10);
-    entities[7].health = 100;
-    entities[7].sprite = &chapadloSprite;
-    entities[7].ratio = FX(1);
-    entities[7].heightOffset = FX(0);
-    entities[7].walking = 0;
+        entities[7].posX = FX(9);
+        entities[7].posY = FX(10);
+        entities[7].health = 100;
+        entities[7].sprite = &chapadloSprite;
+        entities[7].ratio = FX(1);
+        entities[7].heightOffset = FX(0);
+        entities[7].walking = 0;
 
-    entities[8].posX = FX(10);
-    entities[8].posY = FX(16);
-    entities[8].health = 100;
-    entities[8].sprite = &chapadloSprite;
-    entities[8].ratio = FX(1);
-    entities[8].heightOffset = FX(0);
-    entities[8].walking = 0;
+        entities[8].posX = FX(10);
+        entities[8].posY = FX(16);
+        entities[8].health = 100;
+        entities[8].sprite = &chapadloSprite;
+        entities[8].ratio = FX(1);
+        entities[8].heightOffset = FX(0);
+        entities[8].walking = 0;
 
-    entities[9].posX = FX(6);
-    entities[9].posY = FX(7);
-    entities[9].health = 100;
-    entities[9].sprite = &chapadloSprite;
-    entities[9].ratio = FX(1);
-    entities[9].heightOffset = FX(0);
-    entities[9].walking = 0;
-*/
+        entities[9].posX = FX(6);
+        entities[9].posY = FX(7);
+        entities[9].health = 100;
+        entities[9].sprite = &chapadloSprite;
+        entities[9].ratio = FX(1);
+        entities[9].heightOffset = FX(0);
+        entities[9].walking = 0;
+     */
 
     while (1) {
         static millis_t PMill = 0;
@@ -296,12 +303,11 @@ void main(void) {
                 usePMill = millis;
             }
             prevMenu = 0;
-        }
-        else prevMenu = 1;
-        
+        } else prevMenu = 1;
+
         DrawMenu(buttons);
 
-        
+
         // display FPS in the corner for testing
         frame_length = millis - PMill;
         utoa_mine(1000 / frame_length, buf, 0);
