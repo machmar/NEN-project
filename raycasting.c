@@ -298,7 +298,7 @@ _Bool inline TileWalkable(uint8_t type) {
     return 0;
 }
 
-int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue) {
+int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue, bool dont_scale) {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_ONE; //the constant value is in squares/quatersecond
     fx_t rotSpeed = 0x0028; //the constant value is in radians/quatersecond (0.1PI per frame)
@@ -307,6 +307,7 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between frames is 255, we want to apply whole entire movement
     // because 255 in fx_t is equal to 1, 512ms will make it 2, therefor it'll get applied twice to compensate
     PrevCallTime = millis;
+    if (dont_scale) movementMultiplier = FX_ONE;
     moveSpeed = fx_mul(movementMultiplier, moveSpeed);
     rotSpeed = fx_mul(movementMultiplier, rotSpeed);
     static uint8_t prevCellX = 0xFF; // 0xFF = sentinel (uninitialized)
@@ -629,9 +630,10 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     HitDetection(player, &entities[hitTarget]);
 }
 
-void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map){
+void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, bool dont_scale){
   static millis_t lastCall = 0;
   uint16_t sinceLastCall = millis - lastCall;
+  if (dont_scale) sinceLastCall = FX_ONE;
   bool updateLateral = false;
   fx_t playerPosX = player->posX;
   fx_t playerPosY = player->posY;
