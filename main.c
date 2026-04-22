@@ -109,6 +109,26 @@ void Backlight(uint16_t duty10) {
     CCP1CONbits.DC1B = duty10 & 0x03; // lower 2 bits
 }
 
+uint8_t menuOpen = 0;
+
+void DrawMenu(buttons_t state) {
+    if (menuOpen == 0) {
+        if (state.all >= 0b11111) menuOpen = 1;
+        else return;
+    }
+    if (menuOpen == 1) {
+        if (state.all == 0)
+            menuOpen = 2;
+    }
+
+    dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
+    dogm128_text(1, 64 - 8, "resume");
+    
+    if (menuOpen == 2) {
+        if (state.back) menuOpen = 0;
+    }
+}
+
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
@@ -247,32 +267,39 @@ void main(void) {
         static millis_t frame_length = 0;
         static uint8_t prevFrames = 0;
         PMill = millis;
-        dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
-        RenderFrame(&camera, CurrentMap);
-        DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
-        EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap);
+        static bool prevMenu = 0;
+        if (menuOpen == 0) {
+            dogm128_clear();
+            MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
+            RenderFrame(&camera, CurrentMap);
+            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
+            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
 
-        HUD_DrawBanner(CurrentMap->Banner);
-        HUD_DrawBorders();
-        HUD_DrawItem(camera.currentItem);
-        HUD_DrawMap(CurrentMap, &camera);
-        HUD_DrawCompass(&camera);
-        HUD_DrawStats(&camera);
-        HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+            HUD_DrawBanner(CurrentMap->Banner);
+            HUD_DrawBorders();
+            HUD_DrawItem(camera.currentItem);
+            HUD_DrawMap(CurrentMap, &camera);
+            HUD_DrawCompass(&camera);
+            HUD_DrawStats(&camera);
+            HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
 
-        static _Bool prevUse = 0;
-        _Bool usePressed = buttons.use && !prevUse;
-        prevUse = buttons.use;
+            static _Bool prevUse = 0;
+            _Bool usePressed = buttons.use && !prevUse;
+            prevUse = buttons.use;
 
-        _Bool dialogueActive = (CurrentDialogue != NULL);
-        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
-        if (usePressed) {
-            // use button available for future interactions
-            usePMill = millis;
+            _Bool dialogueActive = (CurrentDialogue != NULL);
+            HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+            if (usePressed) {
+                // use button available for future interactions
+                usePMill = millis;
+            }
+            prevMenu = 0;
         }
+        else prevMenu = 1;
+        
+        DrawMenu(buttons);
 
         
         // display FPS in the corner for testing
