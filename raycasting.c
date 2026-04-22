@@ -504,6 +504,10 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
       if ((uint8_t)(centerX - 41) < 15) { // aim tolerance of +-8 pixels around center of screen
         hitTarget = renderOrder[i];
       }
+      else if (player->currentItem == ITEM_KNIFE) {
+        // Allow hitting by proximity if not aiming near the center of the screen, but only for close targets to avoid accidental hits on far away entities.
+        hitTarget = renderOrder[i];
+      }
     }
 
     // Incremental texture mapping removes divisions from inner loops.
