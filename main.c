@@ -112,7 +112,7 @@ void Backlight(uint16_t duty10) {
 
 uint8_t menuOpen = 0;
 
-void DrawMenu(buttons_t state) {
+void DrawMenu(buttons_t state, bool disallow_resume) {
     if (menuOpen == 0) {
         if (state.all >= 0b11111) menuOpen = 1;
         else return;
@@ -123,11 +123,12 @@ void DrawMenu(buttons_t state) {
     }
 
     dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
-    dogm128_text(1, 64 - 8, "resume");
-    dogm128_text(127 - 20, 64 - 8, "reset");
+    dogm128_hline(0, 64 - 7, 128, DISP_COL_BLACK);
+    dogm128_text(1, 64 - 5, "resume");
+    dogm128_text(127 - 20, 64 - 5, "reset");
 
     if (menuOpen == 2) {
-        if (state.back) menuOpen = 0;
+        if (state.back && !disallow_resume) menuOpen = 0;
         if (state.right) {
             WDTCONbits.SWDTEN = 1;
             while (1);
@@ -172,7 +173,7 @@ void main(void) {
     }
 
     camera.health = 5;
-    camera.kills = 69;
+    camera.kills = 0;
 
     char buf[10];
 
@@ -302,10 +303,16 @@ void main(void) {
                 // use button available for future interactions
                 usePMill = millis;
             }
+            
+            if (camera.health == 0) {
+                dogm128_fill_rect((96 / 2) - 25, (64 / 2) - 10, 50, 20, DISP_COL_WHITE);
+                dogm128_text((96 / 2) - 6, (64 / 2) - 2, "RIP");
+                menuOpen = 1;
+            }
             prevMenu = 0;
         } else prevMenu = 1;
 
-        DrawMenu(buttons);
+        DrawMenu(buttons, camera.health == 0);
 
 
         // display FPS in the corner for testing

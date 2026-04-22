@@ -712,8 +712,9 @@ void HitDetection(player_t *player, entity_t *entities){
   fx_t hitDistance = FX_ZERO;
   if(player->currentItem == ITEM_GUN) hitDistance = FX(50);
   else if(player->currentItem == ITEM_KNIFE) hitDistance = FX(2);
-  if (entities->distance < hitDistance) {
+  if (entities->distance < hitDistance && entities->health > 0) {
     entities->health = 0;
+    player->kills++;
   }
 }
 
