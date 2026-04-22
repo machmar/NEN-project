@@ -124,7 +124,7 @@ void DrawMenu(buttons_t state) {
 
     dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
     dogm128_text(1, 64 - 8, "resume");
-    dogm128_text(100, 64 - 8, "reset");
+    dogm128_text(127 - 20, 64 - 8, "reset");
 
     if (menuOpen == 2) {
         if (state.back) menuOpen = 0;
