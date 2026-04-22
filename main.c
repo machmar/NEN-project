@@ -282,16 +282,16 @@ void main(void) {
             dogm128_clear();
             MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
             RenderFrame(&camera, CurrentMap);
-            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
-            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
+            DrawEntities(&camera, entities, 1, dogm_fb, buttons);
+            EnemyAi(&camera, entities, 1, CurrentMap, prevMenu);
 
             HUD_DrawBanner(CurrentMap->Banner);
             HUD_DrawBorders();
             HUD_DrawItem(camera.currentItem);
             HUD_DrawMap(CurrentMap, &camera);
-            HUD_DrawCompass(&camera);
-            HUD_DrawStats(&camera);
-            HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+            HUD_DrawCompass(camera.angle, camera.dirX, camera.dirY);
+            HUD_DrawStats(camera.health, camera.kills);
+            HUD_DrawItemPOV(camera.currentItem, usePMill + 200 > millis);
 
             static _Bool prevUse = 0;
             _Bool usePressed = buttons.use && !prevUse;
@@ -320,11 +320,13 @@ void main(void) {
         utoa_mine(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
 
-        utoa_mine(FX_I(entities[0].lateralModifier), buf, 0);
+        utoa_mine(FX_I(entities[0].distance), buf, 0);
         dogm128_text(0, 6, buf);
+        utoa_mine(entities[0].lineOfSight, buf, 0);
+        dogm128_text(0, 12, buf);
 
         dogm128_refresh();
-        set_LEDs(HUD_GetLEDHP(&camera));
+        set_LEDs(HUD_GetLEDHP(camera.health));
     }
 }
 
