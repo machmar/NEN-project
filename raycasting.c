@@ -326,33 +326,33 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     if (buttons.front) {
         tile = MAP_AT(map, FX_I(fx_add(posX, fx_mul(dirX, moveSpeed))), FX_I(posY));
         if (TileWalkable(tile))
-            player->posX = fx_add(posX, fx_mul(dirX, moveSpeed));
+            posX = fx_add(posX, fx_mul(dirX, moveSpeed));
 
         tile = MAP_AT(map, FX_I(posX), FX_I(fx_add(posY, fx_mul(dirY, moveSpeed))));
         if (TileWalkable(tile))
-            player->posY = fx_add(posY, fx_mul(dirY, moveSpeed));
+            posY = fx_add(posY, fx_mul(dirY, moveSpeed));
     }
     //move backwards if no wall behind you
     if (buttons.back) {
         tile = MAP_AT(map, FX_I(fx_sub(posX, fx_mul(dirX, moveSpeed))), FX_I(posY));
         if (TileWalkable(tile))
-            player->posX = fx_sub(posX, fx_mul(dirX, moveSpeed));
+            posX = fx_sub(posX, fx_mul(dirX, moveSpeed));
 
         tile = MAP_AT(map, FX_I(posX), FX_I(fx_sub(posY, fx_mul(dirY, moveSpeed))));
         if (TileWalkable(tile))
-            player->posY = fx_sub(posY, fx_mul(dirY, moveSpeed));
+            posY = fx_sub(posY, fx_mul(dirY, moveSpeed));
     }
     //rotate to the right
     if (buttons.right)
-        player->angle = fx_add(angle, rotSpeed);
+        angle = fx_add(angle, rotSpeed);
     //rotate to the left
     if (buttons.left)
-        player->angle = fx_sub(angle, rotSpeed);
+        angle = fx_sub(angle, rotSpeed);
 
     //reconstruct dir and plane from angle (eliminates fixed-point drift)
     if (buttons.right || buttons.left) {
-        player->dirX = fx_cos(angle);
-        player->dirY = fx_sin(angle);
+        dirX = fx_cos(angle);
+        dirY = fx_sin(angle);
         player->planeX = fx_mul(dirY, (fx_t) 0x00a9);
         player->planeY = fx_neg(fx_mul(dirX, (fx_t) 0x00a9));
     }
@@ -385,6 +385,11 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
         prevCellY = newCellY;
         prevTile  = newTile;
     }
+    player->posX = posX;
+    player->posY = posY;
+    player->dirX = dirX;
+    player->dirY = dirY;
+    player->angle = angle;
 }
 
 void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons, map_t *map)
@@ -761,7 +766,7 @@ void HitDetection(player_t *player, entity_t *entities){
 
 void HitPlayer(player_t *player, entity_t *entity){
   if (entity->distance <= entity->hitDistance && entity->hitDelayFrames == 0 && entity->health > 0) {
-    player->health -= 0;
+    player->health -= 1;
     entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
   }
 }
