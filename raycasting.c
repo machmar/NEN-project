@@ -387,7 +387,7 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     }
 }
 
-void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons)
+void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons, map_t *map)
 {
   static uint8_t prevFrames = 0;
   prevFrames++;
@@ -472,20 +472,33 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     // Transform sprite with inverse camera matrix.
     fx_t transformX = fx_mul(invDet, cameraX);
     fx_t transformY = fx_mul(invDet, cameraY);
-    if (transformY <= FX_RAW(32)){
-      e->lineOfSight = 0;
-      e->hitDelayFrames = 30;
+    bool inFront = (transformY > FX_RAW(32));
+    bool inHorizontalFov = inFront && ((int32_t)fx_abs_fast(transformX) <= (int32_t)transformY * 2);
+
+    if (health > 0) {
+      e->lineOfSight = inHorizontalFov;
+    } else if (!inHorizontalFov) {
+      uint8_t spawnPosX;
+      uint8_t spawnPosY;
+      do {
+        spawnPosX = (rand16() & 0x7fff) % map->width;
+        spawnPosY = (rand16() & 0x7fff) % map->height;
+      } while (MAP_AT(map, spawnPosX, spawnPosY) != 0x00);
+
+      e->posX = FX(spawnPosX);
+      e->posY = FX(spawnPosY);
+      e->health = 1;
+      e->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
+      e->heightOffset = FX_ZERO;
+      e->ratio = FX_ONE;
       continue;
     }
 
-    if (health > 0){
-      e->lineOfSight = 1;
-    }
-    else if (!e->lineOfSight) {
+    if (!inFront) {
+      e->hitDelayFrames = 30;
       continue;
     }
-  
-    if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
+    if (!inHorizontalFov)
       continue;
 
     // Use one reciprocal for several projections to reduce expensive fixed-point divisions.
@@ -748,7 +761,7 @@ void HitDetection(player_t *player, entity_t *entities){
 
 void HitPlayer(player_t *player, entity_t *entity){
   if (entity->distance <= entity->hitDistance && entity->hitDelayFrames == 0 && entity->health > 0) {
-    player->health -= 1;
+    player->health -= 0;
     entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
   }
 }

@@ -282,8 +282,8 @@ void main(void) {
             dogm128_clear();
             MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
             RenderFrame(&camera, CurrentMap);
-            DrawEntities(&camera, entities, 1, dogm_fb, buttons);
-            EnemyAi(&camera, entities, 1, CurrentMap, prevMenu);
+            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons, CurrentMap);
+            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
 
             HUD_DrawBanner(CurrentMap->Banner);
             HUD_DrawBorders();
