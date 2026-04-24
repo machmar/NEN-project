@@ -442,6 +442,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     entity_t *e = &entities[renderOrder[i]];
     spriteData_t *sprite = e->sprite;
     fx_t distance = e->distance;
+    fx_t health = e->health;
 
     if (distance < FX_ZERO){
       e->lineOfSight = 0;
@@ -456,7 +457,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
       prevFrames = 0;
     }
     uint8_t usedSprite = walkSprite;
-    if(e->health <= 0){
+    if(health <= 0){
       e->heightOffset = 0x2800;
       e->ratio = 0x0060;
       usedSprite = 0; // death frame
@@ -474,6 +475,13 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     if (transformY <= FX_RAW(32)){
       e->lineOfSight = 0;
       e->hitDelayFrames = 30;
+      continue;
+    }
+
+    if (health > 0){
+      e->lineOfSight = 1;
+    }
+    else if (!e->lineOfSight) {
       continue;
     }
   
@@ -543,7 +551,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     DrawEntities_ClearRows(g_draw_leftVisibleRows);
     texXAdvance = (uint16_t)(texXStep * pixelStride);
 
-    e->lineOfSight = 1;
+      // Dead entities remain visible for a few frames to show death animation, then disappear.
     if (e->hitDelayFrames > 0)
       e->hitDelayFrames--;
     HitPlayer(player, e);
