@@ -44,35 +44,11 @@
     .rectangleOrigin = {8, 47}, \
     .rectangleSize = {79, 15}
 
-#define DIALOGUE_LAYOUT_dialogue_KnifeFoundAgain1 \
-    .lineBreaks = {0, 20, 0, 0, 0}, \
-    .textOrigins = {{10, 49}, {10, 55}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {8, 47}, \
-    .rectangleSize = {79, 15}
-
-#define DIALOGUE_LAYOUT_dialogue_Healed2 \
-    .lineBreaks = {0, 0, 0, 0, 0}, \
-    .textOrigins = {{34, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {32, 53}, \
-    .rectangleSize = {31, 9}
-
 #define DIALOGUE_LAYOUT_dialogue_Healed1 \
     .lineBreaks = {0, 0, 0, 0, 0}, \
-    .textOrigins = {{12, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {10, 53}, \
-    .rectangleSize = {75, 9}
-
-#define DIALOGUE_LAYOUT_dialogue_Injured2 \
-    .lineBreaks = {0, 0, 0, 0, 0}, \
-    .textOrigins = {{38, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {36, 53}, \
-    .rectangleSize = {23, 9}
-
-#define DIALOGUE_LAYOUT_dialogue_Injured \
-    .lineBreaks = {0, 0, 0, 0, 0}, \
-    .textOrigins = {{40, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {38, 53}, \
-    .rectangleSize = {19, 9}
+    .textOrigins = {{8, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 53}, \
+    .rectangleSize = {83, 9}
 
 #define DIALOGUE_LAYOUT_dialogue_Level0_0_2 \
     .lineBreaks = {0, 21, 0, 0, 0}, \
@@ -182,7 +158,142 @@
     .rectangleOrigin = {8, 41}, \
     .rectangleSize = {79, 21}
 
+#define DIALOGUE_LAYOUT_dialogue_Level1_0_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{28, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {26, 53}, \
+    .rectangleSize = {43, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_0_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{22, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {20, 53}, \
+    .rectangleSize = {55, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_1_2 \
+    .lineBreaks = {0, 20, 0, 0, 0}, \
+    .textOrigins = {{10, 49}, {10, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 47}, \
+    .rectangleSize = {79, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_1_1 \
+    .lineBreaks = {0, 20, 0, 0, 0}, \
+    .textOrigins = {{10, 49}, {10, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 47}, \
+    .rectangleSize = {79, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_2_1 \
+    .lineBreaks = {0, 16, 34, 0, 0}, \
+    .textOrigins = {{14, 43}, {14, 49}, {14, 55}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {12, 41}, \
+    .rectangleSize = {71, 21}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_3_1 \
+    .lineBreaks = {0, 21, 0, 0, 0}, \
+    .textOrigins = {{8, 49}, {8, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 47}, \
+    .rectangleSize = {83, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level1_4_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{16, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {14, 53}, \
+    .rectangleSize = {67, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_0_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{6, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {4, 53}, \
+    .rectangleSize = {87, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_0_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{40, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {38, 53}, \
+    .rectangleSize = {19, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_1_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{34, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {32, 53}, \
+    .rectangleSize = {31, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_1_1 \
+    .lineBreaks = {0, 18, 0, 0, 0}, \
+    .textOrigins = {{14, 49}, {14, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {12, 47}, \
+    .rectangleSize = {71, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_2_1 \
+    .lineBreaks = {0, 19, 0, 0, 0}, \
+    .textOrigins = {{12, 49}, {12, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {10, 47}, \
+    .rectangleSize = {75, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_3_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{36, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {34, 53}, \
+    .rectangleSize = {27, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level2_3_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{28, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {26, 53}, \
+    .rectangleSize = {43, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_0_2 \
+    .lineBreaks = {0, 13, 0, 0, 0}, \
+    .textOrigins = {{6, 49}, {6, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {4, 47}, \
+    .rectangleSize = {87, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_0_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{12, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {10, 53}, \
+    .rectangleSize = {75, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_1_2 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{20, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {18, 53}, \
+    .rectangleSize = {59, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_1_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{34, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {32, 53}, \
+    .rectangleSize = {31, 9}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_2_1 \
+    .lineBreaks = {0, 20, 0, 0, 0}, \
+    .textOrigins = {{10, 49}, {10, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {8, 47}, \
+    .rectangleSize = {79, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_3_2 \
+    .lineBreaks = {0, 21, 0, 0, 0}, \
+    .textOrigins = {{8, 49}, {8, 55}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {6, 47}, \
+    .rectangleSize = {83, 15}
+
+#define DIALOGUE_LAYOUT_dialogue_Level3_3_1 \
+    .lineBreaks = {0, 0, 0, 0, 0}, \
+    .textOrigins = {{40, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
+    .rectangleOrigin = {38, 53}, \
+    .rectangleSize = {19, 9}
+
 #define MAP_SPAWN_Level0Map \
     .DefaultSpwanPoint = {1, 9}
+
+#define MAP_SPAWN_Level1Map \
+    .DefaultSpwanPoint = {25, 1}
+
+#define MAP_SPAWN_Level2Map \
+    .DefaultSpwanPoint = {2, 2}
+
+#define MAP_SPAWN_Level3Map \
+    .DefaultSpwanPoint = {1, 5}
 
 #endif

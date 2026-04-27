@@ -34,7 +34,12 @@ typedef struct {
     void (*OnDialogueTile)(uint8_t tileVal, const dialogue_t **pDialogue);
 } map_t;
 
+extern void Global_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue);
+
 extern map_t Level0Map;
+extern map_t Level1Map;
+extern map_t Level2Map;
+extern map_t Level3Map;
 
 /* Callback set by main.c; called by map event handlers with two arbitrary parameters. */
 extern void (*MapEventCallback)(uint8_t param1, uint8_t param2);

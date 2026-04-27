@@ -22,7 +22,7 @@ void HUD_DrawBanner(const dogm128_bitmap_t *text)
 void HUD_DrawMap(map_t *map, const player_t *player)
 {
     fx_t posY = player->posY;
-    fx_t mapHeight = map->height;
+    fx_t mapHeight = map->minimap->h;
 
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;

@@ -53,51 +53,49 @@ const dialogue_t dialogue_KnifeFound1 = {
     DIALOGUE_LAYOUT_dialogue_KnifeFound1
 };
 
-const dialogue_t dialogue_KnifeFoundAgain1 = {
-    "Ill rather keep the gun",
-    2300,
-    NULL,
-    DIALOGUE_LAYOUT_dialogue_KnifeFoundAgain1
-};
-
-const dialogue_t dialogue_Healed2 = {
-    "I guess",
-    1200,
-    NULL,
-    DIALOGUE_LAYOUT_dialogue_Healed2
-};
-
 const dialogue_t dialogue_Healed1 = {
-    "think it healed me",
+    "I think it healed me",
     1900,
-    &dialogue_Healed2,
+    NULL,
     DIALOGUE_LAYOUT_dialogue_Healed1
 };
 
-const dialogue_t dialogue_Injured2 = {
-    "hurts",
-    1200,
-    NULL,
-    DIALOGUE_LAYOUT_dialogue_Injured2
-};
-
-const dialogue_t dialogue_Injured = {
-    "fuck",
-    1200,
-    &dialogue_Injured2,
-    DIALOGUE_LAYOUT_dialogue_Injured
-};
-
+void Global_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0: //knife
+                if (player->currentItem != ITEM_KNIFE && player->currentItem != ITEM_GUN){
+                    player->currentItem = ITEM_KNIFE;
+                    *pDialogue = &dialogue_KnifeFound1;
+                }
+                break;
+            case 1: // gun
+                if (player->currentItem != ITEM_GUN) {
+                    player->currentItem = ITEM_GUN;
+                    *pDialogue = &dialogue_GunFound1;
+                }
+                break;
+            case 2: // healed
+                player->health = 5;
+                *pDialogue = &dialogue_Healed1;
+                break;
+            default:
+                break;
+        }
+    }
+}
 static const uint8_t Level0_data[8][11] =
 {
-  {1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,66,0,64,32,3},
-  {1,0,1,1,22,22,1,1,16,1,1},
-  {1,67,20,0,70,70,1,0,0,0,1},
-  {1,0,1,0,0,0,1,0,0,65,5},
-  {1,0,16,68,0,69,1,0,0,65,5},
-  {1,1,1,1,1,52,1,65,65,65,1},
-  {0,0,0,0,1,2,1,7,7,7,1}
+  {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1} ,
+  {1 ,0 ,0 ,0 ,0 ,0 ,66,0 ,64,32,3} ,
+  {1 ,0 ,1 ,1 ,22,22,1 ,1 ,16,1 ,1} ,
+  {1 ,67,20,0 ,70,70,1 ,0 ,0 ,0 ,1} ,
+  {1 ,0 ,1 ,0 ,0 ,0 ,1 ,0 ,0 ,65,5} ,
+  {1 ,0 ,16,68,0 ,69,1 ,0 ,0 ,65,5} ,
+  {1 ,1 ,1 ,1 ,1 ,63,1 ,65,65,65,1} ,
+  {0 ,0 ,0 ,0 ,1 ,2 ,1 ,7 ,7 ,7 ,1}
 };
 
 static const uint8_t Level0_bitmap_data[] = {
@@ -120,27 +118,7 @@ static void Level0Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *play
      * an event tile.  eventNum is tile & 0x0F (0-15). */
     if (stepOn) {
         switch (eventNum) {
-            case 0: //knife
-                if (player->currentItem == ITEM_GUN)
-                    *pDialogue = &dialogue_KnifeFoundAgain1;
-                else if (player->currentItem != ITEM_KNIFE){
-                    player->currentItem = ITEM_KNIFE;
-                    *pDialogue = &dialogue_KnifeFound1;
-                }
-                break;
-            case 1: // gun
-                player->currentItem = ITEM_GUN;
-                *pDialogue = &dialogue_GunFound1;
-                break;
-            case 2: // healed
-                player->health = 5;
-                *pDialogue = &dialogue_Healed1;
-                break;
-            case 3: // injured
-                player->health = 1;
-                *pDialogue = &dialogue_Injured;
-                break;
-            case 4: // teleporting to next level, done in main.c
+            case 0xF: // teleporting to next level, done in main.c
                 if (MapEventCallback) MapEventCallback(0, 1);
                 break;
             default:
@@ -149,7 +127,7 @@ static void Level0Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *play
     }
 }
 
-_Bool dialogue_Triggered[8] = {0};
+_Bool dialogue0_Triggered[8] = {0};
 
 const dialogue_t dialogue_Level0_0_2 = {
     "like I ever expected anything different",
@@ -281,44 +259,44 @@ static void Level0Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialog
     switch (tileVal)
     {
     case 0x40:
-        if (!dialogue_Triggered[0]) {
+        if (!dialogue0_Triggered[0]) {
             *pDialogue = &dialogue_Level0_0_1;
-            dialogue_Triggered[0] = 1;
+            dialogue0_Triggered[0] = 1;
         }
         break;
 
         case 0x41:
-            if (!dialogue_Triggered[1]) {
+            if (!dialogue0_Triggered[1]) {
                 *pDialogue = &dialogue_Level0_1_1;
-                dialogue_Triggered[1] = 1;
+                dialogue0_Triggered[1] = 1;
             }
         break;
 
         case 0x42:
-            if (!dialogue_Triggered[2]) {
+            if (!dialogue0_Triggered[2]) {
                 *pDialogue = &dialogue_Level0_2_1;
-                dialogue_Triggered[2] = 1;
+                dialogue0_Triggered[2] = 1;
             }
         break;
 
         case 0x43:
-            if (!dialogue_Triggered[3]) {
+            if (!dialogue0_Triggered[3]) {
                 *pDialogue = &dialogue_Level0_3_1;
-                dialogue_Triggered[3] = 1;
+                dialogue0_Triggered[3] = 1;
             }
         break;
 
         case 0x44:
-            if (!dialogue_Triggered[4]) {
+            if (!dialogue0_Triggered[4]) {
                 *pDialogue = &dialogue_Level0_4_1;
-                dialogue_Triggered[4] = 1;
+                dialogue0_Triggered[4] = 1;
             }
         break;
 
         case 0x45:
-            if (!dialogue_Triggered[5]) {
+            if (!dialogue0_Triggered[5]) {
                 *pDialogue = &dialogue_Level0_5_1;
-                dialogue_Triggered[5] = 1;
+                dialogue0_Triggered[5] = 1;
             }
         break;
 
@@ -344,17 +322,60 @@ map_t Level0Map = {
     Level0Map_OnDialogueTile,
 };
 
-static const uint8_t Level1_banner_data[] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x18, 0x07, 0x03, 0x1e, 0x18, 0x06, 0x03, 0x1c, 0x33, 0x11, 0x1f, 0x06, 0x00, 0x00, 0x00, 0x1f,
-    0x11, 0x13, 0x1e, 0x00, 0x1c, 0x36, 0x22, 0x32, 0x0e, 0x00, 0x1c, 0x22, 0x36, 0x18, 0x00, 0x40,
-    0x7e, 0x1a, 0x2a, 0x66, 0x00, 0x20, 0x6c, 0x4a, 0x72, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+static const uint8_t Level1_data[32][46] =
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,1},
+  {1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,63,1},
+  {1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,1,0,1,16,1},
+  {1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,1},
+  {1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,68,1,0,1},
+  {1,0,0,0,1,0,0,1,1,1,1,1,1,1,1,65,65,1,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,0,1,0,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,1,1,1,0,0,0,0,0,1,67,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,1,1,0,0,0,0,1,1,1,1,1,0,1},
+  {1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,1,1,1,1,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,1,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
+  {1,0,0,0,1,0,0,0,1,1,1,1,0,0,1,0,0,0,1,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,1,1,0,0,1},
+  {1,0,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,48,48,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1},
+  {1,0,0,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,1,1,1,0,1,1},
+  {1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,1,0,0,1,0,1,1,1,0,0,1,0,0,0,1,1},
+  {1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,1},
+  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,1,1,0,0,1,0,0,0,1,1},
+  {1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,0,0,0,1,0,0,66,0,0,0,1,0,0,1,0,0,1,1,1},
+  {1,32,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,66,0,0,0,1,0,0,0,0,0,0,0,1},
+  {1,0,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,66,0,0,0,1,0,0,0,0,0,0,0,0},
+  {1,64,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,66,66,66,0,0,0,1,0,0,1,1,1,1,1,1},
+  {1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 };
 
-const dogm128_bitmap_t Level1_banner = {76, 8, Level1_banner_data};
+static const uint8_t Level1_bitmap_data[] = {
+    0xff, 0x81, 0x81, 0x91, 0x91, 0x91, 0x31, 0x11, 0x11, 0xf1, 0x11, 0x11, 0x11, 0x11, 0x01, 0x11, 
+0x21, 0x00, 0x00, 0x28, 0x00, 0x19, 0x41, 0x01, 0x1f, 0x05, 0xf5, 0x05, 0x05, 0x01, 0x01, 0xf7, 
+0xff, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x40, 0x00, 0x00, 0x88, 0x00, 0x02, 0x42, 0x40, 0x4e, 0x48, 
+0x08, 0x08, 0x41, 0x01, 0x0c, 0x48, 0x4f, 0x00, 0x00, 0x00, 0x16, 0x00, 0x80, 0x40, 0x00, 0x3f, 
+0x73, 0x20, 0x22, 0x22, 0x22, 0x86, 0xa4, 0x04, 0x00, 0x00, 0x24, 0x04, 0x04, 0x04, 0x80, 0xb0, 
+0xe0, 0xa4, 0xa4, 0xa0, 0x80, 0x02, 0x00, 0x01, 0x0f, 0x00, 0x20, 0x10, 0x13, 0x10, 0x10, 0x78, 
+0xfe, 0x80, 0x80, 0x04, 0x01, 0x85, 0x87, 0x84, 0x00, 0x02, 0x40, 0x40, 0x00, 0x06, 0x43, 0x40, 
+0x40, 0x1c, 0x00, 0x40, 0x04, 0x44, 0x00, 0x04, 0xc5, 0xd1, 0x00, 0x41, 0x7d, 0x05, 0x01, 0xc0, 
+0xcf, 0x08, 0xc0, 0x00, 0x00, 0x00, 0xe1, 0x3c, 0x86, 0x84, 0x80, 0x80, 0x80, 0x80, 0x84, 0x3e, 
+0x20, 0x00, 0x02, 0x26, 0x3a, 0x02, 0x02, 0x2e, 0x24, 0x00, 0x04, 0x24, 0x20, 0x20, 0x00, 0xff, 
+0x3f, 0x28, 0x28, 0x28, 0x0a, 0x2a, 0x29, 0x28, 0x03, 0x20, 0x20, 0x30, 0x20, 0x20, 0x27, 0x24, 
+0x22, 0x24, 0x00, 0x10, 0x30, 0x30, 0x31, 0x31, 0x38, 0x00, 0x00, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
+};
 
-static const uint8_t Level2_banner_data[] = {
+const dogm128_bitmap_t Level1_bitmap = {32, 46, Level1_bitmap_data};
+
+static const uint8_t Level1_banner_data[] = {
     0x00, 0x00, 0x00, 0x3c, 0x66, 0x43, 0x43, 0x40, 0x00, 0x78, 0x1f, 0x17, 0x1c, 0x78, 0x00, 0x1f,
     0x07, 0x7c, 0x78, 0x0f, 0x00, 0x00, 0x00, 0x7f, 0x00, 0x00, 0x60, 0x7c, 0x46, 0x40, 0x18, 0x3e,
     0x2a, 0x22, 0x03, 0x00, 0x20, 0x18, 0x16, 0x12, 0x3c, 0x00, 0x00, 0x1e, 0x30, 0x1c, 0x00, 0x38,
@@ -362,9 +383,180 @@ static const uint8_t Level2_banner_data[] = {
     0x2e, 0x3a, 0x32, 0x00, 0x04, 0x06, 0xb3, 0x19, 0x0f, 0x06, 0x00, 0x00
 };
 
-const dogm128_bitmap_t Level2_banner = {76, 8, Level2_banner_data};
+const dogm128_bitmap_t Level1_banner = {76, 8, Level1_banner_data};
 
-static const uint8_t Level3_banner_data[] = {
+
+static void Level1Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0xF: // teleporting to next level, done in main.c
+                if (MapEventCallback) MapEventCallback(1, 1);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+_Bool dialogue1_Triggered[4] = {0};
+
+const dialogue_t dialogue_Level1_0_2 = {
+    "Where am I",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level1_0_2
+};
+
+const dialogue_t dialogue_Level1_0_1 = {
+    "What the fuck",
+    2500,
+    &dialogue_Level1_0_2,
+    DIALOGUE_LAYOUT_dialogue_Level1_0_1
+};
+
+const dialogue_t dialogue_Level1_1_2 = {
+    "is this like a maze or some shit?",
+    3000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level1_1_2
+};
+
+const dialogue_t dialogue_Level1_1_1 = {
+    "This place makes no sense",
+    1800,
+    &dialogue_Level1_1_2,
+    DIALOGUE_LAYOUT_dialogue_Level1_1_1
+};
+
+const dialogue_t dialogue_Level1_2_1 = {
+    "I really hope I won't have to use this knife",
+    3500,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level1_2_1
+};
+
+const dialogue_t dialogue_Level1_3_1 = {
+    "Hey those are stairs there!",
+    2500,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level1_3_1
+};
+
+const dialogue_t dialogue_Level1_4_1 = {
+    "I'm fucking lost",
+    1800,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level1_4_1
+};
+
+static void Level1Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
+    switch (tileVal)
+    {
+    case 0x40:
+        if (!dialogue1_Triggered[0]) {
+            *pDialogue = &dialogue_Level1_0_1;
+            dialogue1_Triggered[0] = 1;
+        }
+        break;
+
+        case 0x41:
+            if (!dialogue1_Triggered[1]) {
+                *pDialogue = &dialogue_Level1_1_1;
+                dialogue1_Triggered[1] = 1;
+            }
+        break;
+
+        case 0x42:
+            if (!dialogue1_Triggered[2]) {
+                *pDialogue = &dialogue_Level1_2_1;
+                dialogue1_Triggered[2] = 1;
+            }
+        break;
+
+        case 0x43:
+            if (!dialogue1_Triggered[3]) {
+                *pDialogue = &dialogue_Level1_3_1;
+                dialogue1_Triggered[3] = 1;
+            }
+        break;
+
+        case 0x44:
+            if (!dialogue1_Triggered[4]) {
+                *pDialogue = &dialogue_Level1_4_1;
+                dialogue1_Triggered[4] = 1;
+            }
+        break;
+
+    default:
+        break;
+    }
+}
+
+map_t Level1Map = {
+    32,
+    46,
+    Level1_data,
+    MAP_SPAWN_Level1Map,
+    &Level1_bitmap,
+    {10, 22},
+    {0, 0},
+    &Level1_banner, // disabled on world 0
+    Level1Map_OnEventTile,
+    Level1Map_OnDialogueTile,
+};
+
+static const uint8_t Level2_data[32][32] =
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,63,0,0,0,0,0,0,1},
+  {1,0,32,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,66,66,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,66,66,1,0,0,0,0,0,0,1,0,0,1,1,0,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,50,0,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,0,0,1},
+  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,67,67,1},
+  {1,1,1,1,1,1,16,1,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,1,0,1},
+  {1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,16,1,0,0,66,0,0,0,1,0,0,0,67,1,1,0,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,16,1,0,0,0,67,0,0,0,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,50,1,0,0,0,67,0,0,0,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,16,1,1,1,1,1,1,16,1,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,49,0,1},
+  {1,1,1,1,1,1,0,1,66,66,66,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,1,1,1,16,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,16,50,1,1,1,1,1,0,0,0,0,0,0,1,0,50,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,66,1,1,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,16,1,1,1,1,1,0,0,0,0,0,0,1,0,1,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
+  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,16,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,1},
+  {1,1,1,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,16,0,0,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+
+static const uint8_t Level2_bitmap_data[] = {
+    0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xbf, 0xa1, 0xa0, 0xaf, 0xa9, 0xa9, 0xa6, 0xa0, 
+0xa0, 0xbf, 0x81, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xf7, 0x04, 0xfc, 0x9f, 0x55, 0x91, 
+0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x7f, 0x00, 0x00, 0xc0, 0x40, 0x40, 0x40, 
+0x40, 0xc0, 0x07, 0x84, 0x84, 0x84, 0xfc, 0x04, 0x04, 0x04, 0x07, 0x00, 0x1f, 0x13, 0x11, 0xf3, 
+0xff, 0x80, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xbf, 0xa1, 0xa1, 0x3e, 0x32, 0x32, 
+0x2c, 0x23, 0x22, 0x22, 0x22, 0xe2, 0x3e, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0xff, 
+0xff, 0x80, 0x80, 0x80, 0x8c, 0x84, 0x80, 0x80, 0xa0, 0xb0, 0x80, 0x80, 0xdf, 0x90, 0x90, 0x90, 
+0x90, 0x90, 0x90, 0x90, 0x90, 0x9b, 0xd0, 0x90, 0x90, 0x90, 0xb0, 0x90, 0x90, 0x80, 0xf0, 0xff
+};
+
+const dogm128_bitmap_t Level2_bitmap = {32, 32, Level2_bitmap_data};
+
+static const uint8_t Level2_banner_data[] = {
     0x00, 0x00, 0x02, 0x1e, 0x30, 0x1b, 0x1e, 0x30, 0x1e, 0x00, 0x00, 0x3e, 0x08, 0x08, 0x08, 0x1e,
     0x00, 0x3e, 0x0b, 0x3e, 0x00, 0x02, 0x0e, 0x1a, 0x02, 0x00, 0x00, 0x40, 0x78, 0x16, 0x38, 0x00,
     0x3f, 0x19, 0x36, 0x20, 0x1e, 0x3e, 0x2a, 0x62, 0x00, 0x00, 0x00, 0x02, 0x02, 0x02, 0x7e, 0x02,
@@ -372,9 +564,165 @@ static const uint8_t Level3_banner_data[] = {
     0x3e, 0x6a, 0x0a, 0x00, 0x00, 0x06, 0x03, 0x5b, 0x0e, 0x00, 0x00, 0x00
 };
 
-const dogm128_bitmap_t Level3_banner = {76, 8, Level3_banner_data};
+const dogm128_bitmap_t Level2_banner = {76, 8, Level2_banner_data};
 
-static const uint8_t Level4_banner_data[] = {
+
+static void Level2Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0xF: // teleporting to next level, done in main.c
+                if (MapEventCallback) MapEventCallback(2, 1);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+_Bool dialogue2_Triggered[3] = {0};
+
+const dialogue_t dialogue_Level2_0_2 = {
+    "What the fuck is that",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level2_0_2
+};
+
+const dialogue_t dialogue_Level2_0_1 = {
+    "Shit",
+    800,
+    &dialogue_Level2_0_2,
+    DIALOGUE_LAYOUT_dialogue_Level2_0_1
+};
+
+const dialogue_t dialogue_Level2_1_2 = {
+    "Fock me",
+    1300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level2_1_2
+};
+
+const dialogue_t dialogue_Level2_1_1 = {
+    "There are more of these things?",
+    2200,
+    &dialogue_Level2_1_2,
+    DIALOGUE_LAYOUT_dialogue_Level2_1_1
+};
+
+const dialogue_t dialogue_Level2_2_1 = {
+    "This knife fucking sucks",
+    2200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level2_2_1
+};
+
+const dialogue_t dialogue_Level2_3_2 = {
+    "stairs",
+    1000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level2_3_2
+};
+
+const dialogue_t dialogue_Level2_3_1 = {
+    "Thank fuck",
+    1500,
+    &dialogue_Level2_3_2,
+    DIALOGUE_LAYOUT_dialogue_Level2_3_1
+};
+
+static void Level2Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
+    switch (tileVal)
+    {
+    case 0x40:
+        if (!dialogue2_Triggered[0]) {
+            *pDialogue = &dialogue_Level2_0_1;
+            dialogue2_Triggered[0] = 1;
+        }
+        break;
+
+        case 0x41:
+            if (!dialogue2_Triggered[1]) {
+                *pDialogue = &dialogue_Level2_1_1;
+                dialogue2_Triggered[1] = 1;
+            }
+        break;
+
+        case 0x42:
+            if (!dialogue2_Triggered[2]) {
+                *pDialogue = &dialogue_Level2_2_1;
+                dialogue2_Triggered[2] = 1;
+            }
+        break;
+        
+        case 0x43:
+            if (!dialogue2_Triggered[3]) {
+                *pDialogue = &dialogue_Level2_3_1;
+                dialogue2_Triggered[3] = 1;
+            }
+        break;
+
+    default:
+        break;
+    }
+}
+
+map_t Level2Map = {
+    32,
+    32,
+    Level2_data,
+    MAP_SPAWN_Level2Map,
+    &Level2_bitmap,
+    {1, 30},
+    {0, 0},
+    &Level2_banner, // disabled on world 0
+    Level2Map_OnEventTile,
+    Level2Map_OnDialogueTile,
+};
+
+static const uint8_t Level3_data[20][18] =
+{
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,64,0,0,32,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,1,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,65,65,65,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,50,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,50,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,50,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,50,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
+  {1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,63,22},
+  {1,1,1,16,1,1,1,1,1,1,1,1,67,67,0,0,63,22},
+  {1,1,1,0,66,0,0,0,0,0,0,16,0,67,0,0,63,22},
+  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
+
+static const uint8_t Level3_bitmap_data[] = {
+    0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x41, 0x79, 0x09, 0x7b, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 
+0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0xe1, 0x01, 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0xf8, 0x08, 0x0f, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x60, 0x80, 0x80, 0xc0, 0x7f, 0x00, 0x7e, 0x40, 0x40, 0x7e, 0x00, 0xc0, 0x7e, 0x06, 
+0x0c, 0x06, 0x03, 0xfe, 0x00, 0x00, 0xff, 0x11, 0x11, 0x11, 0x19, 0x0f, 0x02, 0x00, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 
+0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+const dogm128_bitmap_t Level3_bitmap = {32, 41, Level3_bitmap_data};
+
+static const uint8_t Level3_banner_data[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x60, 0x20, 0x20, 0x00, 0x00, 0x3f, 0x69, 0x29, 0x00, 0x02,
     0x02, 0x02, 0x3e, 0x02, 0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x30, 0x0c, 0x03, 0x0e, 0x0c, 0x72,
     0x0e, 0x00, 0xf0, 0x9c, 0x96, 0x12, 0x12, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x38, 0x2c,
@@ -382,17 +730,122 @@ static const uint8_t Level4_banner_data[] = {
     0x00, 0xb8, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
-const dogm128_bitmap_t Level4_banner = {76, 8, Level4_banner_data};
+const dogm128_bitmap_t Level3_banner = {76, 8, Level3_banner_data};
 
-static const uint8_t Level5_banner_data[] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x18, 0x0e, 0x0b, 0x1f, 0x20, 0x00, 0x00, 0x30, 0x0c, 0x1e,
-    0x20, 0x10, 0x0e, 0x00, 0x0e, 0x78, 0x08, 0x04, 0x06, 0x00, 0x7c, 0x46, 0x22, 0x3e, 0x00, 0x70,
-    0x1e, 0x7e, 0xe0, 0x3e, 0x00, 0x7e, 0x4a, 0x42, 0x02, 0x00, 0x00, 0x00, 0x00, 0x7e, 0x10, 0x10,
-    0x7c, 0x06, 0x70, 0x4c, 0x4e, 0x4a, 0x4a, 0x02, 0x78, 0x1f, 0x19, 0x2d, 0x67, 0x00, 0x00, 0x3f,
-    0x49, 0x49, 0x40, 0x00, 0x02, 0x01, 0x59, 0x0d, 0x06, 0x00, 0x00, 0x00
+
+static void Level3Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+    /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
+     * an event tile.  eventNum is tile & 0x0F (0-15). */
+    if (stepOn) {
+        switch (eventNum) {
+            case 0xF: // teleporting to next level, done in main.c
+                if (MapEventCallback) MapEventCallback(3, 1);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+_Bool dialogue3_Triggered[3] = {0};
+
+const dialogue_t dialogue_Level3_0_2 = {
+    "Like an army marching or something",
+    2000,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level3_0_2
 };
 
-const dogm128_bitmap_t Level5_banner = {76, 8, Level5_banner_data};
+const dialogue_t dialogue_Level3_0_1 = {
+    "What is that sound",
+    1800,
+    &dialogue_Level3_0_2,
+    DIALOGUE_LAYOUT_dialogue_Level3_0_1
+};
+
+const dialogue_t dialogue_Level3_1_2 = {
+    "it IS an army!",
+    1300,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level3_1_2
+};
+
+const dialogue_t dialogue_Level3_1_1 = {
+    "Oh fuck",
+    1000,
+    &dialogue_Level3_1_2,
+    DIALOGUE_LAYOUT_dialogue_Level3_1_1
+};
+
+const dialogue_t dialogue_Level3_2_1 = {
+    "Gotta move quick so they don't catch up",
+    2200,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level3_2_1
+};
+
+const dialogue_t dialogue_Level3_3_2 = {
+    "I think I might have to jump",
+    1800,
+    NULL,
+    DIALOGUE_LAYOUT_dialogue_Level3_3_2
+};
+
+const dialogue_t dialogue_Level3_3_1 = {
+    "shit",
+    1000,
+    &dialogue_Level3_3_2,
+    DIALOGUE_LAYOUT_dialogue_Level3_3_1
+};
+
+static void Level3Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
+    switch (tileVal)
+    {
+    case 0x40:
+        if (!dialogue3_Triggered[0]) {
+            *pDialogue = &dialogue_Level3_0_1;
+            dialogue3_Triggered[0] = 1;
+        }
+        break;
+
+        case 0x41:
+            if (!dialogue3_Triggered[1]) {
+                *pDialogue = &dialogue_Level3_1_1;
+                dialogue3_Triggered[1] = 1;
+            }
+        break;
+
+        case 0x42:
+            if (!dialogue3_Triggered[2]) {
+                *pDialogue = &dialogue_Level3_2_1;
+                dialogue3_Triggered[2] = 1;
+            }
+        break;
+        
+        case 0x43:
+            if (!dialogue3_Triggered[3]) {
+                *pDialogue = &dialogue_Level3_3_1;
+                dialogue3_Triggered[3] = 1;
+            }
+        break;
+
+    default:
+        break;
+    }
+}
+
+map_t Level3Map = {
+    20,
+    18,
+    Level3_data,
+    MAP_SPAWN_Level3Map,
+    &Level3_bitmap,
+    {1, 6},
+    {5, 0},
+    &Level3_banner, // disabled on world 0
+    Level3Map_OnEventTile,
+    Level3Map_OnDialogueTile,
+};
 
 static const uint8_t WiggleLinebitmap_data[4] = {0x55, 0xaa, 0x55, 0xaa};
 

@@ -148,7 +148,24 @@ uint16_t backlightVal = 1023;
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
     // param1 = eventNum (tile & 0x0F), param2 = stepOn
     if (param1 == 0 && param2 == 1) { // stepped on teleportation tile in Level0
-        backlightVal = 300;
+        //backlightVal = 300;
+        CurrentMap = &Level1Map;
+        camera.posX = FX(Level1Map.DefaultSpwanPoint[0]);
+        camera.posY = FX(Level1Map.DefaultSpwanPoint[1]);
+    }
+    
+    if (param1 == 1 && param2 == 1) { // stepped on teleportation tile in Level1
+        //backlightVal = 300;
+        CurrentMap = &Level2Map;
+        camera.posX = FX(Level2Map.DefaultSpwanPoint[0]);
+        camera.posY = FX(Level2Map.DefaultSpwanPoint[1]);
+    }
+    
+    if (param1 == 2 && param2 == 1) { // stepped on teleportation tile in Level1
+        //backlightVal = 300;
+        CurrentMap = &Level3Map;
+        camera.posX = FX(Level3Map.DefaultSpwanPoint[0]);
+        camera.posY = FX(Level3Map.DefaultSpwanPoint[1]);
     }
 }
 

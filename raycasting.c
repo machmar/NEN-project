@@ -370,20 +370,38 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
         uint8_t newTile = MAP_AT(map, newCellX, newCellY);
 
         /* Stepped off an event tile */
-        if (prevTile >= 0x30 && prevTile <= 0x3F && map->OnEventTile)
-            map->OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
+        if (prevTile >= 0x30 && prevTile <= 0x3F) {
+            Global_OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
+            if (map->OnEventTile) map->OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
+        }
 
         /* Stepped onto an event tile */
-        if (newTile >= 0x30 && newTile <= 0x3F && map->OnEventTile)
-            map->OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+        if (newTile >= 0x30 && newTile <= 0x3F) {
+            Global_OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+            if (map->OnEventTile) map->OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+        }
 
         /* Stepped onto a dialogue tile (entry only, not exit) */
         if (newTile >= 0x40 && newTile <= 0xEF && map->OnDialogueTile)
             map->OnDialogueTile(newTile, pDialogue);
 
-        prevCellX = newCellX;
-        prevCellY = newCellY;
-        prevTile  = newTile;
+        /* Event callbacks may teleport or otherwise mutate player state. */
+        if (player->posX != posX || player->posY != posY ||
+          player->dirX != dirX || player->dirY != dirY ||
+          player->angle != angle) {
+          posX = player->posX;
+          posY = player->posY;
+          dirX = player->dirX;
+          dirY = player->dirY;
+          angle = player->angle;
+          prevCellX = 0xFF;
+          prevCellY = 0xFF;
+          prevTile = 0;
+        } else {
+          prevCellX = newCellX;
+          prevCellY = newCellY;
+          prevTile  = newTile;
+        }
     }
     player->posX = posX;
     player->posY = posY;
