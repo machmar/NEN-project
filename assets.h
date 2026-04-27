@@ -11,6 +11,7 @@
 #include "dogm128_fast.h"
 #include "fx8.h"
 #include "utils.h"
+#include <stdint.h>
 
 /* Forward declarations so map_t can reference both types before they are defined */
 typedef struct dialogue_t dialogue_t;
@@ -76,11 +77,46 @@ struct player_t
     fx_t dirX, dirY; // direction vector
     fx_t planeX, planeY; // camera plane
     fx_t angle; // rotation angle (fx angle units, 512 = full turn)
-    fx_t zBuffer[3];
+    fx_t zBuffer[48];
     uint8_t health;
     uint8_t kills;
     item_t currentItem;
 };
+
+typedef struct {
+    uint8_t start;
+    uint8_t length;
+    uint8_t type;
+} line_t;
+
+typedef struct
+{
+    uint8_t width;
+    uint8_t height;
+    const uint8_t *data[5];
+} spriteData_t;
+
+typedef struct
+{
+    fx_t posX, posY;
+    fx_t distance;
+    uint8_t health;
+    _Bool lineOfSight;
+    _Bool walking;
+    fx_t hitDistance;
+    uint8_t hitDelayFrames;
+    spriteData_t *sprite;
+    fx_t ratio; // Ratio of width to height (<1 means wider than taller, >1 means taller than wider)
+    fx_t heightOffset;  // Vertical offset by the number of pixels (<0 means lower, >0 means higher)
+    fx_t movementModifier; // Forward offset from player along view direction.
+    fx_t lateralModifier; // Side offset from player; +right, -left relative to player facing.
+
+}entity_t;
+
+extern spriteData_t blobSprite;
+extern spriteData_t chapadloSprite;
+extern spriteData_t ctyrruckaSprite;
+extern spriteData_t soilderSprite;
 
 #endif	/* ASSETS_H */
 

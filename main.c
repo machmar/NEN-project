@@ -1,3 +1,4 @@
+#include <builtins.h>
 #include <xc.h>
 #include <stdint.h>
 #include "globals.h"
@@ -15,6 +16,7 @@
 #pragma config CPUDIV = OSC1_PLL2
 #pragma config USBDIV = 2
 #pragma config WDT = OFF
+#pragma config WDTPS = 1        // shortest timeout (~4 ms typical)
 #pragma config LVP = OFF
 #pragma config PBADEN = OFF
 
@@ -108,10 +110,36 @@ void Backlight(uint16_t duty10) {
     CCP1CONbits.DC1B = duty10 & 0x03; // lower 2 bits
 }
 
+uint8_t menuOpen = 0;
+
+void DrawMenu(buttons_t state, bool disallow_resume) {
+    if (menuOpen == 0) {
+        if (state.all >= 0b11111) menuOpen = 1;
+        else return;
+    }
+    if (menuOpen == 1) {
+        if (state.all == 0)
+            menuOpen = 2;
+    }
+
+    dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
+    dogm128_hline(0, 64 - 7, 128, DISP_COL_BLACK);
+    dogm128_text(1, 64 - 5, "resume");
+    dogm128_text(127 - 20, 64 - 5, "reset");
+
+    if (menuOpen == 2) {
+        if (state.back && !disallow_resume) menuOpen = 0;
+        if (state.right) {
+            WDTCONbits.SWDTEN = 1;
+            while (1);
+        }
+    }
+}
+
 static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
-static entity_t entities[2];
+static entity_t entities[MAX_ENTITIES];
 map_t *CurrentMap = &Level0Map;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
@@ -125,6 +153,7 @@ static void OnMapEvent(uint8_t param1, uint8_t param2) {
 }
 
 void main(void) {
+    WDTCONbits.SWDTEN = 0;   // disable WDT
     init_ports();
     initDisplay();
     pwm_ccp1_init();
@@ -140,59 +169,163 @@ void main(void) {
     camera.dirY = fx_sin(camera.angle);
     camera.planeX = fx_mul(camera.dirY, (fx_t) 0x00a9);
     camera.planeY = fx_neg(fx_mul(camera.dirX, (fx_t) 0x00a9));
+    // Filling zBuffer with max distance to test sprite rendering
+    for (int i = 0; i < 48 - 1; i++) {
+        camera.zBuffer[i] = FX(64);
+    }
+
     camera.health = 5;
-    camera.kills = 69;
+    camera.kills = 0;
 
     char buf[10];
 
-    entities[0].posX = 17;
-    entities[0].posY = 12;
+    entities[0].posX = FX(5);
+    entities[0].posY = FX(5);
     entities[0].health = 100;
-    entities[0].sprite = sprite;
+    entities[0].sprite = &blobSprite;
+    entities[0].ratio = 0x00c0;
+    entities[0].heightOffset = FX(1);
+    entities[0].walking = 1;
+    entities[0].movementModifier = FX(1);
+    entities[0].lateralModifier = FX(1);
+    entities[0].hitDistance = FX(3);
 
-    entities[1].posX = 17;
-    entities[1].posY = 8.5;
+    entities[1].posX = FX(8);
+    entities[1].posY = FX(8);
     entities[1].health = 100;
-    entities[1].sprite = sprite;
+    entities[1].sprite = &ctyrruckaSprite;
+    entities[1].ratio = FX(1);
+    entities[1].heightOffset = FX(0);
+    entities[1].walking = 1;
+    entities[1].movementModifier = FX(2); // 1.5625
+    entities[1].lateralModifier = FX(1);
+    entities[1].hitDistance = FX(4);
+
+    entities[2].posX = FX(3);
+    entities[2].posY = FX(3);
+    entities[2].health = 100;
+    entities[2].sprite = &chapadloSprite;
+    entities[2].ratio = 0X00C0;
+    entities[2].heightOffset = FX(0);
+    entities[2].walking = 1;
+    entities[2].movementModifier = 0X01C0;
+    entities[2].lateralModifier = FX(1);
+    entities[2].hitDistance = FX(6);
+
+    entities[3].posX = FX(6);
+    entities[3].posY = FX(2);
+    entities[3].health = 100;
+    entities[3].sprite = &soilderSprite;
+    entities[3].ratio = 0X0120;
+    entities[3].heightOffset = FX(0);
+    entities[3].walking = 1;
+    entities[3].movementModifier = FX(3);
+    entities[3].lateralModifier = FX(1);
+    entities[3].hitDistance = FX(20);
+
+    entities[4].posX = FX(7);
+    entities[4].posY = FX(9);
+    entities[4].health = 100;
+    entities[4].sprite = &ctyrruckaSprite;
+    entities[4].ratio = FX(1);
+    entities[4].heightOffset = FX(0);
+    entities[4].walking = 0;
+    /*
+        entities[5].posX = FX(18);
+        entities[5].posY = FX(1);
+        entities[5].health = 100;
+        entities[5].sprite = &soilderSprite;
+        entities[5].ratio = FX(1);
+        entities[5].heightOffset = FX(0);
+        entities[5].walking = 0;
+
+        entities[6].posX = FX(1);
+        entities[6].posY = FX(14);
+        entities[6].health = 100;
+        entities[6].sprite = &blobSprite;
+        entities[6].ratio = FX(1);
+        entities[6].heightOffset = FX(0);
+        entities[6].walking = 0;
+
+        entities[7].posX = FX(9);
+        entities[7].posY = FX(10);
+        entities[7].health = 100;
+        entities[7].sprite = &chapadloSprite;
+        entities[7].ratio = FX(1);
+        entities[7].heightOffset = FX(0);
+        entities[7].walking = 0;
+
+        entities[8].posX = FX(10);
+        entities[8].posY = FX(16);
+        entities[8].health = 100;
+        entities[8].sprite = &chapadloSprite;
+        entities[8].ratio = FX(1);
+        entities[8].heightOffset = FX(0);
+        entities[8].walking = 0;
+
+        entities[9].posX = FX(6);
+        entities[9].posY = FX(7);
+        entities[9].health = 100;
+        entities[9].sprite = &chapadloSprite;
+        entities[9].ratio = FX(1);
+        entities[9].heightOffset = FX(0);
+        entities[9].walking = 0;
+     */
 
     while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
+        static uint8_t prevFrames = 0;
         PMill = millis;
-        dogm128_clear();
         buttons = read_buttons();
 
-        MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue);
-        RenderFrame(&camera, CurrentMap);
+        static bool prevMenu = 0;
+        if (menuOpen == 0) {
+            dogm128_clear();
+            MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
+            RenderFrame(&camera, CurrentMap);
+            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons, CurrentMap);
+            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
 
-        HUD_DrawBorders();
-        HUD_DrawItem(camera.currentItem);
-        HUD_DrawMap(CurrentMap, &camera);
-        HUD_DrawCompass(&camera);
-        if (CurrentMap != &Level0Map) {
-            HUD_DrawBanner(CurrentMap->Banner);
-            HUD_DrawStats(&camera);
-            HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
-        }
+            HUD_DrawBorders();
+            HUD_DrawItem(camera.currentItem);
+            HUD_DrawMap(CurrentMap, &camera);
+            HUD_DrawCompass(camera.angle, camera.dirX, camera.dirY);
+            if (CurrentMap != &Level0Map) {
+                HUD_DrawBanner(CurrentMap->Banner);
+                HUD_DrawStats(camera.health, camera.kills);
+                HUD_DrawItemPOV(camera.currentItem, usePMill + 200 > millis);
+            }
 
-        static _Bool prevUse = 0;
-        _Bool usePressed = buttons.use && !prevUse;
-        prevUse = buttons.use;
+            static _Bool prevUse = 0;
+            _Bool usePressed = buttons.use && !prevUse;
+            prevUse = buttons.use;
 
-        _Bool dialogueActive = (CurrentDialogue != NULL);
-        HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
-        if (usePressed && !dialogueActive) {
-            // use button available for future interactions
-            usePMill = millis;
-        }
+            _Bool dialogueActive = (CurrentDialogue != NULL);
+            HUD_DrawDialogue(&CurrentDialogue, usePressed && dialogueActive);
+            if (usePressed) {
+                // use button available for future interactions
+                usePMill = millis;
+            }
+            
+            if (camera.health == 0) {
+                dogm128_fill_rect((96 / 2) - 25, (64 / 2) - 10, 50, 20, DISP_COL_WHITE);
+                dogm128_text((96 / 2) - 6, (64 / 2) - 2, "RIP");
+                menuOpen = 1;
+            }
+            prevMenu = 0;
+        } else prevMenu = 1;
+
+        DrawMenu(buttons, camera.health == 0);
+
 
         // display FPS in the corner for testing
         frame_length = millis - PMill;
-        utoa(1000 / frame_length, buf, 0);
+        utoa_mine(1000 / frame_length, buf, 0);
         dogm128_text(0, 0, buf);
         
         dogm128_refresh();
-        set_LEDs(HUD_GetLEDHP(&camera));
+        set_LEDs(HUD_GetLEDHP(camera.health));
         Backlight(backlightVal);
     }
 }
@@ -202,7 +335,6 @@ void __interrupt() isr(void) {
         PIR1bits.TMR2IF = 0;
         static uint8_t local_tick = 0;
         local_tick++;
-        AdvanceDither();
         if (local_tick & 0b100) {
             local_tick = 0;
             // 1 kHz task here

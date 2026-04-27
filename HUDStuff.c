@@ -1,5 +1,7 @@
 #include "HUDStuff.h"
+#include "fx8.h"
 #include "utils.h"
+#include <stdint.h>
 
 void HUD_DrawBanner(const dogm128_bitmap_t *text)
 {
@@ -19,10 +21,13 @@ void HUD_DrawBanner(const dogm128_bitmap_t *text)
 
 void HUD_DrawMap(map_t *map, const player_t *player)
 {
+    fx_t posY = player->posY;
+    fx_t mapHeight = map->height;
+
     int16_t static height_scroll = 0;
     uint8_t max_scroll = 0;
-    if (map->height > 32)
-        max_scroll = map->height - 32;
+    if (mapHeight > 32)
+        max_scroll = mapHeight - 32;
     uint8_t top_edge_scroll_threshold = map->minimapScrollthresholds[0];
     uint8_t bottom_edge_scroll_threshold = map->minimapScrollthresholds[1];
     uint8_t x_player_offset = map->minimapTopLeftOffset[0];
@@ -30,10 +35,10 @@ void HUD_DrawMap(map_t *map, const player_t *player)
     uint8_t static const x_loc = 96;
     uint8_t static const y_loc = 0;
 
-    if (FX_I(player->posY) - height_scroll < top_edge_scroll_threshold && height_scroll > 0)
+    if (FX_I(posY) - height_scroll < top_edge_scroll_threshold && height_scroll > 0)
         height_scroll--;
 
-    if (FX_I(player->posY) - height_scroll > bottom_edge_scroll_threshold && height_scroll < max_scroll)
+    if (FX_I(posY) - height_scroll > bottom_edge_scroll_threshold && height_scroll < max_scroll)
         height_scroll++;
 
     dogm128_blit_or(x_loc, (int16_t)y_loc - height_scroll, map->minimap, 32 + height_scroll);
@@ -41,7 +46,7 @@ void HUD_DrawMap(map_t *map, const player_t *player)
     static uint8_t show = 0;
     if (show & 0b100)
         dogm128_pixel(((uint8_t)FX_I(player->posX)) + x_loc + x_player_offset,
-                      (uint8_t)FX_I(player->posY) + (uint8_t)(y_loc - height_scroll) + y_player_offset,
+                      (uint8_t)FX_I(posY) + (uint8_t)(y_loc - height_scroll) + y_player_offset,
                       DISP_COL_BLACK);
     show++;
 }
@@ -73,7 +78,7 @@ void HUD_DrawItem(item_t item)
     }
 }
 
-void HUD_DrawCompass(const player_t *player)
+void HUD_DrawCompass(fx_t angle, fx_t dirX, fx_t dirY)
 {
     static const int8_t pointerPoints[3][2] = {
         {6, 0},
@@ -81,13 +86,13 @@ void HUD_DrawCompass(const player_t *player)
         {-1, 2}};
     uint8_t static rx[3], ry[3];
     fx_t static prevAngle = INT16_MAX;
-    if (prevAngle != player->angle)
+    if (prevAngle != angle)
     {
-        prevAngle = player->angle;
+        prevAngle = angle;
         for (uint8_t i = 0; i < 3; i++)
         {
-            rx[i] = 120 + FX_I(fx_sub(fx_mul(FX(pointerPoints[i][0]), player->dirX), fx_mul(FX(pointerPoints[i][1]), player->dirY)));
-            ry[i] = 40 + FX_I(fx_add(fx_mul(FX(pointerPoints[i][0]), player->dirY), fx_mul(FX(pointerPoints[i][1]), player->dirX)));
+            rx[i] = 120 + FX_I(fx_sub(fx_mul(FX(pointerPoints[i][0]), dirX), fx_mul(FX(pointerPoints[i][1]), dirY)));
+            ry[i] = 40 + FX_I(fx_add(fx_mul(FX(pointerPoints[i][0]), dirY), fx_mul(FX(pointerPoints[i][1]), dirX)));
         }
     }
     dogm128_line(rx[0], ry[0], rx[1], ry[1], DISP_COL_BLACK);
@@ -100,19 +105,19 @@ void HUD_DrawCompass(const player_t *player)
     dogm128_pixel(114, 40, DISP_COL_BLACK);
 }
 
-void HUD_DrawStats(const player_t *player)
+void HUD_DrawStats(uint8_t health, uint8_t kills)
 {
     char buf[5];
     dogm128_blit_or(98, 50, &HUD_hpImage, 14);
-    utoa(player->kills, buf, 3);
+    utoa_mine(kills, buf, 3);
     dogm128_text(114, 50, buf);
-    utoa(player->health, buf, 1);
+    utoa_mine(health, buf, 1);
     dogm128_text(108, 57, buf);
 }
 
-void HUD_DrawItemPOV(const player_t *player, _Bool use)
+void HUD_DrawItemPOV(const item_t playerItem, _Bool use)
 {
-    switch (player->currentItem)
+    switch (playerItem)
     {
     case ITEM_HAND:
         break;
@@ -193,20 +198,20 @@ _Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance)
     return 1;
 }
 
-uint8_t inline HUD_GetLEDHP(const player_t *player)
+uint8_t inline HUD_GetLEDHP(fx_t health)
 {
     static millis_t PrevMill = 0;
     static _Bool blink_state = 0;
-    uint8_t out = 0xff >> (8 - player->health);
+    uint8_t out = 0xff >> (8 - health);
 
     static const uint16_t blinkSpeed[3] = {10, 200, 500};
-    if (player->health > 2)
+    if (health > 2)
     {
         blink_state = 1;
     }
     else
     {
-        if (millis - PrevMill >= blinkSpeed[player->health <= 2 ? player->health : 1])
+        if (millis - PrevMill >= blinkSpeed[health <= 2 ? health : 1])
         {
             PrevMill = millis;
             blink_state = !blink_state;

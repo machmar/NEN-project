@@ -14,6 +14,7 @@ typedef int16_t fx_t;
 
 /* 8.8 fixed-point basics */
 #define FX_SHIFT        8
+#define FX_ZERO         ((fx_t)0)
 #define FX_ONE          ((fx_t)256)
 #define FX_HALF         ((fx_t)128)
 #define FX_TWO          ((fx_t)512)

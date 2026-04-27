@@ -2,42 +2,25 @@
 #define RAYCASTING_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "fx8.h"
 #include "assets.h"
 
-#define MAX_ENTITIES 10
+#define MAX_ENTITIES 5
 
-typedef struct __attribute__((packed)) {
-    bool front, back, use, left, right;
+typedef union __attribute__((packed)) {
+    struct {
+      bool front:1, back:1, use:1, left:1, right:1;  
+    };
+    uint8_t all;
 }
 buttons_t;
 
-int RenderFrame(const player_t *player, const map_t *map);
-
-#define SPRITE_WIDTH 5
-#define SPRITE_HEIGHT 10
-
-typedef struct {
-    float posX, posY; // position
-    float distance; // distance from the player (for sorting)
-    uint8_t health;
-    uint8_t(*sprite)[SPRITE_WIDTH];
-} entity_t;
-
-int const static sprite[SPRITE_HEIGHT][SPRITE_WIDTH] = {
-    {0, 1, 1, 1, 0},
-    {0, 1, 0, 1, 0},
-    {0, 1, 0, 1, 0},
-    {0, 1, 1, 1, 0},
-    {0, 0, 1, 0, 0},
-    {0, 0, 1, 0, 0},
-    {0, 1, 1, 1, 0},
-    {1, 1, 0, 1, 1},
-    {1, 0, 0, 0, 1},
-    {1, 0, 0, 0, 1},
-};
-
-int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue);
-void DrawEntities(player_t *player, entity_t* entities, int amount, uint8_t *display_buffer);
+int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue, bool dont_scale);
+int RenderFrame(player_t *player, const map_t *map);
+void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons, map_t *map);
+void EnemyAi(player_t *player, entity_t* entities, uint8_t amount, map_t *map, bool dont_scale);
+void HitDetection(player_t *player, entity_t *entities);
+void RespawEntities(entity_t *entities, uint8_t amount, map_t *map);
 
 #endif // RAYCASTING_H
