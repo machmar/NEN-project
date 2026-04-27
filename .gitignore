@@ -69,3 +69,4 @@ build/default/production/fx8.p1.d
 *.inx
 *.log
 /dist
+/.ca
