@@ -742,10 +742,10 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, b
     uint8_t tileX = MAP_AT(map, FX_I(fx_add(posX, dirX)), FX_I(posY));
     uint8_t tileY = MAP_AT(map, FX_I(posX), FX_I(fx_add(posY, dirY)));
 
-    if (tileX <= 0x00 || tileX >= 0x0f)
+    if (TileWalkable(tileX))
         e->posX = fx_add(posX, fx_mul(dirX, moveSpeed));
 
-    if (tileY <= 0x00 || tileY >= 0x0f)
+    if (TileWalkable(tileY))
       e->posY = fx_add(posY, fx_mul(dirY, moveSpeed));
 
     e->walking = 1;
