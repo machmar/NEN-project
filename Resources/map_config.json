@@ -10,7 +10,7 @@
           "mode": "color",
           "color": "#ffffff",
           "emoji": "",
-          "description": "No wall",
+          "description": "Level1: What the fuck, Where am I",
           "wallExport": false
         },
         {
@@ -19,8 +19,8 @@
           "mode": "color",
           "color": "#000000",
           "emoji": "",
-          "description": "Wall variant",
-          "wallExport": false
+          "description": "Level1: This place makes no sense, what the hell, is this like a maze?",
+          "wallExport": true
         },
         {
           "id": 2,
@@ -28,8 +28,8 @@
           "mode": "color",
           "color": "#686868",
           "emoji": "",
-          "description": "it has a bit missing from the top and bottom",
-          "wallExport": false
+          "description": "Level1: I really hope I won't have to use that knife",
+          "wallExport": true
         },
         {
           "id": 3,
@@ -37,8 +37,8 @@
           "mode": "color",
           "color": "#3f3f3f",
           "emoji": "",
-          "description": "it has a bit missing from the top",
-          "wallExport": false
+          "description": "Level1: Hey there are stairs there!",
+          "wallExport": true
         },
         {
           "id": 4,
@@ -46,8 +46,8 @@
           "mode": "color",
           "color": "#921da3",
           "emoji": "",
-          "description": "It has a small bit missing from the bottom",
-          "wallExport": false
+          "description": "Level1: I'm fucking lost",
+          "wallExport": true
         },
         {
           "id": 5,
@@ -56,7 +56,7 @@
           "color": "#52167e",
           "emoji": "",
           "description": "top half is missing",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 6,
@@ -65,7 +65,7 @@
           "color": "#491eae",
           "emoji": "",
           "description": "A door, can't walk through it, just looks like it.",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 7,
@@ -74,7 +74,7 @@
           "color": "#1e1b98",
           "emoji": "",
           "description": "Like the door, but it has pixels at the bottom, not at the top",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 8,
@@ -83,7 +83,7 @@
           "color": "#3c67dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 9,
@@ -92,7 +92,7 @@
           "color": "#3c94dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 10,
@@ -101,7 +101,7 @@
           "color": "#3cc2dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 11,
@@ -110,7 +110,7 @@
           "color": "#3cddca",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 12,
@@ -119,7 +119,7 @@
           "color": "#3cdd9c",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 13,
@@ -128,7 +128,7 @@
           "color": "#3cdd6f",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 14,
@@ -137,7 +137,7 @@
           "color": "#1c9d1f",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 15,
@@ -146,7 +146,7 @@
           "color": "#2d7614",
           "emoji": "",
           "description": "no wall for now",
-          "wallExport": false
+          "wallExport": true
         }
       ]
     },
@@ -170,7 +170,7 @@
           "color": "#999999",
           "emoji": "",
           "description": "it has a bit missing from the top and bottom",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 2,
@@ -179,7 +179,7 @@
           "color": "#666666",
           "emoji": "",
           "description": "it has a bit missing from the top",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 3,
@@ -188,7 +188,7 @@
           "color": "#c73cdd",
           "emoji": "",
           "description": "It has a small bit missing from the bottom",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 4,
@@ -197,7 +197,7 @@
           "color": "#9a3cdd",
           "emoji": "",
           "description": "top half is missing",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 5,
@@ -206,7 +206,7 @@
           "color": "#6c3cdd",
           "emoji": "",
           "description": "A door, can't walk through it, just looks like it.",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 6,
@@ -215,7 +215,7 @@
           "color": "#3f3cdd",
           "emoji": "",
           "description": "Like the door, but it has pixels at the bottom, not at the top",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 7,
@@ -224,7 +224,7 @@
           "color": "#3c67dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 8,
@@ -233,7 +233,7 @@
           "color": "#3c94dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 9,
@@ -242,7 +242,7 @@
           "color": "#3cc2dd",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 10,
@@ -251,7 +251,7 @@
           "color": "#3cddca",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 11,
@@ -260,7 +260,7 @@
           "color": "#3cdd9c",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 12,
@@ -269,7 +269,7 @@
           "color": "#3cdd6f",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 13,
@@ -278,7 +278,7 @@
           "color": "#3cdd41",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 14,
@@ -287,7 +287,7 @@
           "color": "#ffffff",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         },
         {
           "id": 15,
@@ -296,7 +296,7 @@
           "color": "#ffffff",
           "emoji": "",
           "description": "",
-          "wallExport": false
+          "wallExport": true
         }
       ]
     },
@@ -474,11 +474,11 @@
         },
         {
           "id": 2,
-          "name": "Item 2",
+          "name": "Heal",
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "❤️",
-          "description": "Item slot",
+          "description": "Heals the player",
           "wallExport": false
         },
         {
@@ -591,11 +591,11 @@
         },
         {
           "id": 15,
-          "name": "Item 15",
+          "name": "NextMap",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🧲",
-          "description": "Item slot",
+          "emoji": "➡️",
+          "description": "Teleports to the next map",
           "wallExport": false
         }
       ]
@@ -610,7 +610,7 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": "Level0: Like I ever expected anything different.",
+          "description": "Level0: Like I ever expected anything different.\nLevel1: What the fuck, Where am I\nLevel2: Shit, what the fuck is that\nLevel3: What is that sound, Like an army marching somehwre",
           "wallExport": false
         },
         {
@@ -619,7 +619,7 @@
           "mode": "color",
           "color": "#b43cdd",
           "emoji": "•",
-          "description": "Level0: How is there nothing past those windows",
+          "description": "Level0: How is there nothing past those windows\nLevel1: This place makes no sense, is this like a maze or some shit?\nLevel2: There are more of these thingsss, Fuck Me\nLevel3: Oh fuck, it is an army",
           "wallExport": false
         },
         {
@@ -628,7 +628,7 @@
           "mode": "color",
           "color": "#ddb73c",
           "emoji": "•",
-          "description": "Level0: Guess I'll just walk back and forth like a mad man again. I might as well be mad at this point.",
+          "description": "Level0: Guess I'll just walk back and forth like a mad man again. I might as well be mad at this point.\nLevel1: I really hope I won't have to use that knife\nLevel2: This knife fucking sucks\nLevel3: Gotta move quick so they don't catch up",
           "wallExport": false
         },
         {
@@ -637,7 +637,7 @@
           "mode": "color",
           "color": "#3cddba",
           "emoji": "•",
-          "description": "Level0: They sure do like these big ass windows tho, Fuckin 15 windows in a two room box. Bizzare",
+          "description": "Level0: They sure do like these big ass windows tho, Fuckin 15 windows in a two room box. Bizzare\nLevel1: Hey there are stairs there!\nLevel2: Thank fuck, stairs\nLevel3: shit, I think I might have to jump",
           "wallExport": false
         },
         {
@@ -646,7 +646,7 @@
           "mode": "emoji",
           "color": "#bc3cdd",
           "emoji": "👋",
-          "description": "Level0: Tf is with that wall, that wasn't here before.",
+          "description": "Level0: Tf is with that wall, that wasn't here before.\nLevel1: I'm fucking lost",
           "wallExport": false
         },
         {
