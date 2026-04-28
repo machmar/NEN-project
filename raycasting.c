@@ -518,7 +518,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     if (health > 0) {
       e->lineOfSight = inHorizontalFov;
     } else if (!inHorizontalFov) {
-      //RespawnEntity(e, map);
+        RespawnEntity(map, e);
       continue;
     }
 
