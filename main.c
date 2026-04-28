@@ -25,10 +25,9 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[MAX_ENTITIES];
-map_t *CurrentMap = &Level0Map;
+map_t *CurrentMap = &Level3Map;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
-uint16_t backlightVal = 1023;
 _Bool showFPS = 0;
 uint8_t menuOpen = 0;
 uint8_t currentLevelNum = 0;
@@ -160,6 +159,10 @@ void DrawMenu(buttons_t state, bool disallow_resume) {
         if (state.all >= 0b11111) menuOpen = 1;
         else return;
     }
+    if (menuOpen >= 100) {
+        // game end
+        return;
+    }
     if (menuOpen == 1) {
         if (state.all == 0)
             menuOpen = 2;
@@ -170,7 +173,10 @@ void DrawMenu(buttons_t state, bool disallow_resume) {
     dogm128_text(1, 64 - 5, "resume");
     dogm128_text(127 - 20, 64 - 5, "reset");
     dogm128_text(30, 64 - 5, "fps");
-    if (showFPS) dogm128_text(64 - 10, 64 - 5, "level");
+    if (showFPS) {
+        dogm128_text(64 - 10, 64 - 5, "level");
+        dogm128_text(90 - 8, 64 - 5, "item");
+    }
 
     if (menuOpen == 2) {
         if (state.back && !disallow_resume) menuOpen = 0;
@@ -182,31 +188,50 @@ void DrawMenu(buttons_t state, bool disallow_resume) {
             showFPS = !showFPS;
             menuOpen = 0;
         }
-        if (state.use && showFPS) {
-            currentLevelNum++;
-            if (currentLevelNum > 3)
-                currentLevelNum = 0;
-            ChangeLevel(currentLevelNum);
-            menuOpen = 0;
+        if (showFPS) {
+            if (state.use) {
+                currentLevelNum++;
+                if (currentLevelNum > 3)
+                    currentLevelNum = 0;
+                ChangeLevel(currentLevelNum);
+                menuOpen = 0;
+            }
+            if (state.left) {
+                camera.currentItem++;
+                if (camera.currentItem >= ITEM_COUNT) camera.currentItem = ITEM_HAND;
+                menuOpen = 0;
+            }
         }
     }
 }
 
+void FlashScreen() {
+    for (uint8_t i = 0; i < 16; i++) {
+        dogm128_invert();
+        dogm128_refresh();
+        Backlight(i & 1 ? backlightVal : 0);
+        __delay_ms(80);
+    }
+}
+
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
-    // param1 = eventNum (tile & 0x0F), param2 = stepOn
     if (param1 == 0 && param2 == 1) { // stepped on teleportation tile in Level0
-        //backlightVal = 300;
+        FlashScreen();
         ChangeLevel(1);
     }
 
     if (param1 == 1 && param2 == 1) { // stepped on teleportation tile in Level1
-        //backlightVal = 300;
+        FlashScreen();
         ChangeLevel(2);
     }
 
     if (param1 == 2 && param2 == 1) { // stepped on teleportation tile in Level1
-        //backlightVal = 300;
+        FlashScreen();
         ChangeLevel(3);
+    }
+
+    if (param1 == 3 && param2 == 1) {
+        menuOpen = 100;
     }
 }
 
@@ -277,11 +302,28 @@ void main(void) {
 
             if (camera.health == 0) {
                 dogm128_fill_rect((96 / 2) - 25, (64 / 2) - 10, 50, 20, DISP_COL_WHITE);
-                dogm128_text((96 / 2) - 6, (64 / 2) - 2, "RIP");
+                dogm128_text((96 / 2) - 6, (57 / 2) - 2, "RIP");
                 menuOpen = 1;
             }
             prevMenu = 0;
-        } else prevMenu = 1;
+        }
+
+        if (menuOpen != 0) prevMenu = 1;
+
+        if (menuOpen == 100) {
+            dogm128_fill_rect(0, 9, 96, 55, DISP_COL_WHITE);
+            dogm128_refresh();
+            __delay_ms(2500);
+            __delay_ms(2500);
+            dogm128_text((96 / 2) - 20, (57 / 2) - 2, "YOU JUMPED");
+            dogm128_refresh();
+            __delay_ms(500);
+            menuOpen = 101;
+        }
+        if (menuOpen == 101) {
+            dogm128_pixel(rand16() % 128, rand16() % 64, DISP_COL_BLACK);
+            __delay_ms(60);
+        }
 
         DrawMenu(buttons, camera.health == 0);
 
@@ -295,6 +337,7 @@ void main(void) {
 
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(camera.health));
+        if (backlightVal < 1023) backlightVal += 0xF;
         Backlight(backlightVal);
     }
 }

@@ -28,13 +28,13 @@ typedef struct {
     const dogm128_bitmap_t *Banner;
     /* Called when player steps on (stepOn=1) or off (stepOn=0) an event tile (0x30-0x3F).
      * eventNum is the lower nibble of the tile value (0-15). */
-    void (*OnEventTile)(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue);
+    void (*OnEventTile)(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue);
     /* Called only when player steps onto a dialogue tile (0x40-0xEF).
      * pDialogue points to the active dialogue pointer so the callback can set it. */
     void (*OnDialogueTile)(uint8_t tileVal, const dialogue_t **pDialogue);
 } map_t;
 
-extern void Global_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue);
+extern void Global_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue);
 
 extern map_t Level0Map;
 extern map_t Level1Map;
@@ -134,6 +134,8 @@ entity_t *enemieTemplates[4] = {
     &ctyrruckaTemplate,
     &soilderTemplate,
 };
+
+uint16_t backlightVal = 1023;
 
 #endif	/* ASSETS_H */
 

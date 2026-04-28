@@ -60,70 +60,63 @@ const dialogue_t dialogue_Healed1 = {
     DIALOGUE_LAYOUT_dialogue_Healed1
 };
 
-void Global_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+void Global_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
-    if (stepOn) {
-        switch (eventNum) {
-            case 0: //knife
-                if (player->currentItem != ITEM_KNIFE && player->currentItem != ITEM_GUN){
-                    player->currentItem = ITEM_KNIFE;
-                    *pDialogue = &dialogue_KnifeFound1;
-                }
-                break;
-            case 1: // gun
-                if (player->currentItem != ITEM_GUN) {
-                    player->currentItem = ITEM_GUN;
-                    *pDialogue = &dialogue_GunFound1;
-                }
-                break;
-            case 2: // healed
-                player->health = 5;
-                *pDialogue = &dialogue_Healed1;
-                break;
-            default:
-                break;
-        }
+    switch (eventNum) {
+        case 0: //knife
+            if (player->currentItem != ITEM_KNIFE && player->currentItem != ITEM_GUN) {
+                player->currentItem = ITEM_KNIFE;
+                *pDialogue = &dialogue_KnifeFound1;
+            }
+            break;
+        case 1: // gun
+            if (player->currentItem != ITEM_GUN) {
+                player->currentItem = ITEM_GUN;
+                *pDialogue = &dialogue_GunFound1;
+            }
+            break;
+        case 2: // healed
+            player->health = 5;
+            *pDialogue = &dialogue_Healed1;
+            break;
+        default:
+            break;
     }
 }
-static const uint8_t Level0_data[8][11] =
-{
-  {1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1} ,
-  {1 ,0 ,0 ,0 ,0 ,0 ,66,0 ,64,32,3} ,
-  {1 ,0 ,1 ,1 ,22,22,1 ,1 ,16,1 ,1} ,
-  {1 ,67,20,0 ,70,70,1 ,0 ,0 ,0 ,1} ,
-  {1 ,0 ,1 ,0 ,0 ,0 ,1 ,0 ,0 ,65,5} ,
-  {1 ,0 ,16,68,0 ,69,1 ,0 ,0 ,65,5} ,
-  {1 ,1 ,1 ,1 ,1 ,63,1 ,65,65,65,1} ,
-  {0 ,0 ,0 ,0 ,1 ,2 ,1 ,7 ,7 ,7 ,1}
+static const uint8_t Level0_data[8][11] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 66, 0, 64, 32, 3},
+    {1, 0, 1, 1, 22, 22, 1, 1, 16, 1, 1},
+    {1, 67, 20, 0, 70, 70, 1, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 1, 0, 0, 65, 5},
+    {1, 0, 16, 68, 0, 69, 1, 0, 0, 65, 5},
+    {1, 1, 1, 1, 1, 63, 1, 65, 65, 65, 1},
+    {0, 0, 0, 0, 1, 2, 1, 7, 7, 7, 1}
 };
 
 static const uint8_t Level0_bitmap_data[] = {
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x08, 0xe8, 0x28, 
-0x28, 0x08, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x20, 0x37, 0x22, 
-0x22, 0x22, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x08, 0xe8, 0x28,
+    0x28, 0x08, 0xf8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x20, 0x37, 0x22,
+    0x22, 0x22, 0x3f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 const dogm128_bitmap_t Level0_bitmap = {32, 32, Level0_bitmap_data};
 
-
-
-static void Level0Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+static void Level0Map_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
-    if (stepOn) {
-        switch (eventNum) {
-            case 0xF: // teleporting to next level, done in main.c
-                if (MapEventCallback) MapEventCallback(0, 1);
-                break;
-            default:
-                break;
-        }
+    switch (eventNum) {
+        case 0xF: // teleporting to next level, done in main.c
+            if (MapEventCallback) MapEventCallback(0, 1);
+            break;
+        default:
+            break;
     }
 }
 
@@ -185,7 +178,7 @@ const dialogue_t dialogue_Level0_2_1 = {
     DIALOGUE_LAYOUT_dialogue_Level0_2_1
 };
 
-const dialogue_t dialogue_Level0_3_3 = {
+/*const dialogue_t dialogue_Level0_3_3 = {
     "Bizzarre",
     1000,
     NULL,
@@ -204,7 +197,7 @@ const dialogue_t dialogue_Level0_3_1 = {
     2000,
     &dialogue_Level0_3_2,
     DIALOGUE_LAYOUT_dialogue_Level0_3_1
-};
+};*/
 
 const dialogue_t dialogue_Level0_4_2 = {
     "that wasnt here before",
@@ -248,64 +241,52 @@ const dialogue_t dialogue_Level0_5_1 = {
     DIALOGUE_LAYOUT_dialogue_Level0_5_1
 };
 
-const dialogue_t dialogue_Level0_6_1 = {
-    "Nah I should go check out that wall first",
-    1300,
-    NULL,
-    DIALOGUE_LAYOUT_dialogue_Level0_6_1
-};
-
 static void Level0Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
-    switch (tileVal)
-    {
-    case 0x40:
-        if (!dialogue0_Triggered[0]) {
-            *pDialogue = &dialogue_Level0_0_1;
-            dialogue0_Triggered[0] = 1;
-        }
-        break;
+    switch (tileVal) {
+        case 0x40:
+            if (!dialogue0_Triggered[0]) {
+                *pDialogue = &dialogue_Level0_0_1;
+                dialogue0_Triggered[0] = 1;
+            }
+            break;
 
         case 0x41:
             if (!dialogue0_Triggered[1]) {
                 *pDialogue = &dialogue_Level0_1_1;
                 dialogue0_Triggered[1] = 1;
             }
-        break;
+            break;
 
         case 0x42:
             if (!dialogue0_Triggered[2]) {
                 *pDialogue = &dialogue_Level0_2_1;
                 dialogue0_Triggered[2] = 1;
             }
-        break;
+            break;
 
-        case 0x43:
-            if (!dialogue0_Triggered[3]) {
-                *pDialogue = &dialogue_Level0_3_1;
-                dialogue0_Triggered[3] = 1;
-            }
-        break;
+            /*case 0x43:
+                if (!dialogue0_Triggered[3]) {
+             *pDialogue = &dialogue_Level0_3_1;
+                    dialogue0_Triggered[3] = 1;
+                }
+            break;*/
 
         case 0x44:
             if (!dialogue0_Triggered[4]) {
                 *pDialogue = &dialogue_Level0_4_1;
                 dialogue0_Triggered[4] = 1;
             }
-        break;
+            break;
 
         case 0x45:
             if (!dialogue0_Triggered[5]) {
                 *pDialogue = &dialogue_Level0_5_1;
                 dialogue0_Triggered[5] = 1;
             }
-        break;
+            break;
 
-        case 0x46:
-        *pDialogue = &dialogue_Level0_6_1;
-        break;
-
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -322,55 +303,54 @@ map_t Level0Map = {
     Level0Map_OnDialogueTile,
 };
 
-static const uint8_t Level1_data[32][46] =
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,1},
-  {1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,63,1},
-  {1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,1,0,1,16,1},
-  {1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1,0,1},
-  {1,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,68,1,0,1},
-  {1,0,0,0,1,0,0,1,1,1,1,1,1,1,1,65,65,1,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,1,1,1,1,0,1,0,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,1,1,1,1,0,0,0,0,0,1,67,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,1,0,1,1,0,0,0,0,1,1,1,1,1,0,1},
-  {1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,1,1,1,1,1,0,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,1,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,1,1,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1},
-  {1,0,0,0,1,0,0,0,1,1,1,1,0,0,1,0,0,0,1,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,1,1,0,0,1},
-  {1,0,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,1,1,1,1,1,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,48,48,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,1},
-  {1,0,0,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,1,1,1,0,1,1},
-  {1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,1,1,1,1,0,0,0,1,0,0,1,0,1,1,1,0,0,1,0,0,0,1,1},
-  {1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,0,1,1},
-  {1,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,1,1,1,1,1,0,0,1,0,0,0,1,1},
-  {1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,1,1,1,0,0,0,1,0,0,66,0,0,0,1,0,0,1,0,0,1,1,1},
-  {1,32,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,66,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,0,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,66,0,0,0,1,0,0,0,0,0,0,0,0},
-  {1,64,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,66,66,66,0,0,0,1,0,0,1,1,1,1,1,1},
-  {1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,1,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,1,1,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+static const uint8_t Level1_data[32][46] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 63, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 16, 1},
+    {1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 68, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 65, 65, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 67, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 48, 48, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1},
+    {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1},
+    {1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 66, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1},
+    {1, 32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 66, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 66, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0},
+    {1, 64, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 66, 66, 66, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
 static const uint8_t Level1_bitmap_data[] = {
-    0xff, 0x81, 0x81, 0x91, 0x91, 0x91, 0x31, 0x11, 0x11, 0xf1, 0x11, 0x11, 0x11, 0x11, 0x01, 0x11, 
-0x21, 0x00, 0x00, 0x28, 0x00, 0x19, 0x41, 0x01, 0x1f, 0x05, 0xf5, 0x05, 0x05, 0x01, 0x01, 0xf7, 
-0xff, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x40, 0x00, 0x00, 0x88, 0x00, 0x02, 0x42, 0x40, 0x4e, 0x48, 
-0x08, 0x08, 0x41, 0x01, 0x0c, 0x48, 0x4f, 0x00, 0x00, 0x00, 0x16, 0x00, 0x80, 0x40, 0x00, 0x3f, 
-0x73, 0x20, 0x22, 0x22, 0x22, 0x86, 0xa4, 0x04, 0x00, 0x00, 0x24, 0x04, 0x04, 0x04, 0x80, 0xb0, 
-0xe0, 0xa4, 0xa4, 0xa0, 0x80, 0x02, 0x00, 0x01, 0x0f, 0x00, 0x20, 0x10, 0x13, 0x10, 0x10, 0x78, 
-0xfe, 0x80, 0x80, 0x04, 0x01, 0x85, 0x87, 0x84, 0x00, 0x02, 0x40, 0x40, 0x00, 0x06, 0x43, 0x40, 
-0x40, 0x1c, 0x00, 0x40, 0x04, 0x44, 0x00, 0x04, 0xc5, 0xd1, 0x00, 0x41, 0x7d, 0x05, 0x01, 0xc0, 
-0xcf, 0x08, 0xc0, 0x00, 0x00, 0x00, 0xe1, 0x3c, 0x86, 0x84, 0x80, 0x80, 0x80, 0x80, 0x84, 0x3e, 
-0x20, 0x00, 0x02, 0x26, 0x3a, 0x02, 0x02, 0x2e, 0x24, 0x00, 0x04, 0x24, 0x20, 0x20, 0x00, 0xff, 
-0x3f, 0x28, 0x28, 0x28, 0x0a, 0x2a, 0x29, 0x28, 0x03, 0x20, 0x20, 0x30, 0x20, 0x20, 0x27, 0x24, 
-0x22, 0x24, 0x00, 0x10, 0x30, 0x30, 0x31, 0x31, 0x38, 0x00, 0x00, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
+    0xff, 0x81, 0x81, 0x91, 0x91, 0x91, 0x31, 0x11, 0x11, 0xf1, 0x11, 0x11, 0x11, 0x11, 0x01, 0x11,
+    0x21, 0x00, 0x00, 0x28, 0x00, 0x19, 0x41, 0x01, 0x1f, 0x05, 0xf5, 0x05, 0x05, 0x01, 0x01, 0xf7,
+    0xff, 0x00, 0x00, 0x00, 0x00, 0x7f, 0x40, 0x00, 0x00, 0x88, 0x00, 0x02, 0x42, 0x40, 0x4e, 0x48,
+    0x08, 0x08, 0x41, 0x01, 0x0c, 0x48, 0x4f, 0x00, 0x00, 0x00, 0x16, 0x00, 0x80, 0x40, 0x00, 0x3f,
+    0x73, 0x20, 0x22, 0x22, 0x22, 0x86, 0xa4, 0x04, 0x00, 0x00, 0x24, 0x04, 0x04, 0x04, 0x80, 0xb0,
+    0xe0, 0xa4, 0xa4, 0xa0, 0x80, 0x02, 0x00, 0x01, 0x0f, 0x00, 0x20, 0x10, 0x13, 0x10, 0x10, 0x78,
+    0xfe, 0x80, 0x80, 0x04, 0x01, 0x85, 0x87, 0x84, 0x00, 0x02, 0x40, 0x40, 0x00, 0x06, 0x43, 0x40,
+    0x40, 0x1c, 0x00, 0x40, 0x04, 0x44, 0x00, 0x04, 0xc5, 0xd1, 0x00, 0x41, 0x7d, 0x05, 0x01, 0xc0,
+    0xcf, 0x08, 0xc0, 0x00, 0x00, 0x00, 0xe1, 0x3c, 0x86, 0x84, 0x80, 0x80, 0x80, 0x80, 0x84, 0x3e,
+    0x20, 0x00, 0x02, 0x26, 0x3a, 0x02, 0x02, 0x2e, 0x24, 0x00, 0x04, 0x24, 0x20, 0x20, 0x00, 0xff,
+    0x3f, 0x28, 0x28, 0x28, 0x0a, 0x2a, 0x29, 0x28, 0x03, 0x20, 0x20, 0x30, 0x20, 0x20, 0x27, 0x24,
+    0x22, 0x24, 0x00, 0x10, 0x30, 0x30, 0x31, 0x31, 0x38, 0x00, 0x00, 0x3f, 0x3f, 0x3f, 0x3f, 0x3f
 };
 
 const dogm128_bitmap_t Level1_bitmap = {32, 46, Level1_bitmap_data};
@@ -385,18 +365,15 @@ static const uint8_t Level1_banner_data[] = {
 
 const dogm128_bitmap_t Level1_banner = {76, 8, Level1_banner_data};
 
-
-static void Level1Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+static void Level1Map_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
-    if (stepOn) {
-        switch (eventNum) {
-            case 0xF: // teleporting to next level, done in main.c
-                if (MapEventCallback) MapEventCallback(1, 1);
-                break;
-            default:
-                break;
-        }
+    switch (eventNum) {
+        case 0xF: // teleporting to next level, done in main.c
+            if (MapEventCallback) MapEventCallback(1, 1);
+            break;
+        default:
+            break;
     }
 }
 
@@ -452,45 +429,44 @@ const dialogue_t dialogue_Level1_4_1 = {
 };
 
 static void Level1Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
-    switch (tileVal)
-    {
-    case 0x40:
-        if (!dialogue1_Triggered[0]) {
-            *pDialogue = &dialogue_Level1_0_1;
-            dialogue1_Triggered[0] = 1;
-        }
-        break;
+    switch (tileVal) {
+        case 0x40:
+            if (!dialogue1_Triggered[0]) {
+                *pDialogue = &dialogue_Level1_0_1;
+                dialogue1_Triggered[0] = 1;
+            }
+            break;
 
         case 0x41:
             if (!dialogue1_Triggered[1]) {
                 *pDialogue = &dialogue_Level1_1_1;
                 dialogue1_Triggered[1] = 1;
             }
-        break;
+            break;
 
         case 0x42:
             if (!dialogue1_Triggered[2]) {
                 *pDialogue = &dialogue_Level1_2_1;
                 dialogue1_Triggered[2] = 1;
             }
-        break;
+            break;
 
         case 0x43:
             if (!dialogue1_Triggered[3]) {
                 *pDialogue = &dialogue_Level1_3_1;
                 dialogue1_Triggered[3] = 1;
             }
-        break;
+            break;
 
         case 0x44:
             if (!dialogue1_Triggered[4]) {
                 *pDialogue = &dialogue_Level1_4_1;
                 dialogue1_Triggered[4] = 1;
             }
-        break;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -507,51 +483,50 @@ map_t Level1Map = {
     Level1Map_OnDialogueTile,
 };
 
-static const uint8_t Level2_data[32][32] =
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,63,0,0,0,0,0,0,1},
-  {1,0,32,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,66,66,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,66,66,1,0,0,0,0,0,0,1,0,0,1,1,0,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,1,50,0,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,0,0,1},
-  {1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,67,67,1},
-  {1,1,1,1,1,1,16,1,1,0,0,0,0,0,0,0,1,0,0,0,66,0,0,1,0,0,0,0,0,1,0,1},
-  {1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,16,1,0,0,66,0,0,0,1,0,0,0,67,1,1,0,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,16,1,0,0,0,67,0,0,0,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,50,1,0,0,0,67,0,0,0,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,16,1,1,1,1,1,1,16,1,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,49,0,1},
-  {1,1,1,1,1,1,0,1,66,66,66,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,1,1,1,16,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,16,50,1,1,1,1,1,0,0,0,0,0,0,1,0,50,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,66,1,1,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,16,1,1,1,1,1,0,0,0,0,0,0,1,0,1,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
-  {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,16,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,1},
-  {1,1,1,0,0,0,0,0,0,0,16,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,16,0,0,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,1,1,1},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+static const uint8_t Level2_data[32][32] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 63, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 32, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 66, 66, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 66, 66, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 50, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 66, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 66, 0, 0, 1, 0, 0, 0, 0, 0, 67, 67, 1},
+    {1, 1, 1, 1, 1, 1, 16, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 66, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 16, 1, 0, 0, 66, 0, 0, 0, 1, 0, 0, 0, 67, 1, 1, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 16, 1, 0, 0, 0, 67, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 50, 1, 0, 0, 0, 67, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 16, 1, 1, 1, 1, 1, 1, 16, 1, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 49, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 66, 66, 66, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 16, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 16, 50, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 50, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 66, 1, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 16, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 16, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1},
+    {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
 static const uint8_t Level2_bitmap_data[] = {
-    0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xbf, 0xa1, 0xa0, 0xaf, 0xa9, 0xa9, 0xa6, 0xa0, 
-0xa0, 0xbf, 0x81, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xf7, 0x04, 0xfc, 0x9f, 0x55, 0x91, 
-0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x7f, 0x00, 0x00, 0xc0, 0x40, 0x40, 0x40, 
-0x40, 0xc0, 0x07, 0x84, 0x84, 0x84, 0xfc, 0x04, 0x04, 0x04, 0x07, 0x00, 0x1f, 0x13, 0x11, 0xf3, 
-0xff, 0x80, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xbf, 0xa1, 0xa1, 0x3e, 0x32, 0x32, 
-0x2c, 0x23, 0x22, 0x22, 0x22, 0xe2, 0x3e, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0xff, 
-0xff, 0x80, 0x80, 0x80, 0x8c, 0x84, 0x80, 0x80, 0xa0, 0xb0, 0x80, 0x80, 0xdf, 0x90, 0x90, 0x90, 
-0x90, 0x90, 0x90, 0x90, 0x90, 0x9b, 0xd0, 0x90, 0x90, 0x90, 0xb0, 0x90, 0x90, 0x80, 0xf0, 0xff
+    0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xbf, 0xa1, 0xa0, 0xaf, 0xa9, 0xa9, 0xa6, 0xa0,
+    0xa0, 0xbf, 0x81, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xf7, 0x04, 0xfc, 0x9f, 0x55, 0x91,
+    0xff, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x7f, 0x00, 0x00, 0xc0, 0x40, 0x40, 0x40,
+    0x40, 0xc0, 0x07, 0x84, 0x84, 0x84, 0xfc, 0x04, 0x04, 0x04, 0x07, 0x00, 0x1f, 0x13, 0x11, 0xf3,
+    0xff, 0x80, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0x81, 0xbf, 0xa1, 0xa1, 0x3e, 0x32, 0x32,
+    0x2c, 0x23, 0x22, 0x22, 0x22, 0xe2, 0x3e, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0xff,
+    0xff, 0x80, 0x80, 0x80, 0x8c, 0x84, 0x80, 0x80, 0xa0, 0xb0, 0x80, 0x80, 0xdf, 0x90, 0x90, 0x90,
+    0x90, 0x90, 0x90, 0x90, 0x90, 0x9b, 0xd0, 0x90, 0x90, 0x90, 0xb0, 0x90, 0x90, 0x80, 0xf0, 0xff
 };
 
 const dogm128_bitmap_t Level2_bitmap = {32, 32, Level2_bitmap_data};
@@ -566,18 +541,15 @@ static const uint8_t Level2_banner_data[] = {
 
 const dogm128_bitmap_t Level2_banner = {76, 8, Level2_banner_data};
 
-
-static void Level2Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+static void Level2Map_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
-    if (stepOn) {
-        switch (eventNum) {
-            case 0xF: // teleporting to next level, done in main.c
-                if (MapEventCallback) MapEventCallback(2, 1);
-                break;
-            default:
-                break;
-        }
+    switch (eventNum) {
+        case 0xF: // teleporting to next level, done in main.c
+            if (MapEventCallback) MapEventCallback(2, 1);
+            break;
+        default:
+            break;
     }
 }
 
@@ -598,7 +570,7 @@ const dialogue_t dialogue_Level2_0_1 = {
 };
 
 const dialogue_t dialogue_Level2_1_2 = {
-    "Fock me",
+    "Fuck me",
     1300,
     NULL,
     DIALOGUE_LAYOUT_dialogue_Level2_1_2
@@ -633,38 +605,37 @@ const dialogue_t dialogue_Level2_3_1 = {
 };
 
 static void Level2Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
-    switch (tileVal)
-    {
-    case 0x40:
-        if (!dialogue2_Triggered[0]) {
-            *pDialogue = &dialogue_Level2_0_1;
-            dialogue2_Triggered[0] = 1;
-        }
-        break;
+    switch (tileVal) {
+        case 0x40:
+            if (!dialogue2_Triggered[0]) {
+                *pDialogue = &dialogue_Level2_0_1;
+                dialogue2_Triggered[0] = 1;
+            }
+            break;
 
         case 0x41:
             if (!dialogue2_Triggered[1]) {
                 *pDialogue = &dialogue_Level2_1_1;
                 dialogue2_Triggered[1] = 1;
             }
-        break;
+            break;
 
         case 0x42:
             if (!dialogue2_Triggered[2]) {
                 *pDialogue = &dialogue_Level2_2_1;
                 dialogue2_Triggered[2] = 1;
             }
-        break;
-        
+            break;
+
         case 0x43:
             if (!dialogue2_Triggered[3]) {
                 *pDialogue = &dialogue_Level2_3_1;
                 dialogue2_Triggered[3] = 1;
             }
-        break;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -681,43 +652,42 @@ map_t Level2Map = {
     Level2Map_OnDialogueTile,
 };
 
-static const uint8_t Level3_data[20][18] =
-{
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,64,0,0,32,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,1,16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,65,65,65,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,50,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,50,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,50,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,50,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1},
-  {1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,63,22},
-  {1,1,1,16,1,1,1,1,1,1,1,1,67,67,0,0,63,22},
-  {1,1,1,0,66,0,0,0,0,0,0,16,0,67,0,0,63,22},
-  {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+static const uint8_t Level3_data[20][18] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 64, 0, 0, 32, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 16, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 65, 65, 65, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 50, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 50, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 50, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 50, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 63, 22},
+    {1, 1, 1, 16, 1, 1, 1, 1, 1, 1, 1, 1, 67, 67, 0, 0, 63, 22},
+    {1, 1, 1, 0, 66, 0, 0, 0, 0, 0, 0, 16, 0, 67, 0, 0, 63, 22},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
 static const uint8_t Level3_bitmap_data[] = {
-    0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x41, 0x79, 0x09, 0x7b, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 
-0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0xe1, 0x01, 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0xf8, 0x08, 0x0f, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x60, 0x80, 0x80, 0xc0, 0x7f, 0x00, 0x7e, 0x40, 0x40, 0x7e, 0x00, 0xc0, 0x7e, 0x06, 
-0x0c, 0x06, 0x03, 0xfe, 0x00, 0x00, 0xff, 0x11, 0x11, 0x11, 0x19, 0x0f, 0x02, 0x00, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 
-0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x41, 0x79, 0x09, 0x7b, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
+    0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0xe1, 0x01, 0xff, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0xf8, 0x08, 0x0f, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x60, 0x80, 0x80, 0xc0, 0x7f, 0x00, 0x7e, 0x40, 0x40, 0x7e, 0x00, 0xc0, 0x7e, 0x06,
+    0x0c, 0x06, 0x03, 0xfe, 0x00, 0x00, 0xff, 0x11, 0x11, 0x11, 0x19, 0x0f, 0x02, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 const dogm128_bitmap_t Level3_bitmap = {32, 41, Level3_bitmap_data};
@@ -732,18 +702,15 @@ static const uint8_t Level3_banner_data[] = {
 
 const dogm128_bitmap_t Level3_banner = {76, 8, Level3_banner_data};
 
-
-static void Level3Map_OnEventTile(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue) {
+static void Level3Map_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue) {
     /* Demo: called when player steps on (stepOn=1) or off (stepOn=0)
      * an event tile.  eventNum is tile & 0x0F (0-15). */
-    if (stepOn) {
-        switch (eventNum) {
-            case 0xF: // teleporting to next level, done in main.c
-                if (MapEventCallback) MapEventCallback(3, 1);
-                break;
-            default:
-                break;
-        }
+    switch (eventNum) {
+        case 0xF: // teleporting to next level, done in main.c
+            if (MapEventCallback) MapEventCallback(3, 1);
+            break;
+        default:
+            break;
     }
 }
 
@@ -799,38 +766,37 @@ const dialogue_t dialogue_Level3_3_1 = {
 };
 
 static void Level3Map_OnDialogueTile(uint8_t tileVal, const dialogue_t **pDialogue) {
-    switch (tileVal)
-    {
-    case 0x40:
-        if (!dialogue3_Triggered[0]) {
-            *pDialogue = &dialogue_Level3_0_1;
-            dialogue3_Triggered[0] = 1;
-        }
-        break;
+    switch (tileVal) {
+        case 0x40:
+            if (!dialogue3_Triggered[0]) {
+                *pDialogue = &dialogue_Level3_0_1;
+                dialogue3_Triggered[0] = 1;
+            }
+            break;
 
         case 0x41:
             if (!dialogue3_Triggered[1]) {
                 *pDialogue = &dialogue_Level3_1_1;
                 dialogue3_Triggered[1] = 1;
             }
-        break;
+            break;
 
         case 0x42:
             if (!dialogue3_Triggered[2]) {
                 *pDialogue = &dialogue_Level3_2_1;
                 dialogue3_Triggered[2] = 1;
             }
-        break;
-        
+            break;
+
         case 0x43:
             if (!dialogue3_Triggered[3]) {
                 *pDialogue = &dialogue_Level3_3_1;
                 dialogue3_Triggered[3] = 1;
             }
-        break;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 }
 
@@ -1099,7 +1065,7 @@ const unsigned char blob_death[] = {
     0x00, 0xff, 0x07, 0xf8, 0xf8, 0x07, 0x01, 0xfe, 0x78, 0x87, 0xf0, 0x0f,
     0xff, 0x00, 0xff, 0x00, 0x01, 0xfe, 0x03, 0x00
 };
-*/
+ */
 // Generated by Mask + Color PNG Interlacer
 // Mask source: chapadlo_step1-mask.png
 // Color source: chapadlo_step1-color.png
@@ -1229,7 +1195,7 @@ const unsigned char chapadlo_death[] = {
     0xff, 0x00, 0x01, 0xfe, 0xfe, 0x01, 0xff, 0x00, 0xff, 0x00, 0x7f, 0x80,
     0xf0, 0x0f, 0x0f, 0x00
 };
-*/
+ */
 // Generated by Mask + Color PNG Interlacer
 // Mask source: ctyrrucka_step1-mask.png
 // Color source: ctyrrucka_step1-color.png
@@ -1338,7 +1304,7 @@ const unsigned char ctyrrucka_death[] = {
     0xf0, 0x0f, 0xff, 0x00, 0x8f, 0x70, 0xff, 0x00, 0xf8, 0x07, 0xff, 0x00,
     0xf1, 0x0e, 0x7f, 0x80, 0xfe, 0x01
 };
-*/
+ */
 // Generated by Mask + Color PNG Interlacer
 // Mask source: soilder_aim-mask.png
 // Color source: soilder_aim-color.png
@@ -1406,7 +1372,7 @@ const unsigned char soilder_shoot[] = {
     0xf0, 0x07, 0x1f, 0xe0, 0x7e, 0x81, 0xf8, 0x07, 0x0f, 0xf0, 0x3f, 0xc0,
     0xfc, 0x03
 };
-*/
+ */
 
 // Generated by Mask + Color PNG Interlacer
 // Mask source: soilder_step1-mask.png
@@ -1472,43 +1438,36 @@ const unsigned char soilder_step2[] = {
     0xff, 0x00
 };
 
-spriteData_t blobSprite = {BLOB_WIDTH, BLOB_HEIGHT, 
-    {(const uint8_t*)blob_step1,
-        (const uint8_t*)blob_step2,
+spriteData_t blobSprite = {BLOB_WIDTH, BLOB_HEIGHT,
+    {(const uint8_t*) blob_step1,
+        (const uint8_t*) blob_step2,
         //(const uint8_t*)blob_death,
-        (const uint8_t*)blob_step2,
-        (const uint8_t*)blob_step1,
-    },  
-};
+        (const uint8_t*) blob_step2,
+        (const uint8_t*) blob_step1,},};
 
-spriteData_t chapadloSprite = {CHAPADLO_WIDTH, CHAPADLO_HEIGHT, 
-    {(const uint8_t*)chapadlo_step1,
-        (const uint8_t*)chapadlo_step2,
+spriteData_t chapadloSprite = {CHAPADLO_WIDTH, CHAPADLO_HEIGHT,
+    {(const uint8_t*) chapadlo_step1,
+        (const uint8_t*) chapadlo_step2,
         //(const uint8_t*)chapadlo_death,
-        (const uint8_t*)chapadlo_step2,
-        (const uint8_t*)chapadlo_step1,
-    },  
-};
+        (const uint8_t*) chapadlo_step2,
+        (const uint8_t*) chapadlo_step1,},};
 
-spriteData_t ctyrruckaSprite = {CTYRRUCKA_WIDTH, CTYRRUCKA_HEIGHT, 
-    {(const uint8_t*)ctyrrucka_step1,
-        (const uint8_t*)ctyrrucka_step2,
+spriteData_t ctyrruckaSprite = {CTYRRUCKA_WIDTH, CTYRRUCKA_HEIGHT,
+    {(const uint8_t*) ctyrrucka_step1,
+        (const uint8_t*) ctyrrucka_step2,
         //(const uint8_t*)ctyrrucka_death,
-        (const uint8_t*)ctyrrucka_step2,
-        (const uint8_t*)ctyrrucka_step1,
-    },  
-};
+        (const uint8_t*) ctyrrucka_step2,
+        (const uint8_t*) ctyrrucka_step1,},};
 
-spriteData_t soilderSprite = {SOILDER_WIDTH, SOILDER_HEIGHT, 
-    {(const uint8_t*)soilder_step1,
-     (const uint8_t*)soilder_step2,
-     (const uint8_t*)soilder_step2,
-     (const uint8_t*)soilder_step1,
+spriteData_t soilderSprite = {SOILDER_WIDTH, SOILDER_HEIGHT,
+    {(const uint8_t*) soilder_step1,
+        (const uint8_t*) soilder_step2,
+        (const uint8_t*) soilder_step2,
+        (const uint8_t*) soilder_step1,
         //(const uint8_t*)soilder_death,
         //(const uint8_t*)soilder_aim,
         //(const uint8_t*)soilder_shoot
-    },  
-};
+    },};
 
 entity_t blobTemplate = {
     FX_ZERO, FX_ZERO,

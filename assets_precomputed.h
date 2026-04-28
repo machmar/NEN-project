@@ -98,12 +98,6 @@
     .rectangleOrigin = {8, 41}, \
     .rectangleSize = {79, 21}
 
-#define DIALOGUE_LAYOUT_dialogue_Level0_3_3 \
-    .lineBreaks = {0, 0, 0, 0, 0}, \
-    .textOrigins = {{32, 55}, {0, 0}, {0, 0}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {30, 53}, \
-    .rectangleSize = {35, 9}
-
 #define DIALOGUE_LAYOUT_dialogue_Level0_3_2 \
     .lineBreaks = {0, 21, 0, 0, 0}, \
     .textOrigins = {{8, 49}, {8, 55}, {0, 0}, {0, 0}, {0, 0}}, \
@@ -151,12 +145,6 @@
     .textOrigins = {{8, 43}, {8, 49}, {8, 55}, {0, 0}, {0, 0}}, \
     .rectangleOrigin = {6, 41}, \
     .rectangleSize = {83, 21}
-
-#define DIALOGUE_LAYOUT_dialogue_Level0_6_1 \
-    .lineBreaks = {0, 16, 36, 0, 0}, \
-    .textOrigins = {{10, 43}, {10, 49}, {10, 55}, {0, 0}, {0, 0}}, \
-    .rectangleOrigin = {8, 41}, \
-    .rectangleSize = {79, 21}
 
 #define DIALOGUE_LAYOUT_dialogue_Level1_0_2 \
     .lineBreaks = {0, 0, 0, 0, 0}, \

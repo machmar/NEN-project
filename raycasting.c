@@ -369,16 +369,10 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     } else if (newCellX != prevCellX || newCellY != prevCellY) {
         uint8_t newTile = MAP_AT(map, newCellX, newCellY);
 
-        /* Stepped off an event tile */
-        if (prevTile >= 0x30 && prevTile <= 0x3F) {
-            Global_OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
-            if (map->OnEventTile) map->OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
-        }
-
         /* Stepped onto an event tile */
         if (newTile >= 0x30 && newTile <= 0x3F) {
-            Global_OnEventTile(newTile & 0x0F, 1, player, pDialogue);
-            if (map->OnEventTile) map->OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+            Global_OnEventTile(newTile & 0x0F, player, pDialogue);
+            if (map->OnEventTile) map->OnEventTile(newTile & 0x0F, player, pDialogue);
         }
 
         /* Stepped onto a dialogue tile (entry only, not exit) */
@@ -410,7 +404,7 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     player->angle = angle;
 }
 
-void inline RespawnEntity(map_t *map, entity_t* entity)
+void RespawnEntity(map_t *map, entity_t* entity)
 {
     uint8_t spawnPosX;
       uint8_t spawnPosY;
@@ -791,5 +785,6 @@ void HitPlayer(player_t *player, entity_t *entity){
   if (entity->distance <= entity->hitDistance && entity->hitDelayFrames == 0 && entity->health > 0) {
     player->health -= 1;
     entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
+    backlightVal = 0;
   }
 }
