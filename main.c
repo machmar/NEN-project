@@ -25,7 +25,7 @@ static millis_t PMill = 0;
 player_t camera;
 buttons_t buttons = {0};
 static entity_t entities[MAX_ENTITIES];
-map_t *CurrentMap = &Level3Map;
+map_t *CurrentMap = &Level0Map;
 dialogue_t *CurrentDialogue = NULL;
 millis_t usePMill = 0;
 _Bool showFPS = 0;
