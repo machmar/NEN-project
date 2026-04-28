@@ -1,6 +1,7 @@
 #include <builtins.h>
 #include <xc.h>
 #include <stdint.h>
+#include <string.h>
 #include "globals.h"
 #include "dogm128_fast.h"
 #include "utils.h"
@@ -132,19 +133,25 @@ void ChangeLevel(uint8_t level) {
             break;
         case 2:
             CurrentMap = &Level2Map;
+            for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+                uint8_t type = rand16();
+                while (type > 2) type = rand16();
+                memcpy(&entities[i], enemieTemplates[type], sizeof (entity_t));
+                RespawnEntity(CurrentMap, &entities[i]);
+            }
             break;
         case 3:
             CurrentMap = &Level3Map;
+            for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+                memcpy(&entities[i], &soilderTemplate, sizeof (entity_t));
+                RespawnEntity(CurrentMap, &entities[i]);
+            }
             break;
     }
 
     camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
     camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
 
-    for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
-        RespawnEntity(CurrentMap, &entities[i]);
-    }
-    
     currentLevelNum = level;
 }
 
@@ -229,99 +236,6 @@ void main(void) {
     camera.kills = 0;
 
     char buf[10];
-
-    entities[0].posX = FX(5);
-    entities[0].posY = FX(5);
-    entities[0].health = 100;
-    entities[0].sprite = &blobSprite;
-    entities[0].ratio = 0x00c0;
-    entities[0].heightOffset = FX(1);
-    entities[0].walking = 1;
-    entities[0].movementModifier = FX(1);
-    entities[0].lateralModifier = FX(1);
-    entities[0].hitDistance = FX(3);
-
-    entities[1].posX = FX(8);
-    entities[1].posY = FX(8);
-    entities[1].health = 100;
-    entities[1].sprite = &ctyrruckaSprite;
-    entities[1].ratio = FX(1);
-    entities[1].heightOffset = FX(0);
-    entities[1].walking = 1;
-    entities[1].movementModifier = FX(2); // 1.5625
-    entities[1].lateralModifier = FX(1);
-    entities[1].hitDistance = FX(4);
-
-    entities[2].posX = FX(3);
-    entities[2].posY = FX(3);
-    entities[2].health = 100;
-    entities[2].sprite = &chapadloSprite;
-    entities[2].ratio = 0X00C0;
-    entities[2].heightOffset = FX(0);
-    entities[2].walking = 1;
-    entities[2].movementModifier = 0X01C0;
-    entities[2].lateralModifier = FX(1);
-    entities[2].hitDistance = FX(6);
-
-    entities[3].posX = FX(6);
-    entities[3].posY = FX(2);
-    entities[3].health = 100;
-    entities[3].sprite = &soilderSprite;
-    entities[3].ratio = 0X0120;
-    entities[3].heightOffset = FX(0);
-    entities[3].walking = 1;
-    entities[3].movementModifier = FX(3);
-    entities[3].lateralModifier = FX(1);
-    entities[3].hitDistance = FX(20);
-
-    entities[4].posX = FX(7);
-    entities[4].posY = FX(9);
-    entities[4].health = 100;
-    entities[4].sprite = &ctyrruckaSprite;
-    entities[4].ratio = FX(1);
-    entities[4].heightOffset = FX(0);
-    entities[4].walking = 0;
-    /*
-        entities[5].posX = FX(18);
-        entities[5].posY = FX(1);
-        entities[5].health = 100;
-        entities[5].sprite = &soilderSprite;
-        entities[5].ratio = FX(1);
-        entities[5].heightOffset = FX(0);
-        entities[5].walking = 0;
-
-        entities[6].posX = FX(1);
-        entities[6].posY = FX(14);
-        entities[6].health = 100;
-        entities[6].sprite = &blobSprite;
-        entities[6].ratio = FX(1);
-        entities[6].heightOffset = FX(0);
-        entities[6].walking = 0;
-
-        entities[7].posX = FX(9);
-        entities[7].posY = FX(10);
-        entities[7].health = 100;
-        entities[7].sprite = &chapadloSprite;
-        entities[7].ratio = FX(1);
-        entities[7].heightOffset = FX(0);
-        entities[7].walking = 0;
-
-        entities[8].posX = FX(10);
-        entities[8].posY = FX(16);
-        entities[8].health = 100;
-        entities[8].sprite = &chapadloSprite;
-        entities[8].ratio = FX(1);
-        entities[8].heightOffset = FX(0);
-        entities[8].walking = 0;
-
-        entities[9].posX = FX(6);
-        entities[9].posY = FX(7);
-        entities[9].health = 100;
-        entities[9].sprite = &chapadloSprite;
-        entities[9].ratio = FX(1);
-        entities[9].heightOffset = FX(0);
-        entities[9].walking = 0;
-     */
 
     while (1) {
         static millis_t PMill = 0;

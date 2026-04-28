@@ -123,5 +123,17 @@ extern spriteData_t chapadloSprite;
 extern spriteData_t ctyrruckaSprite;
 extern spriteData_t soilderSprite;
 
+extern entity_t blobTemplate;
+extern entity_t chapadloTemplate;
+extern entity_t ctyrruckaTemplate;
+extern entity_t soilderTemplate;
+
+entity_t *enemieTemplates[4] = {
+    &blobTemplate,
+    &chapadloTemplate,
+    &ctyrruckaTemplate,
+    &soilderTemplate,
+};
+
 #endif	/* ASSETS_H */
 

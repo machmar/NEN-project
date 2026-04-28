@@ -1510,3 +1510,62 @@ spriteData_t soilderSprite = {SOILDER_WIDTH, SOILDER_HEIGHT,
     },  
 };
 
+entity_t blobTemplate = {
+    FX_ZERO, FX_ZERO,
+    0,
+    1,
+    0,
+    1,
+    FX(3),
+    0,
+    &blobSprite,
+    0x00C0,
+    FX_ONE,
+    FX(1),
+    FX(1),
+};
+
+entity_t chapadloTemplate = {
+    FX_ZERO, FX_ZERO,
+    0,
+    1,
+    0,
+    1,
+    FX(6),
+    0,
+    &chapadloSprite,
+    0x00C0,
+    FX_ZERO,
+    0x01C0,
+    FX(1),
+};
+
+entity_t ctyrruckaTemplate = {
+    FX_ZERO, FX_ZERO,
+    0,
+    1,
+    0,
+    1,
+    FX(4),
+    0,
+    &ctyrruckaSprite,
+    FX_ONE,
+    FX_ZERO,
+    FX(2),
+    FX(1),
+};
+
+entity_t soilderTemplate = {
+    FX_ZERO, FX_ZERO,
+    0,
+    1,
+    0,
+    1,
+    FX(20),
+    0,
+    &soilderSprite,
+    0x0120,
+    FX_ZERO,
+    FX(3),
+    FX(1),
+};
