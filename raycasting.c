@@ -410,6 +410,23 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     player->angle = angle;
 }
 
+void inline RespawnEntity(map_t *map, entity_t* entity)
+{
+    uint8_t spawnPosX;
+      uint8_t spawnPosY;
+      do {
+        spawnPosX = (rand16() & 0x7fff) % map->width;
+        spawnPosY = (rand16() & 0x7fff) % map->height;
+      } while (MAP_AT(map, spawnPosX, spawnPosY) != 0x00);
+
+      entity->posX = FX(spawnPosX);
+      entity->posY = FX(spawnPosY);
+      entity->health = 1;
+      entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
+      entity->heightOffset = FX_ZERO;
+      entity->ratio = FX_ONE;
+}
+
 void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons, map_t *map)
 {
   static uint8_t prevFrames = 0;
@@ -501,19 +518,7 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     if (health > 0) {
       e->lineOfSight = inHorizontalFov;
     } else if (!inHorizontalFov) {
-      uint8_t spawnPosX;
-      uint8_t spawnPosY;
-      do {
-        spawnPosX = (rand16() & 0x7fff) % map->width;
-        spawnPosY = (rand16() & 0x7fff) % map->height;
-      } while (MAP_AT(map, spawnPosX, spawnPosY) != 0x00);
-
-      e->posX = FX(spawnPosX);
-      e->posY = FX(spawnPosY);
-      e->health = 1;
-      e->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
-      e->heightOffset = FX_ZERO;
-      e->ratio = FX_ONE;
+      //RespawnEntity(e, map);
       continue;
     }
 

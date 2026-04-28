@@ -20,6 +20,18 @@
 #pragma config LVP = OFF
 #pragma config PBADEN = OFF
 
+static millis_t PMill = 0;
+player_t camera;
+buttons_t buttons = {0};
+static entity_t entities[MAX_ENTITIES];
+map_t *CurrentMap = &Level0Map;
+dialogue_t *CurrentDialogue = NULL;
+millis_t usePMill = 0;
+uint16_t backlightVal = 1023;
+_Bool showFPS = 0;
+uint8_t menuOpen = 0;
+uint8_t currentLevelNum = 0;
+
 void init_ports(void) {
     ADCON1 = 0x0F; // all pins digital
 
@@ -110,7 +122,31 @@ void Backlight(uint16_t duty10) {
     CCP1CONbits.DC1B = duty10 & 0x03; // lower 2 bits
 }
 
-uint8_t menuOpen = 0;
+void ChangeLevel(uint8_t level) {
+    switch (level) {
+        case 0:
+            CurrentMap = &Level0Map;
+            break;
+        case 1:
+            CurrentMap = &Level1Map;
+            break;
+        case 2:
+            CurrentMap = &Level2Map;
+            break;
+        case 3:
+            CurrentMap = &Level3Map;
+            break;
+    }
+
+    camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
+    camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
+
+    for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+        RespawnEntity(CurrentMap, &entities[i]);
+    }
+    
+    currentLevelNum = level;
+}
 
 void DrawMenu(buttons_t state, bool disallow_resume) {
     if (menuOpen == 0) {
@@ -126,6 +162,8 @@ void DrawMenu(buttons_t state, bool disallow_resume) {
     dogm128_hline(0, 64 - 7, 128, DISP_COL_BLACK);
     dogm128_text(1, 64 - 5, "resume");
     dogm128_text(127 - 20, 64 - 5, "reset");
+    dogm128_text(30, 64 - 5, "fps");
+    if (showFPS) dogm128_text(64 - 10, 64 - 5, "level");
 
     if (menuOpen == 2) {
         if (state.back && !disallow_resume) menuOpen = 0;
@@ -133,44 +171,40 @@ void DrawMenu(buttons_t state, bool disallow_resume) {
             WDTCONbits.SWDTEN = 1;
             while (1);
         }
+        if (state.front) {
+            showFPS = !showFPS;
+            menuOpen = 0;
+        }
+        if (state.use && showFPS) {
+            currentLevelNum++;
+            if (currentLevelNum > 3)
+                currentLevelNum = 0;
+            ChangeLevel(currentLevelNum);
+            menuOpen = 0;
+        }
     }
 }
-
-static millis_t PMill = 0;
-player_t camera;
-buttons_t buttons = {0};
-static entity_t entities[MAX_ENTITIES];
-map_t *CurrentMap = &Level0Map;
-dialogue_t *CurrentDialogue = NULL;
-millis_t usePMill = 0;
-uint16_t backlightVal = 1023;
 
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
     // param1 = eventNum (tile & 0x0F), param2 = stepOn
     if (param1 == 0 && param2 == 1) { // stepped on teleportation tile in Level0
         //backlightVal = 300;
-        CurrentMap = &Level1Map;
-        camera.posX = FX(Level1Map.DefaultSpwanPoint[0]);
-        camera.posY = FX(Level1Map.DefaultSpwanPoint[1]);
+        ChangeLevel(1);
     }
-    
+
     if (param1 == 1 && param2 == 1) { // stepped on teleportation tile in Level1
         //backlightVal = 300;
-        CurrentMap = &Level2Map;
-        camera.posX = FX(Level2Map.DefaultSpwanPoint[0]);
-        camera.posY = FX(Level2Map.DefaultSpwanPoint[1]);
+        ChangeLevel(2);
     }
-    
+
     if (param1 == 2 && param2 == 1) { // stepped on teleportation tile in Level1
         //backlightVal = 300;
-        CurrentMap = &Level3Map;
-        camera.posX = FX(Level3Map.DefaultSpwanPoint[0]);
-        camera.posY = FX(Level3Map.DefaultSpwanPoint[1]);
+        ChangeLevel(3);
     }
 }
 
 void main(void) {
-    WDTCONbits.SWDTEN = 0;   // disable WDT
+    WDTCONbits.SWDTEN = 0; // disable WDT
     init_ports();
     initDisplay();
     pwm_ccp1_init();
@@ -301,8 +335,10 @@ void main(void) {
             dogm128_clear();
             MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
             RenderFrame(&camera, CurrentMap);
-            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons, CurrentMap);
-            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
+            if (CurrentMap != &Level0Map && CurrentMap != &Level1Map) {
+                DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons, CurrentMap);
+                EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
+            }
 
             HUD_DrawBorders();
             HUD_DrawItem(camera.currentItem);
@@ -324,7 +360,7 @@ void main(void) {
                 // use button available for future interactions
                 usePMill = millis;
             }
-            
+
             if (camera.health == 0) {
                 dogm128_fill_rect((96 / 2) - 25, (64 / 2) - 10, 50, 20, DISP_COL_WHITE);
                 dogm128_text((96 / 2) - 6, (64 / 2) - 2, "RIP");
@@ -337,10 +373,12 @@ void main(void) {
 
 
         // display FPS in the corner for testing
-        frame_length = millis - PMill;
-        utoa_mine(1000 / frame_length, buf, 0);
-        dogm128_text(0, 0, buf);
-        
+        if (showFPS) {
+            frame_length = millis - PMill;
+            utoa_mine(1000 / frame_length, buf, 0);
+            dogm128_text(0, 0, buf);
+        }
+
         dogm128_refresh();
         set_LEDs(HUD_GetLEDHP(camera.health));
         Backlight(backlightVal);
