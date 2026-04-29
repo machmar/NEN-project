@@ -30,8 +30,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 
-#define PLAYER_HIT_FRAME_DELAY 50
-#define FRAMES_PER_WALK_ANIMATE 16
+#define FRAME_BASE_MS 40u
+#define SOLDIER_FRAME_BASE_MS 77u
+#define PLAYER_HIT_COOLDOWN_MS (50u * FRAME_BASE_MS)
+#define SOLDIER_HIT_COOLDOWN_MS (50u * SOLDIER_FRAME_BASE_MS)
+#define ENTITY_HIT_DELAY_MS (30u * FRAME_BASE_MS)
+#define WALK_ANIMATE_MS (16u * FRAME_BASE_MS)
+#define SOLDIER_AIM_MS (10u * SOLDIER_FRAME_BASE_MS)
+#define SOLDIER_SHOOT_MS (4u * SOLDIER_FRAME_BASE_MS)
+#define DAMAGE_FLASH_MS 180u
 #define SCREEN_WIDTH 128
 #define VIEWPORT_WIDTH_PIXELS (screenWidth << 1)
 #define VIEWPORT_HALF_W (VIEWPORT_WIDTH_PIXELS >> 1)
@@ -60,6 +67,7 @@ void HitPlayer(player_t *player, entity_t *entity);
 static uint8_t g_draw_leftVisibleRows[8];
 static uint8_t g_draw_currentVisibleRows[8];
 static const fx_t BASE_ENEMY_MOVE_SPEED = FX_ONE;
+volatile millis_t damageFlashUntilMs = 0;
 
 static void DrawEntities_ClearRows(uint8_t *rows)
 {
@@ -99,6 +107,8 @@ static void DrawEntities_ApplyStripeMasks(uint8_t *display_buffer,
 int RenderFrame(player_t *player, const map_t *map)
 {
     int x;
+    fx_t posX = player->posX;
+    fx_t posY = player->posY;
 
     for (x = 0; x < screenWidth; x++) {
         fx_t cameraX = cameraX_lut[x];
@@ -108,8 +118,8 @@ int RenderFrame(player_t *player, const map_t *map)
         fx_t rayDirY = fx_add(player->dirY, fx_mul(player->planeY, cameraX));
 
         /* map cell */
-        int mapX = FX_TO_INT(player->posX);
-        int mapY = FX_TO_INT(player->posY);
+        int mapX = FX_TO_INT(posX);
+        int mapY = FX_TO_INT(posY);
 
         /* delta distances */
         fx_t deltaDistX;
@@ -135,18 +145,18 @@ int RenderFrame(player_t *player, const map_t *map)
         /* initial step and sidedist */
         if (rayDirX < 0) {
             stepX = -1;
-            sideDistX = fx_mul(fx_sub(player->posX, FX_FROM_INT(mapX)), deltaDistX);
+            sideDistX = fx_mul(fx_sub(posX, FX_FROM_INT(mapX)), deltaDistX);
         } else {
             stepX = 1;
-            sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), player->posX), deltaDistX);
+            sideDistX = fx_mul(fx_sub(FX_FROM_INT(mapX + 1), posX), deltaDistX);
         }
 
         if (rayDirY < 0) {
             stepY = -1;
-            sideDistY = fx_mul(fx_sub(player->posY, FX_FROM_INT(mapY)), deltaDistY);
+            sideDistY = fx_mul(fx_sub(posY, FX_FROM_INT(mapY)), deltaDistY);
         } else {
             stepY = 1;
-            sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), player->posY), deltaDistY);
+            sideDistY = fx_mul(fx_sub(FX_FROM_INT(mapY + 1), posY), deltaDistY);
         }
 
         /* DDA */
@@ -300,10 +310,10 @@ _Bool inline TileWalkable(uint8_t type) {
 int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dialogue_t **pDialogue, bool dont_scale) {
     //move forward if no wall in front of you
     fx_t moveSpeed = FX_ONE; //the constant value is in squares/quatersecond
-    fx_t rotSpeed = 0x0028; //the constant value is in radians/quatersecond (0.1PI per frame)
+    fx_t rotSpeed = 0x0028; // base turn rate; scaled by elapsed milliseconds below
     uint8_t tile = 0; // the tile that's being walked into
     static millis_t PrevCallTime = 0;
-    fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between frames is 255, we want to apply whole entire movement
+    fx_t movementMultiplier = (fx_t)(millis - PrevCallTime); // if the time between calls is 255 ms, we want to apply one whole movement unit
     movementMultiplier = movementMultiplier < 0x10 ? 0x10 : movementMultiplier;
     // because 255 in fx_t is equal to 1, 512ms will make it 2, therefor it'll get applied twice to compensate
     PrevCallTime = millis;
@@ -313,43 +323,51 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     static uint8_t prevCellX = 0xFF; // 0xFF = sentinel (uninitialized)
     static uint8_t prevCellY = 0xFF;
     static uint8_t prevTile = 0;
-    if (buttons.front) {
-        tile = MAP_AT(map, FX_I(fx_add(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
-        if (TileWalkable(tile))
-            player->posX = fx_add(player->posX, fx_mul(player->dirX, moveSpeed));
 
-        tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_add(player->posY, fx_mul(player->dirY, moveSpeed))));
+    fx_t posX = player->posX;
+    fx_t posY = player->posY;
+    fx_t dirX = player->dirX;
+    fx_t dirY = player->dirY;
+    fx_t angle = player->angle;
+
+
+    if (buttons.front) {
+        tile = MAP_AT(map, FX_I(fx_add(posX, fx_mul(dirX, moveSpeed))), FX_I(posY));
         if (TileWalkable(tile))
-            player->posY = fx_add(player->posY, fx_mul(player->dirY, moveSpeed));
+            posX = fx_add(posX, fx_mul(dirX, moveSpeed));
+
+        tile = MAP_AT(map, FX_I(posX), FX_I(fx_add(posY, fx_mul(dirY, moveSpeed))));
+        if (TileWalkable(tile))
+            posY = fx_add(posY, fx_mul(dirY, moveSpeed));
     }
     //move backwards if no wall behind you
     if (buttons.back) {
-        tile = MAP_AT(map, FX_I(fx_sub(player->posX, fx_mul(player->dirX, moveSpeed))), FX_I(player->posY));
+        tile = MAP_AT(map, FX_I(fx_sub(posX, fx_mul(dirX, moveSpeed))), FX_I(posY));
         if (TileWalkable(tile))
-            player->posX = fx_sub(player->posX, fx_mul(player->dirX, moveSpeed));
+            posX = fx_sub(posX, fx_mul(dirX, moveSpeed));
 
-        tile = MAP_AT(map, FX_I(player->posX), FX_I(fx_sub(player->posY, fx_mul(player->dirY, moveSpeed))));
+        tile = MAP_AT(map, FX_I(posX), FX_I(fx_sub(posY, fx_mul(dirY, moveSpeed))));
         if (TileWalkable(tile))
-            player->posY = fx_sub(player->posY, fx_mul(player->dirY, moveSpeed));
+            posY = fx_sub(posY, fx_mul(dirY, moveSpeed));
     }
     //rotate to the right
     if (buttons.right)
-        player->angle = fx_add(player->angle, rotSpeed);
+        angle = fx_add(angle, rotSpeed);
     //rotate to the left
     if (buttons.left)
-        player->angle = fx_sub(player->angle, rotSpeed);
+        angle = fx_sub(angle, rotSpeed);
 
     //reconstruct dir and plane from angle (eliminates fixed-point drift)
     if (buttons.right || buttons.left) {
-        player->dirX = fx_cos(player->angle);
-        player->dirY = fx_sin(player->angle);
-        player->planeX = fx_mul(player->dirY, (fx_t) 0x00a9);
-        player->planeY = fx_neg(fx_mul(player->dirX, (fx_t) 0x00a9));
+        dirX = fx_cos(angle);
+        dirY = fx_sin(angle);
+        player->planeX = fx_mul(dirY, (fx_t) 0x00a9);
+        player->planeY = fx_neg(fx_mul(dirX, (fx_t) 0x00a9));
     }
 
     /* Tile-change detection: fire map callbacks when the player enters a new cell */
-    uint8_t newCellX = (uint8_t)FX_I(player->posX);
-    uint8_t newCellY = (uint8_t)FX_I(player->posY);
+    uint8_t newCellX = (uint8_t)FX_I(posX);
+    uint8_t newCellY = (uint8_t)FX_I(posY);
 
     if (prevCellX == 0xFF) {
         /* First call: initialise tracking without firing any callbacks */
@@ -359,30 +377,61 @@ int MoveCamera(player_t *player, const map_t *map, buttons_t buttons, const dial
     } else if (newCellX != prevCellX || newCellY != prevCellY) {
         uint8_t newTile = MAP_AT(map, newCellX, newCellY);
 
-        /* Stepped off an event tile */
-        if (prevTile >= 0x30 && prevTile <= 0x3F && map->OnEventTile)
-            map->OnEventTile(prevTile & 0x0F, 0, player, pDialogue);
-
         /* Stepped onto an event tile */
-        if (newTile >= 0x30 && newTile <= 0x3F && map->OnEventTile)
-            map->OnEventTile(newTile & 0x0F, 1, player, pDialogue);
+        if (newTile >= 0x30 && newTile <= 0x3F) {
+            Global_OnEventTile(newTile & 0x0F, player, pDialogue);
+            if (map->OnEventTile) map->OnEventTile(newTile & 0x0F, player, pDialogue);
+        }
 
         /* Stepped onto a dialogue tile (entry only, not exit) */
         if (newTile >= 0x40 && newTile <= 0xEF && map->OnDialogueTile)
             map->OnDialogueTile(newTile, pDialogue);
 
-        prevCellX = newCellX;
-        prevCellY = newCellY;
-        prevTile  = newTile;
+        /* Event callbacks may teleport or otherwise mutate player state. */
+        if (player->posX != posX || player->posY != posY ||
+          player->dirX != dirX || player->dirY != dirY ||
+          player->angle != angle) {
+          posX = player->posX;
+          posY = player->posY;
+          dirX = player->dirX;
+          dirY = player->dirY;
+          angle = player->angle;
+          prevCellX = 0xFF;
+          prevCellY = 0xFF;
+          prevTile = 0;
+        } else {
+          prevCellX = newCellX;
+          prevCellY = newCellY;
+          prevTile  = newTile;
+        }
     }
-
-    return 0;
+    player->posX = posX;
+    player->posY = posY;
+    player->dirX = dirX;
+    player->dirY = dirY;
+    player->angle = angle;
 }
 
-void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons)
+void RespawnEntity(map_t *map, entity_t* entity)
 {
-  static uint8_t prevFrames = 0;
-  prevFrames++;
+    uint8_t spawnPosX;
+      uint8_t spawnPosY;
+      do {
+        spawnPosX = (rand16() & 0x7fff) % map->width;
+        spawnPosY = (rand16() & 0x7fff) % map->height;
+      } while (MAP_AT(map, spawnPosX, spawnPosY) != 0x00);
+
+      entity->posX = FX(spawnPosX);
+      entity->posY = FX(spawnPosY);
+      entity->health = 1;
+      entity->hitDelayMs = entity->sprite == &soilderSprite ? SOLDIER_HIT_COOLDOWN_MS : PLAYER_HIT_COOLDOWN_MS;
+}
+
+void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t *display_buffer, buttons_t buttons, map_t *map)
+{
+  static millis_t prevCallMillis = 0;
+  uint16_t elapsedMs = (uint16_t)(millis - prevCallMillis);
+  prevCallMillis = millis;
   if (amount <= 0)
       return;
   if (amount > MAX_ENTITIES)
@@ -433,24 +482,25 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
   {
     entity_t *e = &entities[renderOrder[i]];
     spriteData_t *sprite = e->sprite;
+    fx_t distance = e->distance;
+    fx_t health = e->health;
 
-    if (e->distance < FX_ZERO){
+    if (distance < FX_ZERO){
       e->lineOfSight = 0;
-      e->hitDelayFrames = 30;
+      e->hitDelayMs = ENTITY_HIT_DELAY_MS;
       e->distance = FX(127);
       continue;
     }
 
     static uint8_t walkSprite = 0;
-    if(e->walking && prevFrames > FRAMES_PER_WALK_ANIMATE){
+    static millis_t prevWalkSpriteMillis = 0;
+    if(e->walking && (uint16_t)(millis - prevWalkSpriteMillis) >= WALK_ANIMATE_MS){
       walkSprite ^= 1;
-      prevFrames = 0;
+      prevWalkSpriteMillis = millis;
     }
     uint8_t usedSprite = walkSprite;
-    if(e->health <= 0){
-      e->heightOffset = 0x2800;
-      e->ratio = 0x0060;
-      usedSprite = 0; // death frame
+    if(health <= 0){
+      usedSprite = 2;
     }
 
     // Translate sprite position relative to camera.
@@ -462,13 +512,21 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     // Transform sprite with inverse camera matrix.
     fx_t transformX = fx_mul(invDet, cameraX);
     fx_t transformY = fx_mul(invDet, cameraY);
-    if (transformY <= FX_RAW(32)){
-      e->lineOfSight = 0;
-      e->hitDelayFrames = 30;
+    bool inFront = (transformY > FX_RAW(32));
+    bool inHorizontalFov = inFront && ((int32_t)fx_abs_fast(transformX) <= (int32_t)transformY * 2);
+
+    if (health > 0) {
+      e->lineOfSight = inHorizontalFov;
+    } else if (!inHorizontalFov) {
+        RespawnEntity(map, e);
       continue;
     }
-  
-    if ((int32_t)fx_abs_fast(transformX) > (int32_t)transformY * 2)
+
+    if (!inFront) {
+      e->hitDelayMs = ENTITY_HIT_DELAY_MS;
+      continue;
+    }
+    if (!inHorizontalFov)
       continue;
 
     // Use one reciprocal for several projections to reduce expensive fixed-point divisions.
@@ -506,6 +564,10 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
       if ((uint8_t)(centerX - 41) < 15) { // aim tolerance of +-8 pixels around center of screen
         hitTarget = renderOrder[i];
       }
+      else if (player->currentItem == ITEM_KNIFE) {
+        // Allow hitting by proximity if not aiming near the center of the screen, but only for close targets to avoid accidental hits on far away entities.
+        hitTarget = renderOrder[i];
+      }
     }
 
     // Incremental texture mapping removes divisions from inner loops.
@@ -518,21 +580,23 @@ void DrawEntities(player_t *player, entity_t* entities,  uint8_t amount, uint8_t
     uint16_t texYStart = (uint16_t)(texYBase * texHeight) / (uint16_t)spriteHeight;
     uint16_t texXAdvance;
       
-    /*
-    else if (e->hitDelayFrames < 4)
-      usedSprite = 4;
-    else if (e->hitDelayFrames <= 10)
-      usedSprite = 3;
-    */
+    if (health > 0 && sprite == &soilderSprite) {
+      if (e->hitDelayMs < SOLDIER_SHOOT_MS)
+        usedSprite = 4;
+      else if (e->hitDelayMs <= SOLDIER_AIM_MS)
+        usedSprite = 3;
+    }
     const uint8_t *spriteFrame = sprite->data[usedSprite];
 
-    uint8_t pixelStride = (e->distance < FX(6)) ? ((e->distance < FX(3)) ? 1 : 1) : 1;
+    uint8_t pixelStride = (distance < FX(6)) ? ((distance < FX(3)) ? 4 : 2) : 1;
     DrawEntities_ClearRows(g_draw_leftVisibleRows);
     texXAdvance = (uint16_t)(texXStep * pixelStride);
 
-    e->lineOfSight = 1;
-    if (e->hitDelayFrames > 0)
-      e->hitDelayFrames--;
+      // Old frame timers used 25 FPS as their baseline; 1 frame is now 40 ms.
+    if (e->hitDelayMs > elapsedMs)
+      e->hitDelayMs -= elapsedMs;
+    else
+      e->hitDelayMs = 0;
     HitPlayer(player, e);
 
     for (uint8_t stripe = (uint8_t)drawStartX; stripe < drawEndX; stripe += pixelStride)
@@ -651,7 +715,11 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, b
 
   for(uint8_t i = 0; i < amount; i++){
     entity_t *e = &entities[i];
-    if(e->health <= 0 || e->distance == FX(127))
+    fx_t distance = e->distance;
+    fx_t lateralModifier = e->lateralModifier;
+    fx_t posX = e->posX;
+    fx_t posY = e->posY;
+    if(e->health <= 0 || distance == FX(127))
       continue;
 
     if (!e->lineOfSight) {
@@ -665,12 +733,12 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, b
       int16_t amplitude = FX_I(e->movementModifier);
       uint8_t randomByte = (uint8_t)rand16();
       e->lateralModifier = (randomByte * amplitude);
-      if (randomByte > 127) e->lateralModifier |= 0xff00;
+      if (randomByte > 127) lateralModifier |= 0xff00;
     }
 
       
     // Keep a small body radius around the player to prevent overlap/pushing.
-    if (e->distance < FX_RAW(64)) {
+    if (distance < FX_RAW(64)) {
       e->walking = 0;
       continue;
     }
@@ -678,32 +746,32 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, b
     fx_t dx = fx_sub(
         fx_add(
             fx_add(playerPosX, playerDirX),
-            fx_mul(fx_neg(playerDirY), e->lateralModifier)
+            fx_mul(fx_neg(playerDirY), lateralModifier)
         ),
-        e->posX
+        posX
     );
     fx_t dy = fx_sub(
         fx_add(
             fx_add(playerPosY, playerDirY),
-            fx_mul(playerDirX, e->lateralModifier)
+            fx_mul(playerDirX, lateralModifier)
         ),
-        e->posY
+        posY
     );
-    fx_t invDistance = fx_div(FX(1), e->distance);
+    fx_t invDistance = fx_div(FX(1), distance);
     fx_t dirX = fx_mul(dx, invDistance);
     fx_t dirY = fx_mul(dy, invDistance);
 
     // Scaling speed with distance
-    fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(e->distance, 0X0020));
+    fx_t moveSpeed = fx_mul(BASE_ENEMY_MOVE_SPEED, fx_mul(distance, 0X0020));
     moveSpeed = fx_mul(moveSpeed, (fx_t)sinceLastCall); // check player move to understand
-    uint8_t tileX = MAP_AT(map, FX_I(fx_add(e->posX, dirX)), FX_I(e->posY));
-    uint8_t tileY = MAP_AT(map, FX_I(e->posX), FX_I(fx_add(e->posY, dirY)));
+    uint8_t tileX = MAP_AT(map, FX_I(fx_add(posX, dirX)), FX_I(posY));
+    uint8_t tileY = MAP_AT(map, FX_I(posX), FX_I(fx_add(posY, dirY)));
 
-    if (tileX <= 0x00 || tileX >= 0x0f)
-        e->posX = fx_add(e->posX, fx_mul(dirX, moveSpeed));
+    if (TileWalkable(tileX))
+        e->posX = fx_add(posX, fx_mul(dirX, moveSpeed));
 
-    if (tileY <= 0x00 || tileY >= 0x0f)
-      e->posY = fx_add(e->posY, fx_mul(dirY, moveSpeed));
+    if (TileWalkable(tileY))
+      e->posY = fx_add(posY, fx_mul(dirY, moveSpeed));
 
     e->walking = 1;
   }
@@ -712,16 +780,20 @@ void EnemyAi(player_t *player, entity_t *entities, uint8_t amount, map_t *map, b
 
 void HitDetection(player_t *player, entity_t *entities){
   fx_t hitDistance = FX_ZERO;
-  if(player->currentItem == ITEM_GUN) hitDistance = FX(50);
-  else if(player->currentItem == ITEM_KNIFE) hitDistance = FX(2);
-  if (entities->distance < hitDistance) {
+  item_t item = player->currentItem;
+  if(item == ITEM_GUN) hitDistance = FX(50);
+  else if(item == ITEM_KNIFE) hitDistance = FX(2);
+  if (entities->distance < hitDistance && entities->health > 0) {
     entities->health = 0;
+    player->kills++;
   }
 }
 
 void HitPlayer(player_t *player, entity_t *entity){
-  if (entity->distance <= entity->hitDistance && entity->hitDelayFrames == 0 && entity->health > 0) {
+  if (entity->distance <= entity->hitDistance && entity->hitDelayMs == 0 && entity->health > 0) {
     player->health -= 1;
-    entity->hitDelayFrames = PLAYER_HIT_FRAME_DELAY;
+    entity->hitDelayMs = entity->sprite == &soilderSprite ? SOLDIER_HIT_COOLDOWN_MS : PLAYER_HIT_COOLDOWN_MS;
+    backlightVal = 0;
+    damageFlashUntilMs = millis + DAMAGE_FLASH_MS;
   }
 }

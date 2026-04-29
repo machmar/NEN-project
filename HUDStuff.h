@@ -16,11 +16,11 @@ void HUD_DrawBanner(const dogm128_bitmap_t *text);
 void HUD_DrawMap(map_t *map, const player_t *player);
 void HUD_DrawBorders();
 void HUD_DrawItem(item_t item);
-void HUD_DrawCompass(const player_t *player);
-void HUD_DrawStats(const player_t *player);
-void HUD_DrawItemPOV(const player_t *player, _Bool use);
+void HUD_DrawCompass(fx_t angle, fx_t dirX, fx_t dirY);
+void HUD_DrawStats(uint8_t health, uint8_t kills);
+void HUD_DrawItemPOV(const item_t playerItem, _Bool use);
 _Bool HUD_DrawDialogue(const dialogue_t **dialogue, _Bool advance);
-uint8_t HUD_GetLEDHP(const player_t *player);
+uint8_t HUD_GetLEDHP(fx_t health);
 
 #endif	/* HUDSTUFF_H */
 

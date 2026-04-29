@@ -1,6 +1,7 @@
 #include <builtins.h>
 #include <xc.h>
 #include <stdint.h>
+#include <string.h>
 #include "globals.h"
 #include "dogm128_fast.h"
 #include "utils.h"
@@ -19,6 +20,17 @@
 #pragma config WDTPS = 1        // shortest timeout (~4 ms typical)
 #pragma config LVP = OFF
 #pragma config PBADEN = OFF
+
+static millis_t PMill = 0;
+player_t camera;
+buttons_t buttons = {0};
+static entity_t entities[MAX_ENTITIES];
+map_t *CurrentMap = &Level0Map;
+dialogue_t *CurrentDialogue = NULL;
+millis_t usePMill = 0;
+_Bool showFPS = 0;
+uint8_t menuOpen = 0;
+uint8_t currentLevelNum = 0;
 
 void init_ports(void) {
     ADCON1 = 0x0F; // all pins digital
@@ -110,12 +122,46 @@ void Backlight(uint16_t duty10) {
     CCP1CONbits.DC1B = duty10 & 0x03; // lower 2 bits
 }
 
-uint8_t menuOpen = 0;
+void ChangeLevel(uint8_t level) {
+    switch (level) {
+        case 0:
+            CurrentMap = &Level0Map;
+            break;
+        case 1:
+            CurrentMap = &Level1Map;
+            break;
+        case 2:
+            CurrentMap = &Level2Map;
+            for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+                uint8_t type = rand16();
+                while (type > 2) type = rand16();
+                memcpy(&entities[i], enemieTemplates[type], sizeof (entity_t));
+                RespawnEntity(CurrentMap, &entities[i]);
+            }
+            break;
+        case 3:
+            CurrentMap = &Level3Map;
+            for (uint8_t i = 0; i < MAX_ENTITIES; i++) {
+                memcpy(&entities[i], &soilderTemplate, sizeof (entity_t));
+                RespawnEntity(CurrentMap, &entities[i]);
+            }
+            break;
+    }
 
-void DrawMenu(buttons_t state) {
+    camera.posX = FX(CurrentMap->DefaultSpwanPoint[0]);
+    camera.posY = FX(CurrentMap->DefaultSpwanPoint[1]);
+
+    currentLevelNum = level;
+}
+
+void DrawMenu(buttons_t state, bool disallow_resume) {
     if (menuOpen == 0) {
         if (state.all >= 0b11111) menuOpen = 1;
         else return;
+    }
+    if (menuOpen >= 100) {
+        // game end
+        return;
     }
     if (menuOpen == 1) {
         if (state.all == 0)
@@ -123,39 +169,79 @@ void DrawMenu(buttons_t state) {
     }
 
     dogm128_fill_rect(0, 64 - 7, 128, 7, DISP_COL_WHITE);
-    dogm128_text(1, 64 - 8, "resume");
-    dogm128_text(127 - 20, 64 - 8, "reset");
+    dogm128_hline(0, 64 - 7, 128, DISP_COL_BLACK);
+    dogm128_text(1, 64 - 5, "resume");
+    dogm128_text(127 - 20, 64 - 5, "reset");
+    dogm128_text(30, 64 - 5, "fps");
+    if (showFPS) {
+        dogm128_text(64 - 10, 64 - 5, "level");
+        dogm128_text(90 - 8, 64 - 5, "item");
+    }
 
     if (menuOpen == 2) {
-        if (state.back) menuOpen = 0;
+        if (state.back && !disallow_resume) menuOpen = 0;
         if (state.right) {
             WDTCONbits.SWDTEN = 1;
             while (1);
         }
+        if (state.front) {
+            showFPS = !showFPS;
+            menuOpen = 0;
+        }
+        if (showFPS) {
+            if (state.use) {
+                currentLevelNum++;
+                if (currentLevelNum > 3)
+                    currentLevelNum = 0;
+                ChangeLevel(currentLevelNum);
+                menuOpen = 0;
+            }
+            if (state.left) {
+                camera.currentItem++;
+                if (camera.currentItem >= ITEM_COUNT) camera.currentItem = ITEM_HAND;
+                menuOpen = 0;
+            }
+        }
     }
 }
 
-static millis_t PMill = 0;
-player_t camera;
-buttons_t buttons = {0};
-static entity_t entities[MAX_ENTITIES];
-map_t *CurrentMap = &WallDemoMap;
-dialogue_t *CurrentDialogue = NULL;
-millis_t usePMill = 0;
+void FlashScreen() {
+    for (uint8_t i = 0; i < 16; i++) {
+        dogm128_invert();
+        dogm128_refresh();
+        Backlight(i & 1 ? backlightVal : 0);
+        __delay_ms(80);
+    }
+}
 
 static void OnMapEvent(uint8_t param1, uint8_t param2) {
-    // param1 = eventNum (tile & 0x0F), param2 = stepOn
-    (void) param1;
-    (void) param2;
+    if (param1 == 0 && param2 == 1) { // stepped on teleportation tile in Level0
+        FlashScreen();
+        ChangeLevel(1);
+    }
+
+    if (param1 == 1 && param2 == 1) { // stepped on teleportation tile in Level1
+        FlashScreen();
+        ChangeLevel(2);
+    }
+
+    if (param1 == 2 && param2 == 1) { // stepped on teleportation tile in Level1
+        FlashScreen();
+        ChangeLevel(3);
+    }
+
+    if (param1 == 3 && param2 == 1) {
+        menuOpen = 100;
+    }
 }
 
 void main(void) {
-    WDTCONbits.SWDTEN = 0;   // disable WDT
+    WDTCONbits.SWDTEN = 0; // disable WDT
     init_ports();
     initDisplay();
     pwm_ccp1_init();
     dogm128_init();
-    Backlight(1023);
+    Backlight(backlightVal);
     set_LEDs(0x00);
     MapEventCallback = OnMapEvent;
 
@@ -172,107 +258,14 @@ void main(void) {
     }
 
     camera.health = 5;
-    camera.kills = 69;
+    camera.kills = 0;
 
     char buf[10];
-
-    entities[0].posX = FX(5);
-    entities[0].posY = FX(5);
-    entities[0].health = 100;
-    entities[0].sprite = &blobSprite;
-    entities[0].ratio = 0x00c0;
-    entities[0].heightOffset = FX(1);
-    entities[0].walking = 1;
-    entities[0].movementModifier = FX(1);
-    entities[0].lateralModifier = FX(1);
-    entities[0].hitDistance = FX(3);
-
-    entities[1].posX = FX(8);
-    entities[1].posY = FX(8);
-    entities[1].health = 100;
-    entities[1].sprite = &ctyrruckaSprite;
-    entities[1].ratio = FX(1);
-    entities[1].heightOffset = FX(0);
-    entities[1].walking = 1;
-    entities[1].movementModifier = FX(2); // 1.5625
-    entities[1].lateralModifier = FX(1);
-    entities[1].hitDistance = FX(4);
-
-    entities[2].posX = FX(3);
-    entities[2].posY = FX(3);
-    entities[2].health = 100;
-    entities[2].sprite = &chapadloSprite;
-    entities[2].ratio = 0X00C0;
-    entities[2].heightOffset = FX(0);
-    entities[2].walking = 1;
-    entities[2].movementModifier = 0X01C0;
-    entities[2].lateralModifier = FX(1);
-    entities[2].hitDistance = FX(6);
-
-    entities[3].posX = FX(6);
-    entities[3].posY = FX(2);
-    entities[3].health = 100;
-    entities[3].sprite = &soilderSprite;
-    entities[3].ratio = 0X0120;
-    entities[3].heightOffset = FX(0);
-    entities[3].walking = 1;
-    entities[3].movementModifier = FX(3);
-    entities[3].lateralModifier = FX(1);
-    entities[3].hitDistance = FX(20);
-
-    entities[4].posX = FX(7);
-    entities[4].posY = FX(9);
-    entities[4].health = 100;
-    entities[4].sprite = &ctyrruckaSprite;
-    entities[4].ratio = FX(1);
-    entities[4].heightOffset = FX(0);
-    entities[4].walking = 0;
-    /*
-        entities[5].posX = FX(18);
-        entities[5].posY = FX(1);
-        entities[5].health = 100;
-        entities[5].sprite = &soilderSprite;
-        entities[5].ratio = FX(1);
-        entities[5].heightOffset = FX(0);
-        entities[5].walking = 0;
-
-        entities[6].posX = FX(1);
-        entities[6].posY = FX(14);
-        entities[6].health = 100;
-        entities[6].sprite = &blobSprite;
-        entities[6].ratio = FX(1);
-        entities[6].heightOffset = FX(0);
-        entities[6].walking = 0;
-
-        entities[7].posX = FX(9);
-        entities[7].posY = FX(10);
-        entities[7].health = 100;
-        entities[7].sprite = &chapadloSprite;
-        entities[7].ratio = FX(1);
-        entities[7].heightOffset = FX(0);
-        entities[7].walking = 0;
-
-        entities[8].posX = FX(10);
-        entities[8].posY = FX(16);
-        entities[8].health = 100;
-        entities[8].sprite = &chapadloSprite;
-        entities[8].ratio = FX(1);
-        entities[8].heightOffset = FX(0);
-        entities[8].walking = 0;
-
-        entities[9].posX = FX(6);
-        entities[9].posY = FX(7);
-        entities[9].health = 100;
-        entities[9].sprite = &chapadloSprite;
-        entities[9].ratio = FX(1);
-        entities[9].heightOffset = FX(0);
-        entities[9].walking = 0;
-     */
 
     while (1) {
         static millis_t PMill = 0;
         static millis_t frame_length = 0;
-        static uint8_t prevFrames = 0;
+        static _Bool damage_flash_active = 0;
         PMill = millis;
         buttons = read_buttons();
 
@@ -281,16 +274,20 @@ void main(void) {
             dogm128_clear();
             MoveCamera(&camera, CurrentMap, buttons, &CurrentDialogue, prevMenu);
             RenderFrame(&camera, CurrentMap);
-            DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons);
-            EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
+            if (CurrentMap != &Level0Map && CurrentMap != &Level1Map) {
+                DrawEntities(&camera, entities, MAX_ENTITIES, dogm_fb, buttons, CurrentMap);
+                EnemyAi(&camera, entities, MAX_ENTITIES, CurrentMap, prevMenu);
+            }
 
-            HUD_DrawBanner(CurrentMap->Banner);
             HUD_DrawBorders();
             HUD_DrawItem(camera.currentItem);
             HUD_DrawMap(CurrentMap, &camera);
-            HUD_DrawCompass(&camera);
-            HUD_DrawStats(&camera);
-            HUD_DrawItemPOV(&camera, usePMill + 200 > millis);
+            HUD_DrawCompass(camera.angle, camera.dirX, camera.dirY);
+            if (CurrentMap != &Level0Map) {
+                HUD_DrawBanner(CurrentMap->Banner);
+                HUD_DrawStats(camera.health, camera.kills);
+                HUD_DrawItemPOV(camera.currentItem, usePMill + 200 > millis);
+            }
 
             static _Bool prevUse = 0;
             _Bool usePressed = buttons.use && !prevUse;
@@ -302,22 +299,52 @@ void main(void) {
                 // use button available for future interactions
                 usePMill = millis;
             }
-            prevMenu = 0;
-        } else prevMenu = 1;
 
-        DrawMenu(buttons);
+            if (camera.health == 0) {
+                dogm128_fill_rect((96 / 2) - 25, (64 / 2) - 10, 50, 20, DISP_COL_WHITE);
+                dogm128_text((96 / 2) - 6, (57 / 2) - 2, "RIP");
+                menuOpen = 1;
+            }
+            prevMenu = 0;
+        }
+
+        if (menuOpen != 0) prevMenu = 1;
+
+        if (menuOpen == 100) {
+            dogm128_fill_rect(0, 9, 96, 55, DISP_COL_WHITE);
+            dogm128_refresh();
+            __delay_ms(2500);
+            __delay_ms(2500);
+            dogm128_text((96 / 2) - 20, (57 / 2) - 2, "YOU JUMPED");
+            dogm128_refresh();
+            __delay_ms(500);
+            menuOpen = 101;
+        }
+        if (menuOpen == 101) {
+            dogm128_pixel(rand16() % 128, rand16() % 64, DISP_COL_BLACK);
+            __delay_ms(60);
+        }
+
+        DrawMenu(buttons, camera.health == 0);
 
 
         // display FPS in the corner for testing
-        frame_length = millis - PMill;
-        utoa_mine(1000 / frame_length, buf, 0);
-        dogm128_text(0, 0, buf);
+        if (showFPS) {
+            frame_length = millis - PMill;
+            utoa_mine(1000 / frame_length, buf, 0);
+            dogm128_text(0, 0, buf);
+        }
 
-        utoa_mine(FX_I(entities[0].lateralModifier), buf, 0);
-        dogm128_text(0, 6, buf);
+        _Bool should_flash_damage = (int32_t)(damageFlashUntilMs - millis) > 0;
+        if (should_flash_damage != damage_flash_active) {
+            dogm128_contrast(should_flash_damage ? 0x30 : 0x8F);
+            damage_flash_active = should_flash_damage;
+        }
 
         dogm128_refresh();
-        set_LEDs(HUD_GetLEDHP(&camera));
+        set_LEDs(HUD_GetLEDHP(camera.health));
+        if (backlightVal < 1023) backlightVal += 0xF;
+        Backlight(backlightVal);
     }
 }
 

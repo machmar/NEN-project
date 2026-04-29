@@ -70,7 +70,6 @@ build/default/production/fx8.p1.d
 *.log
 /dist
 cmake/
-.vscode/
 _build/
 out/
 /.ca

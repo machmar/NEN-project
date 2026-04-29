@@ -10,7 +10,8 @@
           "mode": "color",
           "color": "#ffffff",
           "emoji": "",
-          "description": "No wall"
+          "description": "Level1: What the fuck, Where am I",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -18,7 +19,8 @@
           "mode": "color",
           "color": "#000000",
           "emoji": "",
-          "description": "Wall variant"
+          "description": "Level1: This place makes no sense, what the hell, is this like a maze?",
+          "wallExport": true
         },
         {
           "id": 2,
@@ -26,7 +28,8 @@
           "mode": "color",
           "color": "#686868",
           "emoji": "",
-          "description": "it has a bit missing from the top and bottom"
+          "description": "Level1: I really hope I won't have to use that knife",
+          "wallExport": true
         },
         {
           "id": 3,
@@ -34,7 +37,8 @@
           "mode": "color",
           "color": "#3f3f3f",
           "emoji": "",
-          "description": "it has a bit missing from the top"
+          "description": "Level1: Hey there are stairs there!",
+          "wallExport": true
         },
         {
           "id": 4,
@@ -42,7 +46,8 @@
           "mode": "color",
           "color": "#921da3",
           "emoji": "",
-          "description": "It has a small bit missing from the bottom"
+          "description": "Level1: I'm fucking lost",
+          "wallExport": true
         },
         {
           "id": 5,
@@ -50,7 +55,8 @@
           "mode": "color",
           "color": "#52167e",
           "emoji": "",
-          "description": "top half is missing"
+          "description": "top half is missing",
+          "wallExport": true
         },
         {
           "id": 6,
@@ -58,7 +64,8 @@
           "mode": "color",
           "color": "#491eae",
           "emoji": "",
-          "description": "A door, can't walk through it, just looks like it."
+          "description": "A door, can't walk through it, just looks like it.",
+          "wallExport": true
         },
         {
           "id": 7,
@@ -66,7 +73,8 @@
           "mode": "color",
           "color": "#1e1b98",
           "emoji": "",
-          "description": "Like the door, but it has pixels at the bottom, not at the top"
+          "description": "Like the door, but it has pixels at the bottom, not at the top",
+          "wallExport": true
         },
         {
           "id": 8,
@@ -74,7 +82,8 @@
           "mode": "color",
           "color": "#3c67dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 9,
@@ -82,7 +91,8 @@
           "mode": "color",
           "color": "#3c94dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 10,
@@ -90,7 +100,8 @@
           "mode": "color",
           "color": "#3cc2dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 11,
@@ -98,7 +109,8 @@
           "mode": "color",
           "color": "#3cddca",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 12,
@@ -106,7 +118,8 @@
           "mode": "color",
           "color": "#3cdd9c",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 13,
@@ -114,7 +127,8 @@
           "mode": "color",
           "color": "#3cdd6f",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 14,
@@ -122,7 +136,8 @@
           "mode": "color",
           "color": "#1c9d1f",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 15,
@@ -130,7 +145,8 @@
           "mode": "color",
           "color": "#2d7614",
           "emoji": "",
-          "description": "no wall for now"
+          "description": "no wall for now",
+          "wallExport": true
         }
       ]
     },
@@ -144,7 +160,8 @@
           "mode": "color",
           "color": "#64dd3c",
           "emoji": "",
-          "description": "Looks the same as normal door, but collision detection ignores it."
+          "description": "Looks the same as normal door, but collision detection ignores it.",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -152,7 +169,8 @@
           "mode": "color",
           "color": "#999999",
           "emoji": "",
-          "description": "it has a bit missing from the top and bottom"
+          "description": "it has a bit missing from the top and bottom",
+          "wallExport": true
         },
         {
           "id": 2,
@@ -160,7 +178,8 @@
           "mode": "color",
           "color": "#666666",
           "emoji": "",
-          "description": "it has a bit missing from the top"
+          "description": "it has a bit missing from the top",
+          "wallExport": true
         },
         {
           "id": 3,
@@ -168,7 +187,8 @@
           "mode": "color",
           "color": "#c73cdd",
           "emoji": "",
-          "description": "It has a small bit missing from the bottom"
+          "description": "It has a small bit missing from the bottom",
+          "wallExport": true
         },
         {
           "id": 4,
@@ -176,7 +196,8 @@
           "mode": "color",
           "color": "#9a3cdd",
           "emoji": "",
-          "description": "top half is missing"
+          "description": "top half is missing",
+          "wallExport": true
         },
         {
           "id": 5,
@@ -184,7 +205,8 @@
           "mode": "color",
           "color": "#6c3cdd",
           "emoji": "",
-          "description": "A door, can't walk through it, just looks like it."
+          "description": "A door, can't walk through it, just looks like it.",
+          "wallExport": true
         },
         {
           "id": 6,
@@ -192,7 +214,8 @@
           "mode": "color",
           "color": "#3f3cdd",
           "emoji": "",
-          "description": "Like the door, but it has pixels at the bottom, not at the top"
+          "description": "Like the door, but it has pixels at the bottom, not at the top",
+          "wallExport": true
         },
         {
           "id": 7,
@@ -200,7 +223,8 @@
           "mode": "color",
           "color": "#3c67dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 8,
@@ -208,7 +232,8 @@
           "mode": "color",
           "color": "#3c94dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 9,
@@ -216,7 +241,8 @@
           "mode": "color",
           "color": "#3cc2dd",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 10,
@@ -224,7 +250,8 @@
           "mode": "color",
           "color": "#3cddca",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 11,
@@ -232,7 +259,8 @@
           "mode": "color",
           "color": "#3cdd9c",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 12,
@@ -240,7 +268,8 @@
           "mode": "color",
           "color": "#3cdd6f",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 13,
@@ -248,7 +277,8 @@
           "mode": "color",
           "color": "#3cdd41",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 14,
@@ -256,7 +286,8 @@
           "mode": "color",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         },
         {
           "id": 15,
@@ -264,7 +295,8 @@
           "mode": "color",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": true
         }
       ]
     },
@@ -278,7 +310,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "📍",
-          "description": "tady se objevis"
+          "description": "tady se objevis",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -322,7 +355,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🟣",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -330,7 +364,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🟠",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -338,7 +373,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⚪",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -346,7 +382,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⚫",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -354,7 +391,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⭐",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -362,7 +400,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🚪",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -370,7 +409,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🏁",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -378,7 +418,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "📍",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -386,7 +427,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⬆️",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -394,7 +436,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⬇️",
-          "description": "Spawn/marker slot"
+          "description": "Spawn/marker slot",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -402,7 +445,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "⏺️",
-          "description": "posle na dalsi mapu"
+          "description": "posle na dalsi mapu",
+          "wallExport": false
         }
       ]
     },
@@ -416,7 +460,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🔪",
-          "description": "tady lezi nuz"
+          "description": "tady lezi nuz",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -429,11 +474,12 @@
         },
         {
           "id": 2,
-          "name": "Item 2",
+          "name": "Heal",
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "❤️",
-          "description": "Item slot"
+          "description": "Heals the player",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -441,7 +487,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "💎",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -449,7 +496,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🪙",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -457,7 +505,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🔋",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -465,7 +514,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "💣",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -473,7 +523,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🧪",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -481,7 +532,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "📦",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -489,7 +541,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🗝️",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -497,7 +550,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🧰",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -505,7 +559,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🧿",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -513,7 +568,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🍖",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -521,7 +577,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🛢️",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -529,15 +586,17 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "🔮",
-          "description": "Item slot"
+          "description": "Item slot",
+          "wallExport": false
         },
         {
           "id": 15,
-          "name": "Item 15",
+          "name": "NextMap",
           "mode": "emoji",
           "color": "#ffffff",
-          "emoji": "🧲",
-          "description": "Item slot"
+          "emoji": "➡️",
+          "description": "Teleports to the next map",
+          "wallExport": false
         }
       ]
     },
@@ -547,59 +606,66 @@
       "kinds": [
         {
           "id": 0,
-          "name": "Unused",
+          "name": "Dialogue1",
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "Level0: Like I ever expected anything different.\nLevel1: What the fuck, Where am I\nLevel2: Shit, what the fuck is that\nLevel3: What is that sound, Like an army marching somehwre",
+          "wallExport": false
         },
         {
           "id": 1,
-          "name": "Kind 1",
+          "name": "Dialogue2",
           "mode": "color",
           "color": "#b43cdd",
           "emoji": "•",
-          "description": ""
+          "description": "Level0: How is there nothing past those windows\nLevel1: This place makes no sense, is this like a maze or some shit?\nLevel2: There are more of these thingsss, Fuck Me\nLevel3: Oh fuck, it is an army",
+          "wallExport": false
         },
         {
           "id": 2,
-          "name": "Kind 2",
+          "name": "Dialogue3",
           "mode": "color",
           "color": "#ddb73c",
           "emoji": "•",
-          "description": ""
+          "description": "Level0: Guess I'll just walk back and forth like a mad man again. I might as well be mad at this point.\nLevel1: I really hope I won't have to use that knife\nLevel2: This knife fucking sucks\nLevel3: Gotta move quick so they don't catch up",
+          "wallExport": false
         },
         {
           "id": 3,
-          "name": "Kind 3",
+          "name": "Dialogue4",
           "mode": "color",
           "color": "#3cddba",
           "emoji": "•",
-          "description": ""
+          "description": "Level0: They sure do like these big ass windows tho, Fuckin 15 windows in a two room box. Bizzare\nLevel1: Hey there are stairs there!\nLevel2: Thank fuck, stairs\nLevel3: shit, I think I might have to jump",
+          "wallExport": false
         },
         {
           "id": 4,
-          "name": "Greeting",
+          "name": "Dialogue5",
           "mode": "emoji",
           "color": "#bc3cdd",
           "emoji": "👋",
-          "description": "Greeting dialogue line"
+          "description": "Level0: Tf is with that wall, that wasn't here before.\nLevel1: I'm fucking lost",
+          "wallExport": false
         },
         {
           "id": 5,
-          "name": "Question",
+          "name": "Dialogue6",
           "mode": "emoji",
           "color": "#ddbf3c",
           "emoji": "❓",
-          "description": "Question dialogue line"
+          "description": "Level0: It has a chunk missing from the top and bottom? How is it even attached, it really looks like it's floating. Oh what, it is floating. It's deattached on the sides somehow.",
+          "wallExport": false
         },
         {
           "id": 6,
-          "name": "Answer",
+          "name": "Dialogue7",
           "mode": "emoji",
           "color": "#3cddc2",
           "emoji": "💬",
-          "description": "Answer dialogue line"
+          "description": "Level0: I should go check that wall out",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -607,7 +673,8 @@
           "mode": "emoji",
           "color": "#c43cdd",
           "emoji": "🫡",
-          "description": "Farewell dialogue line"
+          "description": "Farewell dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -615,7 +682,8 @@
           "mode": "emoji",
           "color": "#ddc73c",
           "emoji": "⚠️",
-          "description": "Warning dialogue line"
+          "description": "Warning dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -623,7 +691,8 @@
           "mode": "emoji",
           "color": "#3cddca",
           "emoji": "😤",
-          "description": "Threat dialogue line"
+          "description": "Threat dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -631,7 +700,8 @@
           "mode": "emoji",
           "color": "#cd3cdd",
           "emoji": "🙏",
-          "description": "Beg dialogue line"
+          "description": "Beg dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -639,7 +709,8 @@
           "mode": "emoji",
           "color": "#ddcf3c",
           "emoji": "😜",
-          "description": "Taunt dialogue line"
+          "description": "Taunt dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -647,7 +718,8 @@
           "mode": "emoji",
           "color": "#3cddd2",
           "emoji": "🤫",
-          "description": "Whisper dialogue line"
+          "description": "Whisper dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -655,7 +727,8 @@
           "mode": "emoji",
           "color": "#d53cdd",
           "emoji": "📢",
-          "description": "Shout dialogue line"
+          "description": "Shout dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -663,7 +736,8 @@
           "mode": "emoji",
           "color": "#ddd73c",
           "emoji": "🤐",
-          "description": "Silence dialogue line"
+          "description": "Silence dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -671,7 +745,8 @@
           "mode": "color",
           "color": "#3cddda",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -685,7 +760,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -693,7 +769,8 @@
           "mode": "emoji",
           "color": "#ddd23c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -701,7 +778,8 @@
           "mode": "emoji",
           "color": "#3cddd5",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -709,7 +787,8 @@
           "mode": "emoji",
           "color": "#d73cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -717,7 +796,8 @@
           "mode": "emoji",
           "color": "#ddda3c",
           "emoji": "📜",
-          "description": "Quest Give dialogue line"
+          "description": "Quest Give dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -725,7 +805,8 @@
           "mode": "emoji",
           "color": "#3cdddd",
           "emoji": "✅",
-          "description": "Quest Done dialogue line"
+          "description": "Quest Done dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -733,7 +814,8 @@
           "mode": "emoji",
           "color": "#dd3cda",
           "emoji": "❌",
-          "description": "Quest Fail dialogue line"
+          "description": "Quest Fail dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -741,7 +823,8 @@
           "mode": "emoji",
           "color": "#d7dd3c",
           "emoji": "🛒",
-          "description": "Shop Open dialogue line"
+          "description": "Shop Open dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -749,7 +832,8 @@
           "mode": "emoji",
           "color": "#3cd5dd",
           "emoji": "🏪",
-          "description": "Shop Bye dialogue line"
+          "description": "Shop Bye dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -757,7 +841,8 @@
           "mode": "emoji",
           "color": "#dd3cd2",
           "emoji": "👂",
-          "description": "Rumour dialogue line"
+          "description": "Rumour dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -765,7 +850,8 @@
           "mode": "emoji",
           "color": "#cfdd3c",
           "emoji": "📖",
-          "description": "Lore dialogue line"
+          "description": "Lore dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -773,7 +859,8 @@
           "mode": "emoji",
           "color": "#3ccddd",
           "emoji": "😂",
-          "description": "Joke dialogue line"
+          "description": "Joke dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -781,7 +868,8 @@
           "mode": "emoji",
           "color": "#dd3cca",
           "emoji": "🧩",
-          "description": "Riddle dialogue line"
+          "description": "Riddle dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -789,7 +877,8 @@
           "mode": "emoji",
           "color": "#c7dd3c",
           "emoji": "💡",
-          "description": "Hint dialogue line"
+          "description": "Hint dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -797,7 +886,8 @@
           "mode": "emoji",
           "color": "#3cc4dd",
           "emoji": "📚",
-          "description": "Story dialogue line"
+          "description": "Story dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -805,7 +895,8 @@
           "mode": "emoji",
           "color": "#dd3cc2",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -819,7 +910,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -827,7 +919,8 @@
           "mode": "color",
           "color": "#3ccadd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -835,7 +928,8 @@
           "mode": "color",
           "color": "#dd3cc7",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -843,7 +937,8 @@
           "mode": "color",
           "color": "#c4dd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -851,7 +946,8 @@
           "mode": "emoji",
           "color": "#3cc2dd",
           "emoji": "⚔️",
-          "description": "Battle Cry dialogue line"
+          "description": "Battle Cry dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -859,7 +955,8 @@
           "mode": "emoji",
           "color": "#dd3cbf",
           "emoji": "🏳️",
-          "description": "Surrender dialogue line"
+          "description": "Surrender dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -867,7 +964,8 @@
           "mode": "emoji",
           "color": "#bcdd3c",
           "emoji": "👊",
-          "description": "Taunt dialogue line"
+          "description": "Taunt dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -875,7 +973,8 @@
           "mode": "emoji",
           "color": "#3cbadd",
           "emoji": "🏆",
-          "description": "Victory dialogue line"
+          "description": "Victory dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -883,7 +982,8 @@
           "mode": "emoji",
           "color": "#dd3cb7",
           "emoji": "💀",
-          "description": "Defeat dialogue line"
+          "description": "Defeat dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -891,7 +991,8 @@
           "mode": "emoji",
           "color": "#b4dd3c",
           "emoji": "🔥",
-          "description": "Rally dialogue line"
+          "description": "Rally dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -899,7 +1000,8 @@
           "mode": "emoji",
           "color": "#3cb2dd",
           "emoji": "🤬",
-          "description": "Curse dialogue line"
+          "description": "Curse dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -907,7 +1009,8 @@
           "mode": "emoji",
           "color": "#dd3caf",
           "emoji": "🕊️",
-          "description": "Mercy dialogue line"
+          "description": "Mercy dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -915,7 +1018,8 @@
           "mode": "emoji",
           "color": "#acdd3c",
           "emoji": "🗡️",
-          "description": "Challenge dialogue line"
+          "description": "Challenge dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -923,7 +1027,8 @@
           "mode": "emoji",
           "color": "#3caadd",
           "emoji": "😎",
-          "description": "Boast dialogue line"
+          "description": "Boast dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -931,7 +1036,8 @@
           "mode": "emoji",
           "color": "#dd3ca7",
           "emoji": "😣",
-          "description": "Pain dialogue line"
+          "description": "Pain dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -939,7 +1045,8 @@
           "mode": "color",
           "color": "#a4dd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -953,7 +1060,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -961,7 +1069,8 @@
           "mode": "emoji",
           "color": "#dd3cac",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -969,7 +1078,8 @@
           "mode": "emoji",
           "color": "#aadd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -977,7 +1087,8 @@
           "mode": "emoji",
           "color": "#3ca7dd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -985,7 +1096,8 @@
           "mode": "emoji",
           "color": "#dd3ca4",
           "emoji": "😄",
-          "description": "Happy dialogue line"
+          "description": "Happy dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -993,7 +1105,8 @@
           "mode": "emoji",
           "color": "#a2dd3c",
           "emoji": "😢",
-          "description": "Sad dialogue line"
+          "description": "Sad dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1001,7 +1114,8 @@
           "mode": "emoji",
           "color": "#3c9fdd",
           "emoji": "😡",
-          "description": "Angry dialogue line"
+          "description": "Angry dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1009,7 +1123,8 @@
           "mode": "emoji",
           "color": "#dd3c9c",
           "emoji": "😨",
-          "description": "Scared dialogue line"
+          "description": "Scared dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1017,7 +1132,8 @@
           "mode": "emoji",
           "color": "#9add3c",
           "emoji": "😲",
-          "description": "Surprised dialogue line"
+          "description": "Surprised dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1025,7 +1141,8 @@
           "mode": "emoji",
           "color": "#3c97dd",
           "emoji": "🤢",
-          "description": "Disgusted dialogue line"
+          "description": "Disgusted dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1033,7 +1150,8 @@
           "mode": "emoji",
           "color": "#dd3c94",
           "emoji": "😕",
-          "description": "Confused dialogue line"
+          "description": "Confused dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1041,7 +1159,8 @@
           "mode": "emoji",
           "color": "#92dd3c",
           "emoji": "🤩",
-          "description": "Excited dialogue line"
+          "description": "Excited dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1049,7 +1168,8 @@
           "mode": "emoji",
           "color": "#3c8fdd",
           "emoji": "😑",
-          "description": "Bored dialogue line"
+          "description": "Bored dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1057,7 +1177,8 @@
           "mode": "emoji",
           "color": "#dd3c8c",
           "emoji": "😰",
-          "description": "Nervous dialogue line"
+          "description": "Nervous dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1065,7 +1186,8 @@
           "mode": "emoji",
           "color": "#8add3c",
           "emoji": "😌",
-          "description": "Relieved dialogue line"
+          "description": "Relieved dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1073,7 +1195,8 @@
           "mode": "emoji",
           "color": "#3c87dd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1087,7 +1210,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1095,7 +1219,8 @@
           "mode": "color",
           "color": "#8fdd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1103,7 +1228,8 @@
           "mode": "color",
           "color": "#3c8cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1111,7 +1237,8 @@
           "mode": "color",
           "color": "#dd3c8a",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1119,7 +1246,8 @@
           "mode": "emoji",
           "color": "#87dd3c",
           "emoji": "🤝",
-          "description": "Welcome dialogue line"
+          "description": "Welcome dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1127,7 +1255,8 @@
           "mode": "emoji",
           "color": "#3c84dd",
           "emoji": "💰",
-          "description": "Sell dialogue line"
+          "description": "Sell dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1135,7 +1264,8 @@
           "mode": "emoji",
           "color": "#dd3c82",
           "emoji": "💸",
-          "description": "Buy dialogue line"
+          "description": "Buy dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1143,7 +1273,8 @@
           "mode": "emoji",
           "color": "#7fdd3c",
           "emoji": "🪙",
-          "description": "Haggle dialogue line"
+          "description": "Haggle dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1151,7 +1282,8 @@
           "mode": "emoji",
           "color": "#3c7cdd",
           "emoji": "🚫",
-          "description": "No Deal dialogue line"
+          "description": "No Deal dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1159,7 +1291,8 @@
           "mode": "emoji",
           "color": "#dd3c7a",
           "emoji": "🌟",
-          "description": "Special Offer dialogue line"
+          "description": "Special Offer dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1167,7 +1300,8 @@
           "mode": "emoji",
           "color": "#77dd3c",
           "emoji": "📭",
-          "description": "Out of Stock dialogue line"
+          "description": "Out of Stock dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1175,7 +1309,8 @@
           "mode": "emoji",
           "color": "#3c74dd",
           "emoji": "📬",
-          "description": "Restock dialogue line"
+          "description": "Restock dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1183,7 +1318,8 @@
           "mode": "emoji",
           "color": "#dd3c71",
           "emoji": "💎",
-          "description": "Rare Item dialogue line"
+          "description": "Rare Item dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1191,7 +1327,8 @@
           "mode": "emoji",
           "color": "#6fdd3c",
           "emoji": "🏷️",
-          "description": "Discount dialogue line"
+          "description": "Discount dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1199,7 +1336,8 @@
           "mode": "emoji",
           "color": "#3c6cdd",
           "emoji": "👜",
-          "description": "Goodbye dialogue line"
+          "description": "Goodbye dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1207,7 +1345,8 @@
           "mode": "color",
           "color": "#dd3c69",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1221,7 +1360,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1229,7 +1369,8 @@
           "mode": "emoji",
           "color": "#3c71dd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1237,7 +1378,8 @@
           "mode": "emoji",
           "color": "#dd3c6f",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1245,7 +1387,8 @@
           "mode": "emoji",
           "color": "#6cdd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1253,7 +1396,8 @@
           "mode": "emoji",
           "color": "#3c69dd",
           "emoji": "✋",
-          "description": "Halt dialogue line"
+          "description": "Halt dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1261,7 +1405,8 @@
           "mode": "emoji",
           "color": "#dd3c67",
           "emoji": "🟢",
-          "description": "Pass dialogue line"
+          "description": "Pass dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1269,7 +1414,8 @@
           "mode": "emoji",
           "color": "#64dd3c",
           "emoji": "🔴",
-          "description": "Deny dialogue line"
+          "description": "Deny dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1277,7 +1423,8 @@
           "mode": "emoji",
           "color": "#3c61dd",
           "emoji": "🚨",
-          "description": "Alarm dialogue line"
+          "description": "Alarm dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1285,7 +1432,8 @@
           "mode": "emoji",
           "color": "#dd3c5f",
           "emoji": "🔦",
-          "description": "Patrol dialogue line"
+          "description": "Patrol dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1293,7 +1441,8 @@
           "mode": "emoji",
           "color": "#5cdd3c",
           "emoji": "🧐",
-          "description": "Suspicion dialogue line"
+          "description": "Suspicion dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1301,7 +1450,8 @@
           "mode": "emoji",
           "color": "#3c59dd",
           "emoji": "⛓️",
-          "description": "Arrest dialogue line"
+          "description": "Arrest dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1309,7 +1459,8 @@
           "mode": "emoji",
           "color": "#dd3c57",
           "emoji": "📋",
-          "description": "Report dialogue line"
+          "description": "Report dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1317,7 +1468,8 @@
           "mode": "emoji",
           "color": "#54dd3c",
           "emoji": "💵",
-          "description": "Bribe dialogue line"
+          "description": "Bribe dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1325,7 +1477,8 @@
           "mode": "emoji",
           "color": "#3c51dd",
           "emoji": "😴",
-          "description": "Off Duty dialogue line"
+          "description": "Off Duty dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1333,7 +1486,8 @@
           "mode": "emoji",
           "color": "#dd3c4f",
           "emoji": "🪖",
-          "description": "On Duty dialogue line"
+          "description": "On Duty dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1341,7 +1495,8 @@
           "mode": "emoji",
           "color": "#4cdd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1355,7 +1510,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1363,7 +1519,8 @@
           "mode": "color",
           "color": "#dd3c54",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1371,7 +1528,8 @@
           "mode": "color",
           "color": "#51dd3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1379,7 +1537,8 @@
           "mode": "color",
           "color": "#3c4fdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1387,7 +1546,8 @@
           "mode": "emoji",
           "color": "#dd3c4c",
           "emoji": "🕹️",
-          "description": "Move dialogue line"
+          "description": "Move dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1395,7 +1555,8 @@
           "mode": "emoji",
           "color": "#49dd3c",
           "emoji": "🗡️",
-          "description": "Attack dialogue line"
+          "description": "Attack dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1403,7 +1564,8 @@
           "mode": "emoji",
           "color": "#3c47dd",
           "emoji": "🛡️",
-          "description": "Defend dialogue line"
+          "description": "Defend dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1411,7 +1573,8 @@
           "mode": "emoji",
           "color": "#dd3c44",
           "emoji": "🖱️",
-          "description": "Interact dialogue line"
+          "description": "Interact dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1419,7 +1582,8 @@
           "mode": "emoji",
           "color": "#41dd3c",
           "emoji": "🎒",
-          "description": "Inventory dialogue line"
+          "description": "Inventory dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1427,7 +1591,8 @@
           "mode": "emoji",
           "color": "#3c3fdd",
           "emoji": "🗺️",
-          "description": "Map dialogue line"
+          "description": "Map dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1435,7 +1600,8 @@
           "mode": "emoji",
           "color": "#dd3c3c",
           "emoji": "💾",
-          "description": "Save dialogue line"
+          "description": "Save dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1443,7 +1609,8 @@
           "mode": "emoji",
           "color": "#3cdd3f",
           "emoji": "🎯",
-          "description": "Objective dialogue line"
+          "description": "Objective dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1451,7 +1618,8 @@
           "mode": "emoji",
           "color": "#413cdd",
           "emoji": "🧠",
-          "description": "Skill dialogue line"
+          "description": "Skill dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1459,7 +1627,8 @@
           "mode": "emoji",
           "color": "#dd443c",
           "emoji": "⌨️",
-          "description": "Shortcut dialogue line"
+          "description": "Shortcut dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1467,7 +1636,8 @@
           "mode": "emoji",
           "color": "#3cdd47",
           "emoji": "🎓",
-          "description": "Complete dialogue line"
+          "description": "Complete dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1475,7 +1645,8 @@
           "mode": "color",
           "color": "#493cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1489,7 +1660,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1497,7 +1669,8 @@
           "mode": "emoji",
           "color": "#3cdd41",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1505,7 +1678,8 @@
           "mode": "emoji",
           "color": "#443cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1513,7 +1687,8 @@
           "mode": "emoji",
           "color": "#dd473c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1521,7 +1696,8 @@
           "mode": "emoji",
           "color": "#3cdd49",
           "emoji": "📡",
-          "description": "Broadcast dialogue line"
+          "description": "Broadcast dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1529,7 +1705,8 @@
           "mode": "emoji",
           "color": "#4c3cdd",
           "emoji": "📥",
-          "description": "Incoming dialogue line"
+          "description": "Incoming dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1537,7 +1714,8 @@
           "mode": "emoji",
           "color": "#dd4f3c",
           "emoji": "📻",
-          "description": "Static dialogue line"
+          "description": "Static dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1545,7 +1723,8 @@
           "mode": "emoji",
           "color": "#3cdd51",
           "emoji": "🔒",
-          "description": "Encrypted dialogue line"
+          "description": "Encrypted dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1553,7 +1732,8 @@
           "mode": "emoji",
           "color": "#543cdd",
           "emoji": "🔓",
-          "description": "Clear dialogue line"
+          "description": "Clear dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1561,7 +1741,8 @@
           "mode": "emoji",
           "color": "#dd573c",
           "emoji": "🆘",
-          "description": "Distress dialogue line"
+          "description": "Distress dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1569,7 +1750,8 @@
           "mode": "emoji",
           "color": "#3cdd59",
           "emoji": "📍",
-          "description": "Coordinates dialogue line"
+          "description": "Coordinates dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1577,7 +1759,8 @@
           "mode": "emoji",
           "color": "#5c3cdd",
           "emoji": "⏸️",
-          "description": "Stand By dialogue line"
+          "description": "Stand By dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1585,7 +1768,8 @@
           "mode": "emoji",
           "color": "#dd5f3c",
           "emoji": "✔️",
-          "description": "Copy That dialogue line"
+          "description": "Copy That dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1593,7 +1777,8 @@
           "mode": "emoji",
           "color": "#3cdd61",
           "emoji": "🚫",
-          "description": "Negative dialogue line"
+          "description": "Negative dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1601,7 +1786,8 @@
           "mode": "emoji",
           "color": "#643cdd",
           "emoji": "📴",
-          "description": "Over & Out dialogue line"
+          "description": "Over & Out dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1609,7 +1795,8 @@
           "mode": "emoji",
           "color": "#dd673c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1623,7 +1810,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1631,7 +1819,8 @@
           "mode": "color",
           "color": "#5f3cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1639,7 +1828,8 @@
           "mode": "color",
           "color": "#dd613c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1647,7 +1837,8 @@
           "mode": "color",
           "color": "#3cdd64",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1655,7 +1846,8 @@
           "mode": "emoji",
           "color": "#673cdd",
           "emoji": "🎭",
-          "description": "Monologue dialogue line"
+          "description": "Monologue dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1663,7 +1855,8 @@
           "mode": "emoji",
           "color": "#dd693c",
           "emoji": "🎬",
-          "description": "Reveal dialogue line"
+          "description": "Reveal dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1671,7 +1864,8 @@
           "mode": "emoji",
           "color": "#3cdd6c",
           "emoji": "⏪",
-          "description": "Flashback dialogue line"
+          "description": "Flashback dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1679,7 +1873,8 @@
           "mode": "emoji",
           "color": "#6f3cdd",
           "emoji": "💭",
-          "description": "Dream dialogue line"
+          "description": "Dream dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1687,7 +1882,8 @@
           "mode": "emoji",
           "color": "#dd713c",
           "emoji": "🤭",
-          "description": "Confession dialogue line"
+          "description": "Confession dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1695,7 +1891,8 @@
           "mode": "emoji",
           "color": "#3cdd74",
           "emoji": "🗡️",
-          "description": "Betrayal dialogue line"
+          "description": "Betrayal dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1703,7 +1900,8 @@
           "mode": "emoji",
           "color": "#773cdd",
           "emoji": "🫂",
-          "description": "Reunion dialogue line"
+          "description": "Reunion dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1711,7 +1909,8 @@
           "mode": "emoji",
           "color": "#dd7a3c",
           "emoji": "⚰️",
-          "description": "Death dialogue line"
+          "description": "Death dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1719,7 +1918,8 @@
           "mode": "emoji",
           "color": "#3cdd7c",
           "emoji": "🍼",
-          "description": "Birth dialogue line"
+          "description": "Birth dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1727,7 +1927,8 @@
           "mode": "emoji",
           "color": "#7f3cdd",
           "emoji": "🔮",
-          "description": "Prophecy dialogue line"
+          "description": "Prophecy dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1735,7 +1936,8 @@
           "mode": "emoji",
           "color": "#dd823c",
           "emoji": "🌅",
-          "description": "Epilogue dialogue line"
+          "description": "Epilogue dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1743,7 +1945,8 @@
           "mode": "color",
           "color": "#3cdd84",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1757,7 +1960,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1765,7 +1969,8 @@
           "mode": "emoji",
           "color": "#dd7c3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1773,7 +1978,8 @@
           "mode": "emoji",
           "color": "#3cdd7f",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1781,7 +1987,8 @@
           "mode": "emoji",
           "color": "#823cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1789,7 +1996,8 @@
           "mode": "emoji",
           "color": "#dd843c",
           "emoji": "🔍",
-          "description": "Clue dialogue line"
+          "description": "Clue dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1797,7 +2005,8 @@
           "mode": "emoji",
           "color": "#3cdd87",
           "emoji": "❌",
-          "description": "Wrong dialogue line"
+          "description": "Wrong dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1805,7 +2014,8 @@
           "mode": "emoji",
           "color": "#8a3cdd",
           "emoji": "✅",
-          "description": "Correct dialogue line"
+          "description": "Correct dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1813,7 +2023,8 @@
           "mode": "emoji",
           "color": "#dd8c3c",
           "emoji": "💡",
-          "description": "Hint dialogue line"
+          "description": "Hint dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1821,7 +2032,8 @@
           "mode": "emoji",
           "color": "#3cdd8f",
           "emoji": "🔄",
-          "description": "Reset dialogue line"
+          "description": "Reset dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1829,7 +2041,8 @@
           "mode": "emoji",
           "color": "#923cdd",
           "emoji": "🔒",
-          "description": "Locked dialogue line"
+          "description": "Locked dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1837,7 +2050,8 @@
           "mode": "emoji",
           "color": "#dd943c",
           "emoji": "🔓",
-          "description": "Unlocked dialogue line"
+          "description": "Unlocked dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1845,7 +2059,8 @@
           "mode": "emoji",
           "color": "#3cdd97",
           "emoji": "🔣",
-          "description": "Cipher dialogue line"
+          "description": "Cipher dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1853,7 +2068,8 @@
           "mode": "emoji",
           "color": "#9a3cdd",
           "emoji": "🔯",
-          "description": "Symbol dialogue line"
+          "description": "Symbol dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1861,7 +2077,8 @@
           "mode": "emoji",
           "color": "#dd9c3c",
           "emoji": "🟦",
-          "description": "Pattern dialogue line"
+          "description": "Pattern dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -1869,7 +2086,8 @@
           "mode": "emoji",
           "color": "#3cdd9f",
           "emoji": "🏅",
-          "description": "Solved dialogue line"
+          "description": "Solved dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -1877,7 +2095,8 @@
           "mode": "emoji",
           "color": "#a23cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -1891,7 +2110,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -1899,7 +2119,8 @@
           "mode": "color",
           "color": "#3cdd9a",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -1907,7 +2128,8 @@
           "mode": "color",
           "color": "#9c3cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -1915,7 +2137,8 @@
           "mode": "color",
           "color": "#dd9f3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -1923,7 +2146,8 @@
           "mode": "emoji",
           "color": "#3cdda2",
           "emoji": "👑",
-          "description": "Intro dialogue line"
+          "description": "Intro dialogue line",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -1931,7 +2155,8 @@
           "mode": "emoji",
           "color": "#a43cdd",
           "emoji": "💢",
-          "description": "Phase 2 dialogue line"
+          "description": "Phase 2 dialogue line",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -1939,7 +2164,8 @@
           "mode": "emoji",
           "color": "#dda73c",
           "emoji": "💥",
-          "description": "Phase 3 dialogue line"
+          "description": "Phase 3 dialogue line",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -1947,7 +2173,8 @@
           "mode": "emoji",
           "color": "#3cddaa",
           "emoji": "😈",
-          "description": "Enrage dialogue line"
+          "description": "Enrage dialogue line",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -1955,7 +2182,8 @@
           "mode": "emoji",
           "color": "#ac3cdd",
           "emoji": "🌀",
-          "description": "Summon dialogue line"
+          "description": "Summon dialogue line",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -1963,7 +2191,8 @@
           "mode": "emoji",
           "color": "#ddaf3c",
           "emoji": "🦹",
-          "description": "Gloat dialogue line"
+          "description": "Gloat dialogue line",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -1971,7 +2200,8 @@
           "mode": "emoji",
           "color": "#3cddb2",
           "emoji": "🩸",
-          "description": "Weak dialogue line"
+          "description": "Weak dialogue line",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -1979,7 +2209,8 @@
           "mode": "emoji",
           "color": "#b43cdd",
           "emoji": "💬",
-          "description": "Final Words dialogue line"
+          "description": "Final Words dialogue line",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -1987,7 +2218,8 @@
           "mode": "emoji",
           "color": "#ddb73c",
           "emoji": "☠️",
-          "description": "Death dialogue line"
+          "description": "Death dialogue line",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -1995,7 +2227,8 @@
           "mode": "emoji",
           "color": "#3cddba",
           "emoji": "🌫️",
-          "description": "Escape dialogue line"
+          "description": "Escape dialogue line",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -2003,7 +2236,8 @@
           "mode": "emoji",
           "color": "#bc3cdd",
           "emoji": "🏴",
-          "description": "Defeated dialogue line"
+          "description": "Defeated dialogue line",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -2011,7 +2245,8 @@
           "mode": "color",
           "color": "#ddbf3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     },
@@ -2025,7 +2260,8 @@
           "mode": "emoji",
           "color": "#ffffff",
           "emoji": "",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 1,
@@ -2033,7 +2269,8 @@
           "mode": "emoji",
           "color": "#b73cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 2,
@@ -2041,7 +2278,8 @@
           "mode": "emoji",
           "color": "#ddba3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 3,
@@ -2049,7 +2287,8 @@
           "mode": "emoji",
           "color": "#3cddbc",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 4,
@@ -2057,7 +2296,8 @@
           "mode": "emoji",
           "color": "#bf3cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 5,
@@ -2065,7 +2305,8 @@
           "mode": "emoji",
           "color": "#ddc23c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 6,
@@ -2073,7 +2314,8 @@
           "mode": "emoji",
           "color": "#3cddc4",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 7,
@@ -2081,7 +2323,8 @@
           "mode": "emoji",
           "color": "#c73cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 8,
@@ -2089,7 +2332,8 @@
           "mode": "emoji",
           "color": "#ddca3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 9,
@@ -2097,7 +2341,8 @@
           "mode": "emoji",
           "color": "#3cddcd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 10,
@@ -2105,7 +2350,8 @@
           "mode": "emoji",
           "color": "#cf3cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 11,
@@ -2113,7 +2359,8 @@
           "mode": "emoji",
           "color": "#ddd23c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 12,
@@ -2121,7 +2368,8 @@
           "mode": "emoji",
           "color": "#3cddd5",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 13,
@@ -2129,7 +2377,8 @@
           "mode": "emoji",
           "color": "#d73cdd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 14,
@@ -2137,7 +2386,8 @@
           "mode": "emoji",
           "color": "#ddda3c",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         },
         {
           "id": 15,
@@ -2145,7 +2395,8 @@
           "mode": "emoji",
           "color": "#3cdddd",
           "emoji": "•",
-          "description": ""
+          "description": "",
+          "wallExport": false
         }
       ]
     }

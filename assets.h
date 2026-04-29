@@ -28,17 +28,18 @@ typedef struct {
     const dogm128_bitmap_t *Banner;
     /* Called when player steps on (stepOn=1) or off (stepOn=0) an event tile (0x30-0x3F).
      * eventNum is the lower nibble of the tile value (0-15). */
-    void (*OnEventTile)(uint8_t eventNum, _Bool stepOn, player_t *player, const dialogue_t **pDialogue);
+    void (*OnEventTile)(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue);
     /* Called only when player steps onto a dialogue tile (0x40-0xEF).
      * pDialogue points to the active dialogue pointer so the callback can set it. */
     void (*OnDialogueTile)(uint8_t tileVal, const dialogue_t **pDialogue);
 } map_t;
 
-extern map_t SmallMap;
-extern map_t BigMap;
-extern map_t TestMap;
-extern map_t AgentOrangeMap;
-extern map_t WallDemoMap;
+extern void Global_OnEventTile(uint8_t eventNum, player_t *player, const dialogue_t **pDialogue);
+
+extern map_t Level0Map;
+extern map_t Level1Map;
+extern map_t Level2Map;
+extern map_t Level3Map;
 
 /* Callback set by main.c; called by map event handlers with two arbitrary parameters. */
 extern void (*MapEventCallback)(uint8_t param1, uint8_t param2);
@@ -54,9 +55,6 @@ struct dialogue_t{
     uint8_t rectangleOrigin[2];
     uint8_t rectangleSize[2];
 };
-
-extern const dialogue_t dialogue_Room1;
-extern const dialogue_t dialogue_Room2;
 
 extern const dogm128_bitmap_t wiggleLineBitmap;
 
@@ -111,7 +109,7 @@ typedef struct
     _Bool lineOfSight;
     _Bool walking;
     fx_t hitDistance;
-    uint8_t hitDelayFrames;
+    uint16_t hitDelayMs;
     spriteData_t *sprite;
     fx_t ratio; // Ratio of width to height (<1 means wider than taller, >1 means taller than wider)
     fx_t heightOffset;  // Vertical offset by the number of pixels (<0 means lower, >0 means higher)
@@ -124,6 +122,15 @@ extern spriteData_t blobSprite;
 extern spriteData_t chapadloSprite;
 extern spriteData_t ctyrruckaSprite;
 extern spriteData_t soilderSprite;
+
+extern entity_t blobTemplate;
+extern entity_t chapadloTemplate;
+extern entity_t ctyrruckaTemplate;
+extern entity_t soilderTemplate;
+
+extern entity_t *enemieTemplates[4];
+
+extern uint16_t backlightVal;
 
 #endif	/* ASSETS_H */
 
